@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-collapsible": "^1.0.2",
     "@radix-ui/react-navigation-menu": "^1.1.2",
+    "@radix-ui/react-scroll-area": "^1.0.3",
     "@types/node": "18.15.3",
     "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",
