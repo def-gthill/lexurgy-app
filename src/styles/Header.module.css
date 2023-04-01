@@ -1,0 +1,18 @@
+.NavigationMenuList {
+  display: flex;
+  background-color: var(--primary);
+  color: var(--foreground-stable);
+  padding: 4px;
+  list-style: none;
+}
+
+.NavigationMenuLink {
+  display: block;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.NavigationMenuLink:hover {
+  background-color: var(--primary-dark);
+}
