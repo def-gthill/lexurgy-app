@@ -9,7 +9,7 @@ export default function WorkspaceNavigation() {
         <ScrollArea.Root className={styles.ScollAreaRoot}>
           <ScrollArea.Viewport className={styles.ScrollAreaViewport}>
             {Array.from({ length: 20 }).map((_, i) => (
-              <div>Thingy-thing {i}</div>
+              <div key={i}>Thingy-thing {i}</div>
             ))}
           </ScrollArea.Viewport>
           <ScrollArea.Scrollbar>
