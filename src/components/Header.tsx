@@ -7,6 +7,11 @@ export default function Header() {
     <NavigationMenu.Root>
       <NavigationMenu.List className={styles.NavigationMenuList}>
         <NavigationMenu.Item>
+          <NavigationMenu.Link className={styles.NavigationMenuLink} href="/">
+            Lexurgy
+          </NavigationMenu.Link>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item>
           <NavigationMenu.Link
             className={styles.NavigationMenuLink}
             href="https://github.com/def-gthill/lexurgy-app"
