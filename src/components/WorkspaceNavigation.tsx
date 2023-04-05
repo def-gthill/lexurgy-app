@@ -2,14 +2,30 @@ import * as Collapsible from "@radix-ui/react-collapsible";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import styles from "@/styles/WorkspaceNavigation.module.css";
 
+import axios from "axios";
+import useSWR from "swr";
+import { Language } from "@/pages/api/language";
+
+const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+
 export default function WorkspaceNavigation() {
+  const { data, error } = useSWR<Language[], Error>("/api/language", fetcher);
+  let workspaceItems;
+  if (data !== undefined) {
+    workspaceItems = data.map((language) => language.name);
+  } else if (error !== undefined) {
+    workspaceItems = ["Error!"];
+    console.log(error);
+  } else {
+    workspaceItems = ["Loading..."];
+  }
   return (
     <Collapsible.Root className={styles.CollapsibleRoot}>
       <Collapsible.Content>
         <ScrollArea.Root className={styles.ScollAreaRoot}>
           <ScrollArea.Viewport className={styles.ScrollAreaViewport}>
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div key={i}>Thingy-thing {i}</div>
+            {workspaceItems.map((item, i) => (
+              <div key={i}>{item}</div>
             ))}
           </ScrollArea.Viewport>
           <ScrollArea.Scrollbar>
