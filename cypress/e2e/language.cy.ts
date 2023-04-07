@@ -22,6 +22,7 @@ describe("a language page", () => {
       cy.get("#text").type("Sha dor.");
       cy.get("#translation").type("The cat is sleeping.");
       cy.contains("Save").click();
+      cy.contains("Sha dor.");
       cy.reload();
       cy.contains("Sha dor.");
     });

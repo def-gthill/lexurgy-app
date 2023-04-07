@@ -5,7 +5,7 @@ import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -16,15 +16,18 @@ export default function LanguageOverview() {
   const [translationEditorTranslation, setTranslationEditorTranslation] =
     useState("");
   const router = useRouter();
-  const { id } = router.query;
+  const id = router.query.id as string;
   const { data: language, error } = useSWR<Language, Error>(
     `/api/language/${id}`,
     fetcher
   );
   const { data } = useSWR<Translation[], Error>(
-    `/api/translation?language=${id}`
+    `/api/translation?language=${id}`,
+    fetcher
   );
   const translations = data || [];
+  const { mutate } = useSWRConfig();
+
   if (error !== undefined) {
     return <div>Language not found</div>;
   } else if (language === undefined) {
@@ -68,6 +71,7 @@ export default function LanguageOverview() {
             <button
               onClick={() =>
                 saveTranslation({
+                  languageId: id,
                   romanized: translationEditorText,
                   translation: translationEditorTranslation,
                 })
@@ -90,10 +94,8 @@ export default function LanguageOverview() {
   );
 
   async function saveTranslation(translation: Translation) {
-    // Send the translation to the database and wait for a reply.
-    //  So should I be posting/patching the *language*?
-    //  Or post a translation with the language ID in the translation object?
-    // If the reply is an error, show an error message and return, letting the user try again.
-    // Otherwise, close the translation editor and revalidate.
+    await axios.post("/api/translation", translation);
+    mutate(`/api/translation?language=${id}`);
+    setShowingTranslationEditor(false);
   }
 }
