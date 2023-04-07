@@ -1,11 +1,8 @@
 import getDriver from "@/db";
+import Language from "@/models/Language";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const driver = getDriver();
-
-export interface Language {
-  name: string;
-}
 
 export default async function handler(
   req: NextApiRequest,
@@ -15,7 +12,8 @@ export default async function handler(
     const session = driver.session();
     try {
       const result = await session.run("MATCH (lang:Language) RETURN lang;");
-      const languages = result.records.map((record) => ({
+      const languages: Language[] = result.records.map((record) => ({
+        id: record.get("lang").properties.id,
         name: record.get("lang").properties.name,
       }));
       res.status(200).json(languages);

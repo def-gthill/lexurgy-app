@@ -1,4 +1,4 @@
-import { Language } from "@/pages/api/language";
+import Language from "@/models/Language";
 import styles from "@/styles/WorkspaceNavigation.module.css";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
