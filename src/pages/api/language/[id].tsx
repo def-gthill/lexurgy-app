@@ -1,13 +1,7 @@
+import getDriver from "@/db";
 import { NextApiRequest, NextApiResponse } from "next";
-import neo4j from "neo4j-driver";
 
-const driver = neo4j.driver(
-  process.env.NEO4J_URL || "",
-  neo4j.auth.basic(
-    process.env.NEO4J_USERNAME || "",
-    process.env.NEO4J_PASSWORD || ""
-  )
-);
+const driver = getDriver();
 
 export interface Language {
   id: string;

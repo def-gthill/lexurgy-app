@@ -1,24 +1,11 @@
-import neo4j from "neo4j-driver";
-import dotenv from "dotenv";
+import { getDriver, query } from "./setup.mjs";
 
-dotenv.config({ path: ".env.local" });
+const examplishUuid = "b1365a98-00d1-4633-8e04-9c48259dd698";
 
-const driver = neo4j.driver(
-  process.env.NEO4J_URL || "",
-  neo4j.auth.basic(
-    process.env.NEO4J_USERNAME || "",
-    process.env.NEO4J_PASSWORD || ""
-  )
-);
-
-const session = driver.session();
-try {
-  const examplishUuid = "b1365a98-00d1-4633-8e04-9c48259dd698";
+const driver = getDriver();
+query(driver, async (session) => {
   await session.run(
     `CREATE (:Language {id: $examplishUuid, name: 'Examplish'})`,
     { examplishUuid }
   );
-} finally {
-  await session.close();
-  driver.close();
-}
+});
