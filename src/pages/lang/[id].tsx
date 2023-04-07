@@ -9,9 +9,6 @@ const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 export default function LanguageOverview() {
   const router = useRouter();
   const { id } = router.query;
-  if (!id) {
-    return <div>Loading language...</div>;
-  }
   const { data: language, error } = useSWR<Language, Error>(
     `/api/language/${id}`,
     fetcher
