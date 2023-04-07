@@ -18,11 +18,11 @@ export default function LanguageOverview() {
   const router = useRouter();
   const id = router.query.id as string;
   const { data: language, error } = useSWR<Language, Error>(
-    `/api/language/${id}`,
+    `/api/languages/${id}`,
     fetcher
   );
   const { data } = useSWR<Translation[], Error>(
-    `/api/translation?language=${id}`,
+    `/api/translations?language=${id}`,
     fetcher
   );
   const translations = data || [];
@@ -94,8 +94,8 @@ export default function LanguageOverview() {
   );
 
   async function saveTranslation(translation: Translation) {
-    await axios.post("/api/translation", translation);
-    mutate(`/api/translation?language=${id}`);
+    await axios.post("/api/translations", translation);
+    mutate(`/api/translations?language=${id}`);
     setShowingTranslationEditor(false);
   }
 }

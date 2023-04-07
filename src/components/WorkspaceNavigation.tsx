@@ -8,7 +8,7 @@ import useSWR from "swr";
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function WorkspaceNavigation() {
-  const { data, error } = useSWR<Language[], Error>("/api/language", fetcher);
+  const { data, error } = useSWR<Language[], Error>("/api/languages", fetcher);
   let workspaceItems;
   if (data !== undefined) {
     workspaceItems = data.map((language) => language.name);
