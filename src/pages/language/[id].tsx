@@ -86,7 +86,7 @@ export default function LanguageOverview() {
             <p>
               <i>{translation.romanized}</i>
             </p>
-            <p>"{translation.translation}"</p>
+            <p>{`"${translation.translation}"`}</p>
           </>
         ))}
       </main>
