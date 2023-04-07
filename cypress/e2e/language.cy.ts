@@ -1,7 +1,7 @@
 describe("a language page", () => {
   const examplishUuid = "b1365a98-00d1-4633-8e04-9c48259dd698";
 
-  before(() => {
+  beforeEach(() => {
     cy.exec("npm run db:reset && npm run db:seed:examplish");
   });
 
@@ -13,6 +13,18 @@ describe("a language page", () => {
   it("displays the language name", () => {
     cy.visit(`/lang/${examplishUuid}`);
     cy.contains("Examplish").should("be.visible");
+  });
+
+  describe("the translation editor", () => {
+    it("lets the user create a simple translation", () => {
+      cy.visit(`/lang/${examplishUuid}`);
+      cy.contains("Add Translation").click();
+      cy.get("#text").type("Sha dor.");
+      cy.get("#translation").type("The cat is sleeping.");
+      cy.contains("Save").click();
+      cy.reload();
+      cy.contains("Sha dor.");
+    });
   });
 });
 

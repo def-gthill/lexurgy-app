@@ -1,12 +1,16 @@
 import { Language } from "@/pages/api/language";
+import * as Label from "@radix-ui/react-label";
 import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import useSWR from "swr";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function LanguageOverview() {
+  const [showingTranslationEditor, setShowingTranslationEditor] =
+    useState(false);
   const router = useRouter();
   const { id } = router.query;
   const { data: language, error } = useSWR<Language, Error>(
@@ -30,7 +34,20 @@ export default function LanguageOverview() {
         <link rel="icon" href="/favicon.png" />
       </Head>
       <main>
-        <div>{language.name}</div>
+        <h1>{language.name}</h1>
+        <h2>Translations</h2>
+        <button onClick={() => setShowingTranslationEditor(true)}>
+          Add Translation
+        </button>
+        {showingTranslationEditor && (
+          <>
+            <Label.Root htmlFor="text">{language.name} Text</Label.Root>
+            <input type="text" id="text"></input>
+            <Label.Root htmlFor="translation">Free Translation</Label.Root>
+            <input type="text" id="translation"></input>
+            <button>Save</button>
+          </>
+        )}
       </main>
     </>
   );
