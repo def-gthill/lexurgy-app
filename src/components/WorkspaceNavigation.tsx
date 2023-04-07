@@ -1,10 +1,9 @@
+import { Language } from "@/pages/api/language";
+import styles from "@/styles/WorkspaceNavigation.module.css";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
-import styles from "@/styles/WorkspaceNavigation.module.css";
-
 import axios from "axios";
 import useSWR from "swr";
-import { Language } from "@/pages/api/language";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
