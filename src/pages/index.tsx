@@ -28,7 +28,9 @@ export default function Home() {
         <h1>My Workspace</h1>
         <h2>Languages</h2>
         {languages.map((language) => (
-          <Link href={`/language/${language.id}`}>{language.name}</Link>
+          <Link key={language.id} href={`/language/${language.id}`}>
+            {language.name}
+          </Link>
         ))}
       </main>
     </>
