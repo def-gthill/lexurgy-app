@@ -5,7 +5,7 @@ import * as Label from "@radix-ui/react-label";
 import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
@@ -73,18 +73,16 @@ export default function LexiconPage() {
               </>
             )}
             {words.map((word) => (
-              <>
+              <Fragment key={word.id}>
                 <p>
                   <b>{word.word}</b> - <i>{word.pos}</i>
                 </p>
                 <ol>
                   {word.definitions.map((definition, i) => (
-                    <>
-                      <li>{definition}</li>
-                    </>
+                    <li key={i}>{definition}</li>
                   ))}
                 </ol>
-              </>
+              </Fragment>
             ))}
           </main>
         </>

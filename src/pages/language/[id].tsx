@@ -5,7 +5,7 @@ import * as Label from "@radix-ui/react-label";
 import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
@@ -76,12 +76,12 @@ export default function LanguageOverview() {
               </>
             )}
             {translations.map((translation) => (
-              <>
+              <Fragment key={translation.id}>
                 <p>
                   <i>{translation.romanized}</i>
                 </p>
                 <p>{`"${translation.translation}"`}</p>
-              </>
+              </Fragment>
             ))}
           </main>
         </>
