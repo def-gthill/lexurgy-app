@@ -78,8 +78,10 @@ export default function LexiconPage() {
                   <b>{word.word}</b> - <i>{word.pos}</i>
                 </p>
                 <ol>
-                  {word.definitions.map((definition) => (
-                    <li>{definition}</li>
+                  {word.definitions.map((definition, i) => (
+                    <>
+                      <li>{definition}</li>
+                    </>
                   ))}
                 </ol>
               </>
