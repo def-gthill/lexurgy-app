@@ -41,8 +41,6 @@ export default function LanguageOverview() {
           name="description"
           content={`"${language.name}, a constructed language"`}
         />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.png" />
       </Head>
       <main>
         <h1>{language.name}</h1>
