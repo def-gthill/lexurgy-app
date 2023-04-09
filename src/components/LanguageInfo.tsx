@@ -16,10 +16,11 @@ export default function LanguageInfo({
     `/api/languages/${id}`,
     fetcher
   );
-  if (error !== undefined) {
+  if (language !== undefined) {
+    return content(language);
+  } else if (error !== undefined) {
     return <div>Language not found</div>;
-  } else if (language === undefined) {
+  } else {
     return <div>Loading language...</div>;
   }
-  return content(language);
 }
