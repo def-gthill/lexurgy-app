@@ -1,7 +1,7 @@
-export default interface Word {
+export default interface Lexeme {
   id?: string;
   languageId?: string;
-  word: string;
+  romanized: string;
   pos: string;
   definitions: string[];
 }

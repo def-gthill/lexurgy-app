@@ -14,7 +14,7 @@ describe("a lexicon page", () => {
   it("lets the user create a lexicon entry", () => {
     cy.visit(`/language/${examplishUuid}/lexicon`);
     cy.contains("Add Entry").click();
-    cy.get("#word").type("sha");
+    cy.get("#romanized").type("sha");
     cy.get("#pos").type("noun");
     cy.get("#definition").type("cat");
     cy.contains("Save").click();

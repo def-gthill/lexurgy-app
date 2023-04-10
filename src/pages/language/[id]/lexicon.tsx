@@ -1,6 +1,6 @@
 import LanguageInfo from "@/components/LanguageInfo";
 import Language from "@/models/Language";
-import Word from "@/models/Word";
+import Lexeme from "@/models/Lexeme";
 import * as Label from "@radix-ui/react-label";
 import axios from "axios";
 import Head from "next/head";
@@ -12,13 +12,16 @@ const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function LexiconPage() {
   const [showingEntryEditor, setShowingEntryEditor] = useState(false);
-  const [entryEditorWord, setEntryEditorWord] = useState("");
+  const [entryEditorRomanized, setEntryEditorRomanized] = useState("");
   const [entryEditorPos, setEntryEditorPos] = useState("");
   const [entryEditorDefinition, setEntryEditorDefinition] = useState("");
   const router = useRouter();
   const id = router.query.id as string;
-  const { data } = useSWR<Word[], Error>(`/api/words?language=${id}`, fetcher);
-  const words = data || [];
+  const { data } = useSWR<Lexeme[], Error>(
+    `/api/lexemes?language=${id}`,
+    fetcher
+  );
+  const lexemes = data || [];
   const { mutate } = useSWRConfig();
   return (
     <LanguageInfo
@@ -38,11 +41,15 @@ export default function LexiconPage() {
             </button>
             {showingEntryEditor && (
               <>
-                <Label.Root htmlFor="word">{language.name} Word</Label.Root>
+                <Label.Root htmlFor="romanized">
+                  {language.name} Word
+                </Label.Root>
                 <input
                   type="text"
-                  id="word"
-                  onChange={(event) => setEntryEditorWord(event.target.value)}
+                  id="romanized"
+                  onChange={(event) =>
+                    setEntryEditorRomanized(event.target.value)
+                  }
                 ></input>
                 <Label.Root htmlFor="pos">Part of Speech</Label.Root>
                 <input
@@ -60,9 +67,9 @@ export default function LexiconPage() {
                 ></input>
                 <button
                   onClick={() =>
-                    saveWord({
+                    saveLexeme({
                       languageId: id,
-                      word: entryEditorWord,
+                      romanized: entryEditorRomanized,
                       pos: entryEditorPos,
                       definitions: [entryEditorDefinition],
                     })
@@ -72,13 +79,13 @@ export default function LexiconPage() {
                 </button>
               </>
             )}
-            {words.map((word) => (
-              <Fragment key={word.id}>
+            {lexemes.map((lexeme) => (
+              <Fragment key={lexeme.id}>
                 <p>
-                  <b>{word.word}</b> - <i>{word.pos}</i>
+                  <b>{lexeme.romanized}</b> - <i>{lexeme.pos}</i>
                 </p>
                 <ol>
-                  {word.definitions.map((definition, i) => (
+                  {lexeme.definitions.map((definition, i) => (
                     <li key={i}>{definition}</li>
                   ))}
                 </ol>
@@ -90,9 +97,9 @@ export default function LexiconPage() {
     />
   );
 
-  async function saveWord(word: Word) {
-    await axios.post("/api/words", word);
-    mutate(`/api/words?language=${id}`);
+  async function saveLexeme(lexeme: Lexeme) {
+    await axios.post("/api/lexemes", lexeme);
+    mutate(`/api/lexemes?language=${id}`);
     setShowingEntryEditor(false);
   }
 }
