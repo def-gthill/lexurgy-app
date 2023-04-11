@@ -1,7 +1,7 @@
 import LanguageInfo from "@/components/LanguageInfo";
+import TranslationEditor from "@/components/TranslationEditor";
 import Language from "@/models/Language";
 import Translation from "@/models/Translation";
-import * as Label from "@radix-ui/react-label";
 import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -13,9 +13,6 @@ const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 export default function LanguageOverview() {
   const [showingTranslationEditor, setShowingTranslationEditor] =
     useState(false);
-  const [translationEditorText, setTranslationEditorText] = useState("");
-  const [translationEditorTranslation, setTranslationEditorTranslation] =
-    useState("");
   const router = useRouter();
   const id = router.query.id as string;
   const { data } = useSWR<Translation[], Error>(
@@ -42,38 +39,12 @@ export default function LanguageOverview() {
             <button onClick={() => setShowingTranslationEditor(true)}>
               Add Translation
             </button>
+            <button>Add Structured Translation</button>
             {showingTranslationEditor && (
-              <>
-                <Label.Root htmlFor="text">{language.name} Text</Label.Root>
-                <input
-                  type="text"
-                  id="text"
-                  onChange={(event) =>
-                    setTranslationEditorText(event.target.value)
-                  }
-                  value={translationEditorText}
-                ></input>
-                <Label.Root htmlFor="translation">Free Translation</Label.Root>
-                <input
-                  type="text"
-                  id="translation"
-                  onChange={(event) =>
-                    setTranslationEditorTranslation(event.target.value)
-                  }
-                  value={translationEditorTranslation}
-                ></input>
-                <button
-                  onClick={() =>
-                    saveTranslation({
-                      languageId: id,
-                      romanized: translationEditorText,
-                      translation: translationEditorTranslation,
-                    })
-                  }
-                >
-                  Save
-                </button>
-              </>
+              <TranslationEditor
+                language={language}
+                saveTranslation={saveTranslation}
+              />
             )}
             {translations.map((translation) => (
               <Fragment key={translation.id}>

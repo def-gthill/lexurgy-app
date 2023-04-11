@@ -22,6 +22,11 @@ describe("a language page", () => {
       cy.reload();
       cy.contains("Sha dor.");
     });
+
+    it("lets the user create a one-node syntax tree", () => {
+      cy.visit(`/language/${examplishUuid}`);
+      cy.contains("Add Structured Translation").click();
+    });
   });
 });
 
