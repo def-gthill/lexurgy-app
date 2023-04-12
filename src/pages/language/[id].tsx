@@ -1,4 +1,5 @@
 import LanguageInfo from "@/components/LanguageInfo";
+import StructuredTranslationEditor from "@/components/StructuredTranslationEditor";
 import TranslationEditor from "@/components/TranslationEditor";
 import Language from "@/models/Language";
 import Translation from "@/models/Translation";
@@ -13,6 +14,10 @@ const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 export default function LanguageOverview() {
   const [showingTranslationEditor, setShowingTranslationEditor] =
     useState(false);
+  const [
+    showingStructuredTranslationEditor,
+    setShowingStructuredTranslationEditor,
+  ] = useState(false);
   const router = useRouter();
   const id = router.query.id as string;
   const { data } = useSWR<Translation[], Error>(
@@ -39,9 +44,17 @@ export default function LanguageOverview() {
             <button onClick={() => setShowingTranslationEditor(true)}>
               Add Translation
             </button>
-            <button>Add Structured Translation</button>
+            <button onClick={() => setShowingStructuredTranslationEditor(true)}>
+              Add Structured Translation
+            </button>
             {showingTranslationEditor && (
               <TranslationEditor
+                language={language}
+                saveTranslation={saveTranslation}
+              />
+            )}
+            {showingStructuredTranslationEditor && (
+              <StructuredTranslationEditor
                 language={language}
                 saveTranslation={saveTranslation}
               />

@@ -26,6 +26,7 @@ describe("a language page", () => {
     it("lets the user create a one-node syntax tree", () => {
       cy.visit(`/language/${examplishUuid}`);
       cy.contains("Add Structured Translation").click();
+      cy.get("#construction").select("Intransitive Clause");
     });
   });
 });

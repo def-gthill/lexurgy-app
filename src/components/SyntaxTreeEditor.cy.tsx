@@ -1,5 +1,4 @@
 import Construction from "@/models/Construction";
-import Language from "@/models/Language";
 import SyntaxNode from "@/models/SyntaxNode";
 import SyntaxTreeEditor from "./SyntaxTreeEditor";
 
@@ -8,9 +7,6 @@ describe("SyntaxTreeEditor", () => {
   const unwantedId = "6bc72dc1-6e25-4f55-acb5-a65678ff71e7";
 
   it("lets the user create a one-node syntax tree", () => {
-    const language: Language = {
-      name: "Examplish",
-    };
     const constructions: Construction[] = [
       {
         id: unwantedId,
