@@ -27,6 +27,15 @@ describe("a language page", () => {
       cy.visit(`/language/${examplishUuid}`);
       cy.contains("Add Structured Translation").click();
       cy.get("#construction").select("Intransitive Clause");
+      cy.contains("Create").click();
+      cy.contains("Subject").type("sha");
+      cy.contains("Verb").type("dor");
+      cy.contains("Done").click();
+      cy.get("#translation").type("The cat is sleeping.");
+      cy.contains("Save").click();
+      cy.contains("Sha dor.");
+      cy.reload();
+      cy.contains("Sha dor.");
     });
   });
 });

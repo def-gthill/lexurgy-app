@@ -35,7 +35,7 @@ describe("SyntaxTreeEditor", () => {
     cy.contains("Create").click();
     cy.contains("Subject").type("sha");
     cy.contains("Verb").type("dor");
-    cy.contains("Save")
+    cy.contains("Done")
       .click()
       .then(() => expect(saved).to.be.true);
   });

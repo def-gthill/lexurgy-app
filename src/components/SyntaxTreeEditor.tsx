@@ -45,7 +45,7 @@ export default function SyntaxTreeEditor({
             })
           }
         >
-          Save
+          Done
         </button>
       </>
     );
