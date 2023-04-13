@@ -10,33 +10,30 @@ export default function TranslationEditor({
   language: Language;
   saveTranslation: (translation: Translation) => void;
 }) {
-  const [translationEditorText, setTranslationEditorText] = useState("");
-  const [translationEditorTranslation, setTranslationEditorTranslation] =
-    useState("");
+  const [text, setText] = useState("");
+  const [translation, setTranslation] = useState("");
   return (
     <>
       <Label.Root htmlFor="text">{language.name} Text</Label.Root>
       <input
         type="text"
         id="text"
-        onChange={(event) => setTranslationEditorText(event.target.value)}
-        value={translationEditorText}
+        onChange={(event) => setText(event.target.value)}
+        value={text}
       ></input>
       <Label.Root htmlFor="translation">Free Translation</Label.Root>
       <input
         type="text"
         id="translation"
-        onChange={(event) =>
-          setTranslationEditorTranslation(event.target.value)
-        }
-        value={translationEditorTranslation}
+        onChange={(event) => setTranslation(event.target.value)}
+        value={translation}
       ></input>
       <button
         onClick={() =>
           saveTranslation({
             languageId: language.id,
-            romanized: translationEditorText,
-            translation: translationEditorTranslation,
+            romanized: text,
+            translation: translation,
           })
         }
       >
