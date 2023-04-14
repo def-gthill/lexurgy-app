@@ -28,7 +28,6 @@ export default async function handler(
           id: properties.id as string,
           languageId,
           romanized: properties.romanized as string,
-          // structure: record.get("tr").properties.structure,
           translation: properties.translation as string,
         };
         if (properties.structure) {
