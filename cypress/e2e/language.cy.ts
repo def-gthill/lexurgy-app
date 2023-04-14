@@ -34,8 +34,12 @@ describe("a language page", () => {
       cy.get("#translation").type("The cat is sleeping.");
       cy.contains("Save").click();
       cy.contains("Sha dor.");
+      cy.contains("Show Structure").click();
+      cy.contains("Subject");
       cy.reload();
       cy.contains("Sha dor.");
+      cy.contains("Show Structure").click();
+      cy.contains("Subject");
     });
   });
 });

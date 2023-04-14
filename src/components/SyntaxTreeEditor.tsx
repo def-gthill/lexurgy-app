@@ -1,7 +1,7 @@
 import Construction from "@/models/Construction";
 import SyntaxNode from "@/models/SyntaxNode";
 import Word from "@/models/Word";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 export default function SyntaxTreeEditor({
   constructions,
@@ -23,7 +23,7 @@ export default function SyntaxTreeEditor({
     return (
       <>
         {activeConstruction.children.map((child) => (
-          <>
+          <Fragment key={child}>
             <label htmlFor={child}>{child}</label>
             <input
               type="text"
@@ -35,7 +35,7 @@ export default function SyntaxTreeEditor({
                 })
               }
             ></input>
-          </>
+          </Fragment>
         ))}
         <button
           onClick={() =>
@@ -58,7 +58,7 @@ export default function SyntaxTreeEditor({
           onChange={(event) => setChosenConstruction(event.target.value)}
         >
           {constructions.map((construction) => (
-            <option>{construction.name}</option>
+            <option key={construction.name}>{construction.name}</option>
           ))}
         </select>
         <button onClick={createConstruction}>Create</button>

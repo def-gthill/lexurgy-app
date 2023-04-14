@@ -1,12 +1,13 @@
 import LanguageInfo from "@/components/LanguageInfo";
 import StructuredTranslationEditor from "@/components/StructuredTranslationEditor";
 import TranslationEditor from "@/components/TranslationEditor";
+import TranslationView from "@/components/TranslationView";
 import Language from "@/models/Language";
 import Translation from "@/models/Translation";
 import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
@@ -60,12 +61,7 @@ export default function LanguageOverview() {
               />
             )}
             {translations.map((translation) => (
-              <Fragment key={translation.id}>
-                <p>
-                  <i>{translation.romanized}</i>
-                </p>
-                <p>{`"${translation.translation}"`}</p>
-              </Fragment>
+              <TranslationView translation={translation} key={translation.id} />
             ))}
           </main>
         </>
