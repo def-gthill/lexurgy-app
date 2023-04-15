@@ -1,15 +1,15 @@
-import { signOut } from "next-auth/react";
-import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import styles from "@/styles/Header.module.css";
+import * as NavigationMenu from "@radix-ui/react-navigation-menu";
+import { signOut } from "next-auth/react";
+import NextLink from "next/link";
+import { useRouter } from "next/router";
 
 export default function Header() {
   return (
     <NavigationMenu.Root>
       <NavigationMenu.List className={styles.NavigationMenuList}>
         <NavigationMenu.Item>
-          <NavigationMenu.Link className={styles.NavigationMenuLink} href="/">
-            Lexurgy
-          </NavigationMenu.Link>
+          <Link href="/">Lexurgy</Link>
         </NavigationMenu.Item>
         <NavigationMenu.Item>
           <NavigationMenu.Link
@@ -31,5 +31,20 @@ export default function Header() {
         </NavigationMenu.Item>
       </NavigationMenu.List>
     </NavigationMenu.Root>
+  );
+}
+
+function Link({ href, ...props }: { href: string; [index: string]: unknown }) {
+  const router = useRouter();
+  const isActive = router.asPath === href;
+
+  return (
+    <NextLink href={href} passHref>
+      <NavigationMenu.Link
+        className={styles.NavigationMenuLink}
+        active={isActive}
+        {...props}
+      />
+    </NextLink>
   );
 }
