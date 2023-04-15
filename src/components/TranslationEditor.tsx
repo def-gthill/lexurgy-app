@@ -2,6 +2,7 @@ import Language from "@/models/Language";
 import Translation from "@/models/Translation";
 import * as Label from "@radix-ui/react-label";
 import { useState } from "react";
+import Editor from "./Editor";
 
 export default function TranslationEditor({
   language,
@@ -13,7 +14,15 @@ export default function TranslationEditor({
   const [text, setText] = useState("");
   const [translation, setTranslation] = useState("");
   return (
-    <>
+    <Editor
+      onSave={() =>
+        saveTranslation({
+          languageId: language.id,
+          romanized: text,
+          translation: translation,
+        })
+      }
+    >
       <Label.Root htmlFor="text">{language.name} Text</Label.Root>
       <input
         type="text"
@@ -28,17 +37,6 @@ export default function TranslationEditor({
         onChange={(event) => setTranslation(event.target.value)}
         value={translation}
       ></input>
-      <button
-        onClick={() =>
-          saveTranslation({
-            languageId: language.id,
-            romanized: text,
-            translation: translation,
-          })
-        }
-      >
-        Save
-      </button>
-    </>
+    </Editor>
   );
 }

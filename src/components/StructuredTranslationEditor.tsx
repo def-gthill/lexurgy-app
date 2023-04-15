@@ -7,6 +7,7 @@ import * as Label from "@radix-ui/react-label";
 import axios from "axios";
 import { useState } from "react";
 import useSWR from "swr";
+import Editor from "./Editor";
 import SyntaxTreeEditor from "./SyntaxTreeEditor";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
@@ -30,7 +31,16 @@ export default function StructuredTranslationEditor({
     <div>No Constructions</div>
   );
   return (
-    <>
+    <Editor
+      onSave={() =>
+        saveTranslation({
+          languageId: language.id,
+          romanized: structure ? structureToRomanized(structure) : "",
+          structure: structure || undefined,
+          translation: translation,
+        })
+      }
+    >
       {syntaxTreeEditor}
       <Label.Root htmlFor="translation">Free Translation</Label.Root>
       <input
@@ -39,19 +49,7 @@ export default function StructuredTranslationEditor({
         onChange={(event) => setTranslation(event.target.value)}
         value={translation}
       ></input>
-      <button
-        onClick={() =>
-          saveTranslation({
-            languageId: language.id,
-            romanized: structure ? structureToRomanized(structure) : "",
-            structure: structure || undefined,
-            translation: translation,
-          })
-        }
-      >
-        Save
-      </button>
-    </>
+    </Editor>
   );
 
   function structureToRomanized(structure: SyntaxNode): string {
