@@ -1,7 +1,7 @@
 .NavigationMenuList {
   display: flex;
   background-color: var(--primary);
-  color: var(--foreground-stable);
+  color: var(--foreground-always-light);
   padding: 4px;
   list-style: none;
 }

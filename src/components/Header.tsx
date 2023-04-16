@@ -9,9 +9,6 @@ export default function Header() {
       <NavigationMenu.List className={styles.NavigationMenuList}>
         <NavigationMenu.Item>
           <Link href="/">Lexurgy</Link>
-          {/* <NavigationMenu.Link className={styles.NavigationMenuLink} href="/">
-            Lexurgy
-          </NavigationMenu.Link> */}
         </NavigationMenu.Item>
         <NavigationMenu.Item>
           <NavigationMenu.Link

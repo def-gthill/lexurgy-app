@@ -1,0 +1,57 @@
+.root {
+  display: flex;
+}
+
+.branch,
+.leaf {
+  border-color: var(--foreground-always-dark);
+  border-width: 1px;
+  border-style: solid;
+}
+
+.branch {
+  background-color: hsl(320, 25%, 80%);
+  color: var(--foreground-always-dark);
+  margin: 2px;
+  padding: 2px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.branch1 {
+  background-color: hsl(200, 35%, 80%);
+}
+
+.branch2 {
+  background-color: hsl(290, 35%, 80%);
+}
+
+.branch3 {
+  background-color: hsl(20, 35%, 80%);
+}
+
+.branch4 {
+  background-color: hsl(110, 35%, 80%);
+}
+
+.branchContent {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.leaf {
+  background-color: hsl(100, 50%, 30%);
+  color: var(--foreground-always-light);
+  display: flex;
+  flex-direction: column;
+  margin: 2px;
+  padding: 4px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.nodeType {
+  font-variant: all-small-caps;
+}

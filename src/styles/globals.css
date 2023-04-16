@@ -4,7 +4,8 @@
   --card-background: hsl(0, 0%, 80%);
   --editor-background: hsl(50, 25%, 80%);
   --editor2-background: hsl(75, 25%, 75%);
-  --foreground-stable: hsl(0, 0%, 100%);
+  --foreground-always-dark: hsl(0, 0%, 0%);
+  --foreground-always-light: hsl(0, 0%, 100%);
 
   --primary-hue: 246;
   --primary-sat: 25%;
@@ -121,7 +122,7 @@ label {
 
 button {
   background-color: var(--primary);
-  color: var(--foreground-stable);
+  color: var(--foreground-always-light);
   border: none;
   padding: 4px;
   border-radius: 4px;

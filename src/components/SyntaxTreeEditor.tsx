@@ -1,7 +1,7 @@
 import Construction from "@/models/Construction";
 import SyntaxNode from "@/models/SyntaxNode";
 import Word from "@/models/Word";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 
 export default function SyntaxTreeEditor({
   constructions,
@@ -22,31 +22,38 @@ export default function SyntaxTreeEditor({
   if (activeConstruction) {
     return (
       <div className="editor">
-        {activeConstruction.children.map((child) => (
-          <Fragment key={child}>
-            <label htmlFor={child}>{child}</label>
-            <input
-              type="text"
-              id={child}
-              onChange={(event) =>
-                setActiveChildren({
-                  ...activeChildren,
-                  [child]: { romanized: event.target.value },
-                })
-              }
-            ></input>
-          </Fragment>
-        ))}
-        <button
-          onClick={() =>
-            saveTree({
-              nodeTypeId: activeConstruction.id,
-              children: activeChildren,
-            })
-          }
-        >
-          Done
-        </button>
+        <div style={{ display: "flex", flexDirection: "row" }}>
+          {activeConstruction.children.map((child) => (
+            <div
+              key={child}
+              style={{ display: "flex", flexDirection: "column" }}
+            >
+              <label htmlFor={child}>{child}</label>
+              <input
+                type="text"
+                id={child}
+                onChange={(event) =>
+                  setActiveChildren({
+                    ...activeChildren,
+                    [child]: { romanized: event.target.value },
+                  })
+                }
+              ></input>
+            </div>
+          ))}
+        </div>
+        <div className="buttons">
+          <button
+            onClick={() =>
+              saveTree({
+                nodeTypeId: activeConstruction.id,
+                children: activeChildren,
+              })
+            }
+          >
+            Done
+          </button>
+        </div>
       </div>
     );
   } else {
@@ -61,7 +68,9 @@ export default function SyntaxTreeEditor({
             <option key={construction.name}>{construction.name}</option>
           ))}
         </select>
-        <button onClick={createConstruction}>Create</button>
+        <div className="buttons">
+          <button onClick={createConstruction}>Create</button>
+        </div>
       </div>
     );
   }
