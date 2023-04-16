@@ -1,6 +1,6 @@
 import Language from "@/models/Language";
 import Lexeme from "@/models/Lexeme";
-import * as Label from "@radix-ui/react-label";
+import Fields, { Field } from "./Fields";
 
 export default function LexiconEntryEditor({
   language,
@@ -12,29 +12,25 @@ export default function LexiconEntryEditor({
   onChange: (entry: Lexeme) => void;
 }) {
   return (
-    <>
-      <Label.Root htmlFor="romanized">{language.name} Word</Label.Root>
-      <input
-        type="text"
+    <Fields>
+      <Field
         id="romanized"
-        onChange={(event) =>
-          onChange({ ...lexeme, romanized: event.target.value })
-        }
-      ></input>
-      <Label.Root htmlFor="pos">Part of Speech</Label.Root>
-      <input
-        type="text"
+        name={`${language.name} Word`}
+        value={lexeme.romanized}
+        onChange={(value) => onChange({ ...lexeme, romanized: value })}
+      />
+      <Field
         id="pos"
-        onChange={(event) => onChange({ ...lexeme, pos: event.target.value })}
-      ></input>
-      <Label.Root htmlFor="definition">Definition</Label.Root>
-      <input
-        type="text"
+        name="Part of Speech"
+        value={lexeme.pos}
+        onChange={(value) => onChange({ ...lexeme, pos: value })}
+      />
+      <Field
         id="definition"
-        onChange={(event) =>
-          onChange({ ...lexeme, definitions: [event.target.value] })
-        }
-      ></input>
-    </>
+        name="Definition"
+        value={lexeme.definitions[0]}
+        onChange={(value) => onChange({ ...lexeme, definitions: [value] })}
+      />
+    </Fields>
   );
 }

@@ -1,5 +1,5 @@
 import Language from "@/models/Language";
-import * as Label from "@radix-ui/react-label";
+import Fields, { Field } from "./Fields";
 
 export default function LanguageInfoEditor({
   language,
@@ -9,16 +9,13 @@ export default function LanguageInfoEditor({
   onChange: (newLanguage: Language) => void;
 }) {
   return (
-    <>
-      <Label.Root htmlFor="name">Language Name</Label.Root>
-      <input
-        type="text"
+    <Fields>
+      <Field
         id="name"
-        onChange={(event) =>
-          onChange({ ...language, name: event.target.value })
-        }
+        name="Language Name"
         value={language.name}
-      ></input>
-    </>
+        onChange={(value) => onChange({ ...language, name: value })}
+      />
+    </Fields>
   );
 }

@@ -1,6 +1,6 @@
 import Language from "@/models/Language";
 import Translation from "@/models/Translation";
-import * as Label from "@radix-ui/react-label";
+import Fields, { Field } from "./Fields";
 
 export default function TranslationEditor({
   language,
@@ -12,25 +12,19 @@ export default function TranslationEditor({
   onChange: (newTranslation: Translation) => void;
 }) {
   return (
-    <>
-      <Label.Root htmlFor="text">{language.name} Text</Label.Root>
-      <input
-        type="text"
+    <Fields>
+      <Field
         id="text"
-        onChange={(event) =>
-          onChange({ ...translation, romanized: event.target.value })
-        }
+        name={`${language.name} Text`}
         value={translation.romanized}
-      ></input>
-      <Label.Root htmlFor="translation">Free Translation</Label.Root>
-      <input
-        type="text"
+        onChange={(value) => onChange({ ...translation, romanized: value })}
+      />
+      <Field
         id="translation"
-        onChange={(event) =>
-          onChange({ ...translation, translation: event.target.value })
-        }
+        name="Free Translation"
         value={translation.translation}
-      ></input>
-    </>
+        onChange={(value) => onChange({ ...translation, translation: value })}
+      />
+    </Fields>
   );
 }

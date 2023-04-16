@@ -6,6 +6,7 @@ import Word from "@/models/Word";
 import * as Label from "@radix-ui/react-label";
 import axios from "axios";
 import useSWR from "swr";
+import Fields, { Field } from "./Fields";
 import SyntaxTreeEditor from "./SyntaxTreeEditor";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
@@ -24,31 +25,37 @@ export default function StructuredTranslationEditor({
     fetcher
   );
   const syntaxTreeEditor = constructions ? (
-    <SyntaxTreeEditor
-      constructions={constructions}
-      saveTree={(structure) =>
-        onChange({
-          ...translation,
-          romanized: structureToRomanized(structure),
-          structure: structure,
-        })
-      }
-    />
+    <div>
+      <SyntaxTreeEditor
+        constructions={constructions}
+        saveTree={(structure) =>
+          onChange({
+            ...translation,
+            romanized: structureToRomanized(structure),
+            structure: structure,
+          })
+        }
+      />
+    </div>
   ) : (
     <div>No Constructions</div>
   );
   return (
     <>
-      {!translation.structure && syntaxTreeEditor}
-      <Label.Root htmlFor="translation">Free Translation</Label.Root>
-      <input
-        type="text"
-        id="translation"
-        onChange={(event) =>
-          onChange({ ...translation, translation: event.target.value })
-        }
-        value={translation.translation}
-      ></input>
+      <Fields>
+        <Label.Root htmlFor="structure">Structure</Label.Root>
+        {translation.structure ? (
+          <div>Structure created!</div>
+        ) : (
+          syntaxTreeEditor
+        )}
+        <Field
+          id="translation"
+          name="Free Translation"
+          value={translation.translation}
+          onChange={(value) => onChange({ ...translation, translation: value })}
+        />
+      </Fields>
     </>
   );
 
