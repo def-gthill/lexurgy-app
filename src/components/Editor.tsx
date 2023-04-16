@@ -11,11 +11,11 @@ export default function Editor<T>({
 }) {
   const [value, setValue] = useState(initialValue);
   return (
-    <>
+    <div className="editor">
       {component(value, setValue)}
-      <div>
+      <div className="buttons">
         <button onClick={() => onSave(value)}>Save</button>
       </div>
-    </>
+    </div>
   );
 }

@@ -2,6 +2,7 @@
   --background: hsl(0, 0%, 90%);
   --foreground: hsl(0, 0%, 0%);
   --card-background: hsl(0, 0%, 80%);
+  --editor-background: hsl(50, 25%, 80%);
   --foreground-stable: hsl(0, 0%, 100%);
 
   --primary-hue: 246;
@@ -20,6 +21,7 @@
     --background: hsl(0, 0%, 0%);
     --foreground: hsl(0, 0%, 100%);
     --card-background: hsl(0, 0%, 20%);
+    --editor-background: hsl(50, 25%, 20%);
   }
 }
 
@@ -63,12 +65,20 @@ a {
   text-decoration: none;
 }
 
-.card {
+.card,
+.editor {
   display: block;
-  background-color: var(--card-background);
   padding: 4px;
   margin: 4px 0;
   border-radius: 4px;
+}
+
+.card {
+  background-color: var(--card-background);
+}
+
+.editor {
+  background-color: var(--editor-background);
 }
 
 p,
