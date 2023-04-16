@@ -8,6 +8,7 @@ import axios from "axios";
 import useSWR from "swr";
 import Fields, { Field } from "./Fields";
 import SyntaxTreeEditor from "./SyntaxTreeEditor";
+import SyntaxTreeView from "./SyntaxTreeView";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -45,7 +46,7 @@ export default function StructuredTranslationEditor({
       <Fields>
         <Label.Root htmlFor="structure">Structure</Label.Root>
         {translation.structure ? (
-          <div>Structure created!</div>
+          <SyntaxTreeView root={translation.structure} />
         ) : (
           syntaxTreeEditor
         )}

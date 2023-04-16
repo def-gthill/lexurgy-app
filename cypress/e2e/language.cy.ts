@@ -31,6 +31,7 @@ describe("a language page", () => {
       cy.contains("Subject").type("sha");
       cy.contains("Verb").type("dor");
       cy.contains("Done").click();
+      cy.contains("Subject");
       cy.get("#translation").type("The cat is sleeping.");
       cy.contains("Save").click();
       cy.contains("Sha dor.");

@@ -1,5 +1,6 @@
 import Translation from "@/models/Translation";
-import { Fragment, useState } from "react";
+import { useState } from "react";
+import SyntaxTreeView from "./SyntaxTreeView";
 
 export default function TranslationView({
   translation,
@@ -12,16 +13,7 @@ export default function TranslationView({
       <p>
         <i>{translation.romanized}</i>
       </p>
-      {showingStructure &&
-        Object.entries(translation.structure!.children).map(
-          ([childName, child]) =>
-            "romanized" in child && (
-              <Fragment key={childName}>
-                <div>{childName}</div>
-                <div>{child.romanized}</div>
-              </Fragment>
-            )
-        )}
+      {showingStructure && <SyntaxTreeView root={translation.structure!} />}
       <p>{`"${translation.translation}"`}</p>
       {translation.structure &&
         (showingStructure ? (
