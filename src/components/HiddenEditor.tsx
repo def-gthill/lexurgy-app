@@ -18,7 +18,7 @@ export default function HiddenEditor<T>({
   return showing ? (
     <>
       {component(value, setValue)}
-      <div>
+      <div className="buttons">
         <button
           onClick={() => {
             onSave(value);
@@ -26,6 +26,13 @@ export default function HiddenEditor<T>({
           }}
         >
           Save
+        </button>
+        <button
+          onClick={() => {
+            setShowing(false);
+          }}
+        >
+          Cancel
         </button>
       </div>
     </>

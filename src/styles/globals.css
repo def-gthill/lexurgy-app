@@ -105,6 +105,7 @@ label {
 
 button {
   background-color: var(--primary);
+  color: var(--foreground-stable);
   border: none;
   padding: 4px;
   border-radius: 4px;
@@ -112,6 +113,14 @@ button {
 
 button:hover {
   background-color: var(--primary-dark);
+}
+
+.buttons {
+  padding: 2px;
+}
+
+.buttons button {
+  margin: 2px;
 }
 
 @media (prefers-color-scheme: dark) {
