@@ -18,7 +18,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: hsl(0, 0%, 0%);
+    --background: hsl(0, 0%, 10%);
     --foreground: hsl(0, 0%, 100%);
     --card-background: hsl(0, 0%, 20%);
     --editor-background: hsl(50, 25%, 20%);
