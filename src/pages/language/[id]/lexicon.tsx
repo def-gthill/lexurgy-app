@@ -6,7 +6,6 @@ import Lexeme from "@/models/Lexeme";
 import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Fragment } from "react";
 import useSWR, { useSWRConfig } from "swr";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
@@ -51,7 +50,7 @@ export default function LexiconPage() {
               onSave={saveLexeme}
             />
             {lexemes.map((lexeme) => (
-              <Fragment key={lexeme.id}>
+              <div key={lexeme.id} className="card">
                 <p>
                   <b>{lexeme.romanized}</b> - <i>{lexeme.pos}</i>
                 </p>
@@ -60,7 +59,7 @@ export default function LexiconPage() {
                     <li key={i}>{definition}</li>
                   ))}
                 </ol>
-              </Fragment>
+              </div>
             ))}
           </main>
         </>
