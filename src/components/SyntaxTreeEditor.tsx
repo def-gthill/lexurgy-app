@@ -21,7 +21,7 @@ export default function SyntaxTreeEditor({
 
   if (activeConstruction) {
     return (
-      <>
+      <div className="editor">
         {activeConstruction.children.map((child) => (
           <Fragment key={child}>
             <label htmlFor={child}>{child}</label>
@@ -47,11 +47,11 @@ export default function SyntaxTreeEditor({
         >
           Done
         </button>
-      </>
+      </div>
     );
   } else {
     return (
-      <>
+      <div className="editor">
         <label htmlFor="construction">Construction</label>
         <select
           id="construction"
@@ -62,7 +62,7 @@ export default function SyntaxTreeEditor({
           ))}
         </select>
         <button onClick={createConstruction}>Create</button>
-      </>
+      </div>
     );
   }
 

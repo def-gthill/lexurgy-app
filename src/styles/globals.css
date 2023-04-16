@@ -3,6 +3,7 @@
   --foreground: hsl(0, 0%, 0%);
   --card-background: hsl(0, 0%, 80%);
   --editor-background: hsl(50, 25%, 80%);
+  --editor2-background: hsl(75, 25%, 75%);
   --foreground-stable: hsl(0, 0%, 100%);
 
   --primary-hue: 246;
@@ -22,6 +23,7 @@
     --foreground: hsl(0, 0%, 100%);
     --card-background: hsl(0, 0%, 20%);
     --editor-background: hsl(50, 25%, 20%);
+    --editor2-background: hsl(75, 25%, 25%);
   }
 }
 
@@ -81,6 +83,10 @@ a {
   background-color: var(--editor-background);
 }
 
+.editor .editor {
+  background-color: var(--editor2-background);
+}
+
 p,
 h1,
 h2,
@@ -129,7 +135,7 @@ button:hover {
   padding: 2px;
 }
 
-.buttons button {
+.buttons > button {
   margin: 2px;
 }
 
