@@ -1,48 +1,40 @@
 import Language from "@/models/Language";
 import Lexeme from "@/models/Lexeme";
 import * as Label from "@radix-ui/react-label";
-import { useState } from "react";
-import Editor from "./Editor";
 
 export default function LexiconEntryEditor({
   language,
-  saveLexeme,
+  lexeme,
+  onChange,
 }: {
   language: Language;
-  saveLexeme: (entry: Lexeme) => void;
+  lexeme: Lexeme;
+  onChange: (entry: Lexeme) => void;
 }) {
-  const [entryEditorRomanized, setEntryEditorRomanized] = useState("");
-  const [entryEditorPos, setEntryEditorPos] = useState("");
-  const [entryEditorDefinition, setEntryEditorDefinition] = useState("");
   return (
-    <Editor
-      onSave={() =>
-        saveLexeme({
-          languageId: language.id,
-          romanized: entryEditorRomanized,
-          pos: entryEditorPos,
-          definitions: [entryEditorDefinition],
-        })
-      }
-    >
+    <>
       <Label.Root htmlFor="romanized">{language.name} Word</Label.Root>
       <input
         type="text"
         id="romanized"
-        onChange={(event) => setEntryEditorRomanized(event.target.value)}
+        onChange={(event) =>
+          onChange({ ...lexeme, romanized: event.target.value })
+        }
       ></input>
       <Label.Root htmlFor="pos">Part of Speech</Label.Root>
       <input
         type="text"
         id="pos"
-        onChange={(event) => setEntryEditorPos(event.target.value)}
+        onChange={(event) => onChange({ ...lexeme, pos: event.target.value })}
       ></input>
       <Label.Root htmlFor="definition">Definition</Label.Root>
       <input
         type="text"
         id="definition"
-        onChange={(event) => setEntryEditorDefinition(event.target.value)}
+        onChange={(event) =>
+          onChange({ ...lexeme, definitions: [event.target.value] })
+        }
       ></input>
-    </Editor>
+    </>
   );
 }

@@ -1,3 +1,4 @@
+import HiddenEditor from "@/components/HiddenEditor";
 import LanguageInfo from "@/components/LanguageInfo";
 import StructuredTranslationEditor from "@/components/StructuredTranslationEditor";
 import TranslationEditor from "@/components/TranslationEditor";
@@ -7,18 +8,11 @@ import Translation from "@/models/Translation";
 import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function LanguageOverview() {
-  const [showingTranslationEditor, setShowingTranslationEditor] =
-    useState(false);
-  const [
-    showingStructuredTranslationEditor,
-    setShowingStructuredTranslationEditor,
-  ] = useState(false);
   const router = useRouter();
   const id = router.query.id as string;
   const { data } = useSWR<Translation[], Error>(
@@ -42,24 +36,38 @@ export default function LanguageOverview() {
           <main>
             <h1>{language.name}</h1>
             <h2>Translations</h2>
-            <button onClick={() => setShowingTranslationEditor(true)}>
-              Add Translation
-            </button>
-            <button onClick={() => setShowingStructuredTranslationEditor(true)}>
-              Add Structured Translation
-            </button>
-            {showingTranslationEditor && (
-              <TranslationEditor
-                language={language}
-                saveTranslation={saveTranslation}
-              />
-            )}
-            {showingStructuredTranslationEditor && (
-              <StructuredTranslationEditor
-                language={language}
-                saveTranslation={saveTranslation}
-              />
-            )}
+            <HiddenEditor
+              showButtonLabel="Add Translation"
+              component={(value, onChange) => (
+                <TranslationEditor
+                  language={language}
+                  translation={value}
+                  onChange={onChange}
+                />
+              )}
+              initialValue={{
+                languageId: language.id,
+                romanized: "",
+                translation: "",
+              }}
+              onSave={saveTranslation}
+            />
+            <HiddenEditor
+              showButtonLabel="Add Structured Translation"
+              component={(value, onChange) => (
+                <StructuredTranslationEditor
+                  language={language}
+                  translation={value}
+                  onChange={onChange}
+                />
+              )}
+              initialValue={{
+                languageId: language.id,
+                romanized: "",
+                translation: "",
+              }}
+              onSave={saveTranslation}
+            />
             {translations.map((translation) => (
               <TranslationView translation={translation} key={translation.id} />
             ))}
@@ -72,6 +80,5 @@ export default function LanguageOverview() {
   async function saveTranslation(translation: Translation) {
     await axios.post("/api/translations", translation);
     mutate(`/api/translations?language=${id}`);
-    setShowingTranslationEditor(false);
   }
 }

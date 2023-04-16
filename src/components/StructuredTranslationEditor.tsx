@@ -5,51 +5,51 @@ import Translation from "@/models/Translation";
 import Word from "@/models/Word";
 import * as Label from "@radix-ui/react-label";
 import axios from "axios";
-import { useState } from "react";
 import useSWR from "swr";
-import Editor from "./Editor";
 import SyntaxTreeEditor from "./SyntaxTreeEditor";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function StructuredTranslationEditor({
   language,
-  saveTranslation,
+  translation,
+  onChange,
 }: {
   language: Language;
-  saveTranslation: (translation: Translation) => void;
+  translation: Translation;
+  onChange: (newTranslation: Translation) => void;
 }) {
-  const [structure, setStructure] = useState<SyntaxNode | null>(null);
-  const [translation, setTranslation] = useState("");
   const { data: constructions } = useSWR<Construction[], Error>(
     `/api/constructions?language=${language.id}`,
     fetcher
   );
   const syntaxTreeEditor = constructions ? (
-    <SyntaxTreeEditor constructions={constructions} saveTree={setStructure} />
+    <SyntaxTreeEditor
+      constructions={constructions}
+      saveTree={(structure) =>
+        onChange({
+          ...translation,
+          romanized: structureToRomanized(structure),
+          structure: structure,
+        })
+      }
+    />
   ) : (
     <div>No Constructions</div>
   );
   return (
-    <Editor
-      onSave={() =>
-        saveTranslation({
-          languageId: language.id,
-          romanized: structure ? structureToRomanized(structure) : "",
-          structure: structure || undefined,
-          translation: translation,
-        })
-      }
-    >
-      {syntaxTreeEditor}
+    <>
+      {!translation.structure && syntaxTreeEditor}
       <Label.Root htmlFor="translation">Free Translation</Label.Root>
       <input
         type="text"
         id="translation"
-        onChange={(event) => setTranslation(event.target.value)}
-        value={translation}
+        onChange={(event) =>
+          onChange({ ...translation, translation: event.target.value })
+        }
+        value={translation.translation}
       ></input>
-    </Editor>
+    </>
   );
 
   function structureToRomanized(structure: SyntaxNode): string {

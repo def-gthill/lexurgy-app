@@ -1,16 +1,14 @@
+import HiddenEditor from "@/components/HiddenEditor";
 import LanguageInfoEditor from "@/components/LanguageInfoEditor";
 import Language from "@/models/Language";
 import axios from "axios";
 import Head from "next/head";
 import Link from "next/link";
-import { useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function Home() {
-  const [showingLanguageInfoEditor, setShowingLanguageInfoEditor] =
-    useState(false);
   const { data: languages, error } = useSWR<Language[], Error>(
     "/api/languages",
     fetcher
@@ -31,13 +29,14 @@ export default function Home() {
       <main>
         <h1>My Workspace</h1>
         <h2>Languages</h2>
-        {showingLanguageInfoEditor ? (
-          <LanguageInfoEditor saveLanguage={saveLanguage} />
-        ) : (
-          <button onClick={() => setShowingLanguageInfoEditor(true)}>
-            New Language
-          </button>
-        )}
+        <HiddenEditor
+          showButtonLabel="New Language"
+          component={(value, onChange) => (
+            <LanguageInfoEditor language={value} onChange={onChange} />
+          )}
+          initialValue={{ name: "" }}
+          onSave={saveLanguage}
+        />
         {languages.map((language) => (
           <Link
             className="card"
@@ -54,6 +53,5 @@ export default function Home() {
   async function saveLanguage(language: Language) {
     await axios.post("/api/languages", language);
     mutate(`/api/languages`);
-    setShowingLanguageInfoEditor(false);
   }
 }

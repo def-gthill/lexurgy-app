@@ -1,15 +1,20 @@
-export default function Editor({
-  children,
+import { useState } from "react";
+
+export default function Editor<T>({
+  component,
+  initialValue,
   onSave,
 }: {
-  children: JSX.Element[];
-  onSave: () => void;
+  component: (value: T, onChange: (newValue: T) => void) => JSX.Element;
+  initialValue: T;
+  onSave: (value: T) => void;
 }) {
+  const [value, setValue] = useState(initialValue);
   return (
     <>
-      {children}
+      {component(value, setValue)}
       <div>
-        <button onClick={onSave}>Save</button>
+        <button onClick={() => onSave(value)}>Save</button>
       </div>
     </>
   );
