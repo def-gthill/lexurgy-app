@@ -1,6 +1,7 @@
 import HiddenEditor from "@/components/HiddenEditor";
 import LanguageInfo from "@/components/LanguageInfo";
 import LexiconEntryEditor from "@/components/LexiconEntryEditor";
+import LexiconView from "@/components/LexiconView";
 import Language from "@/models/Language";
 import Lexeme from "@/models/Lexeme";
 import axios from "axios";
@@ -49,18 +50,7 @@ export default function LexiconPage() {
               }}
               onSave={saveLexeme}
             />
-            {lexemes.map((lexeme) => (
-              <div key={lexeme.id} className="card">
-                <p>
-                  <b>{lexeme.romanized}</b> - <i>{lexeme.pos}</i>
-                </p>
-                <ol>
-                  {lexeme.definitions.map((definition, i) => (
-                    <li key={i}>{definition}</li>
-                  ))}
-                </ol>
-              </div>
-            ))}
+            <LexiconView lexicon={lexemes} />
           </main>
         </>
       )}
