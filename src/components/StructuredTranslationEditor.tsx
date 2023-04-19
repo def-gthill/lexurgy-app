@@ -1,8 +1,7 @@
 import Construction from "@/models/Construction";
 import Language from "@/models/Language";
-import SyntaxNode from "@/models/SyntaxNode";
+import { structureToRomanized } from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
-import Word from "@/models/Word";
 import * as Label from "@radix-ui/react-label";
 import axios from "axios";
 import useSWR from "swr";
@@ -59,33 +58,4 @@ export default function StructuredTranslationEditor({
       </Fields>
     </>
   );
-
-  function structureToRomanized(structure: SyntaxNode): string {
-    const construction = constructions?.find(
-      (cons) => cons.id === structure.nodeTypeId
-    );
-    if (construction) {
-      return finishTranslation(
-        construction.children
-          .map((childName) => childToRomanized(structure.children[childName]))
-          .join(" ")
-      );
-    } else {
-      return finishTranslation(
-        Object.values(structure.children).map(childToRomanized).join(" ")
-      );
-    }
-  }
-
-  function childToRomanized(child: SyntaxNode | Word): string {
-    if ("romanized" in child) {
-      return child.romanized;
-    } else {
-      return structureToRomanized(child);
-    }
-  }
-
-  function finishTranslation(translation: string): string {
-    return translation[0].toLocaleUpperCase() + translation.slice(1) + ".";
-  }
 }

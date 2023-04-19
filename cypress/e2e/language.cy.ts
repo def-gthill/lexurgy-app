@@ -42,6 +42,26 @@ describe("a language page", () => {
       cy.contains("Show Structure").click();
       cy.contains("Subject");
     });
+
+    it("lets the user create a syntax tree with lexicon links", () => {
+      cy.exec("npm run db:seed:examplish:lexicon");
+      cy.visit(`/language/${examplishUuid}`);
+      cy.contains("Add Structured Translation").click();
+      cy.get("#construction").select("Intransitive Clause");
+      cy.contains("Create").click();
+      cy.contains("Subject").type("sha");
+      cy.contains("Verb").type("dor");
+      cy.contains("Done").click();
+      cy.get("#translation").type("The cat is sleeping.");
+      cy.contains("Save").click();
+      cy.visit(`/language/${examplishUuid}/lexicon`);
+      cy.contains("cat").parents(".card").contains("Edit").click();
+      cy.get("#romanized").clear().type("fyel");
+      cy.contains("Save").click();
+      cy.contains("fyel");
+      cy.visit(`/language/${examplishUuid}`);
+      cy.contains("Fyel dor.");
+    });
   });
 });
 

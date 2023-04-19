@@ -50,7 +50,11 @@ export default function LexiconPage() {
               }}
               onSave={saveLexeme}
             />
-            <LexiconView lexicon={lexemes} />
+            <LexiconView
+              language={language}
+              lexicon={lexemes}
+              onUpdate={saveLexeme}
+            />
           </main>
         </>
       )}

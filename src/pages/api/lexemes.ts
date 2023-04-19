@@ -37,8 +37,8 @@ export default async function handler(
     try {
       await session.run(
         `MATCH (lang:Language {id: $languageId})
-        CREATE (lex:Lexeme {id: $id, romanized: $romanized, pos: $pos, definitions: $definitions})
-        CREATE (lex) -[:IS_IN]-> (lang);`,
+        MERGE (lex:Lexeme {id: $id}) -[:IS_IN]-> (lang)
+        SET lex.romanized = $romanized, lex.pos = $pos, lex.definitions = $definitions`,
         lexeme
       );
       res.status(201).json(lexeme);
