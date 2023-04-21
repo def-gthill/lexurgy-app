@@ -13,7 +13,7 @@ export default function LanguageInfo({
   const router = useRouter();
   const id = router.query.id as string;
   const { data: language, error } = useSWR<Language, Error>(
-    `/api/languages/${id}`,
+    router.isReady ? `/api/languages/${id}` : null,
     fetcher
   );
   if (language !== undefined) {
