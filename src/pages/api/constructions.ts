@@ -1,4 +1,4 @@
-import getDriver from "@/db";
+import getDriver, { query } from "@/db";
 import Construction from "@/models/Construction";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -10,21 +10,13 @@ export default async function handler(
 ) {
   if (req.method === "GET") {
     const languageId = req.query.language as string;
-    const session = driver.session();
-    try {
-      const result = await session.run(
+    const result = (
+      await query<Construction>(
+        driver,
         "MATCH (cons:Construction) -[:IS_IN]-> (lang:Language {id: $id}) RETURN cons;",
         { id: languageId }
-      );
-      const constructions: Construction[] = result.records.map((record) => ({
-        id: record.get("cons").properties.id as string,
-        languageId,
-        name: record.get("cons").properties.name as string,
-        children: record.get("cons").properties.children as string[],
-      }));
-      res.status(200).json(constructions);
-    } finally {
-      await session.close();
-    }
+      )
+    ).map((construction) => ({ ...construction, languageId }));
+    res.status(200).json(result);
   }
 }
