@@ -133,33 +133,19 @@ async function getLinkedLexemes(
   languageId: string,
   stems: string[]
 ): Promise<Map<string, Lexeme>> {
-  const session = driver.session();
-  try {
-    const result = await session.run(
-      `UNWIND $stems AS stem
-      MATCH (lang:Language {id: $languageId})
-      MATCH (lex:Lexeme {romanized: stem}) -[:IS_IN]-> (lang)
-      WITH stem, collect(lex) AS lex
-      WHERE size(lex) = 1
-      RETURN stem, lex[0] AS lex;`,
-      { languageId, stems }
-    );
-    const lexemes: Map<string, Lexeme> = new Map(
-      result.records.map((record) => [
-        record.get("stem"),
-        {
-          id: record.get("lex").properties.id as string,
-          languageId,
-          romanized: record.get("lex").properties.romanized as string,
-          pos: record.get("lex").properties.pos as string,
-          definitions: record.get("lex").properties.definitions as string[],
-        },
-      ])
-    );
-    return lexemes;
-  } finally {
-    await session.close();
-  }
+  const linkedLexemes = await query<{ stem: string; lex: Lexeme }>(
+    driver,
+    `UNWIND $stems AS stem
+    MATCH (lang:Language {id: $languageId})
+    MATCH (lex:Lexeme {romanized: stem}) -[:IS_IN]-> (lang)
+    WITH stem, collect(lex) AS lex
+    WHERE size(lex) = 1
+    RETURN stem, lex[0] AS lex;`,
+    { languageId, stems }
+  );
+  return new Map(
+    linkedLexemes.map(({ stem, lex }) => [stem, { ...lex, languageId }])
+  );
 }
 
 function addLexemeLinks(
