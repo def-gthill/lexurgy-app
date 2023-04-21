@@ -9,3 +9,48 @@ export default function getDriver(): Driver {
     )
   );
 }
+
+export async function execute(
+  driver: Driver,
+  query: string,
+  parameters?: Record<string, unknown>
+): Promise<void> {
+  const session = driver.session();
+  try {
+    await session.run(query, parameters);
+  } finally {
+    await session.close();
+  }
+}
+
+export async function query<T>(
+  driver: Driver,
+  query: string,
+  parameters?: Record<string, unknown>
+): Promise<T[]> {
+  const session = driver.session();
+  try {
+    const rawResult = await session.run(query, parameters);
+    return rawResult.records.map((record) => {
+      if (record.length === 1) {
+        return mapSingle(record.get(record.keys[0])) as T;
+      } else {
+        const result: Record<string, unknown> = {};
+        for (const [key, value] of record.entries()) {
+          result[key] = mapSingle(value);
+        }
+        return result as T;
+      }
+    });
+  } finally {
+    await session.close();
+  }
+
+  function mapSingle(record: unknown): unknown {
+    if (record && typeof record === "object" && "properties" in record) {
+      return record.properties;
+    } else {
+      return record;
+    }
+  }
+}
