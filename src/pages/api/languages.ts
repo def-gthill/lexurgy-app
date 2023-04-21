@@ -6,11 +6,11 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 const driver = getDriver();
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Language | Language[]>
 ) {
-  collectionEndpoint(req, res, getLanguages, postLanguage);
+  await collectionEndpoint(req, res, getLanguages, postLanguage);
 }
 
 async function getLanguages(): Promise<Language[]> {

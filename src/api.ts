@@ -1,7 +1,7 @@
 import { HttpStatusCode } from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 
-type RequestQuery = NextApiRequest["query"];
+export type RequestQuery = NextApiRequest["query"];
 
 export async function collectionEndpoint<T>(
   req: NextApiRequest,
