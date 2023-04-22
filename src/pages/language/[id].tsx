@@ -1,6 +1,5 @@
 import HiddenEditor from "@/components/HiddenEditor";
-import LanguageHeader from "@/components/LanguageHeader";
-import LanguageInfo from "@/components/LanguageInfo";
+import LanguagePage from "@/components/LanguagePage";
 import StructuredTranslationEditor from "@/components/StructuredTranslationEditor";
 import TranslationEditor from "@/components/TranslationEditor";
 import TranslationView from "@/components/TranslationView";
@@ -24,7 +23,8 @@ export default function LanguageOverview() {
   const { mutate } = useSWRConfig();
 
   return (
-    <LanguageInfo
+    <LanguagePage
+      activeLink="Main"
       content={(language: Language) => (
         <>
           <Head>
@@ -34,7 +34,6 @@ export default function LanguageOverview() {
               content={`"${language.name}, a constructed language"`}
             />
           </Head>
-          <LanguageHeader id={id} active="Main" />
           <main>
             <h1>{language.name}</h1>
             <h2>Translations</h2>

@@ -1,11 +1,13 @@
 import Header from "./Header";
 
+export type LanguageLink = "Main" | "Lexicon";
+
 export default function LanguageHeader({
   id,
   active,
 }: {
   id: string;
-  active: "Main" | "Lexicon";
+  active: LanguageLink;
 }) {
   return (
     <Header
