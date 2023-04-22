@@ -4,19 +4,25 @@ import Word from "./Word";
 export default interface SyntaxNode {
   nodeTypeId?: string;
   construction?: Construction;
-  children: Record<string, Word | SyntaxNode>;
+  children: [string, Word | SyntaxNode][];
 }
 
 export function structureToRomanized(structure: SyntaxNode): string {
   if (structure.construction) {
     return finishTranslation(
       structure.construction.children
-        .map((childName) => childToRomanized(structure.children[childName]))
+        .map((childName) =>
+          childToRomanized(
+            structure.children.find(([name]) => name === childName)![1]
+          )
+        )
         .join(" ")
     );
   } else {
     return finishTranslation(
-      Object.values(structure.children).map(childToRomanized).join(" ")
+      structure.children
+        .map(([_name, child]) => childToRomanized(child))
+        .join(" ")
     );
   }
 }

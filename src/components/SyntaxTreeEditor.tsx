@@ -1,3 +1,4 @@
+import { update } from "@/map";
 import Construction from "@/models/Construction";
 import SyntaxNode from "@/models/SyntaxNode";
 import Word from "@/models/Word";
@@ -16,8 +17,8 @@ export default function SyntaxTreeEditor({
   const [activeConstruction, setActiveConstruction] =
     useState<Construction | null>(null);
   const [activeChildren, setActiveChildren] = useState<
-    Record<string, Word | SyntaxNode>
-  >({});
+    [string, Word | SyntaxNode][]
+  >([]);
 
   if (activeConstruction) {
     return (
@@ -32,12 +33,14 @@ export default function SyntaxTreeEditor({
               <input
                 type="text"
                 id={child}
-                onChange={(event) =>
-                  setActiveChildren({
-                    ...activeChildren,
-                    [child]: { romanized: event.target.value },
-                  })
-                }
+                onChange={(event) => {
+                  setActiveChildren(
+                    update(activeChildren, [
+                      child,
+                      { romanized: event.target.value },
+                    ])
+                  );
+                }}
               ></input>
             </div>
           ))}

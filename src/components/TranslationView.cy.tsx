@@ -16,10 +16,10 @@ describe("TranslationView", () => {
     const translation: Translation = {
       romanized: "Sha dor.",
       structure: {
-        children: {
-          Subject: { romanized: "sha" },
-          Verb: { romanized: "dor" },
-        },
+        children: [
+          ["Subject", { romanized: "sha" }],
+          ["Verb", { romanized: "dor" }],
+        ],
       },
       translation: "The cat is sleeping.",
     };

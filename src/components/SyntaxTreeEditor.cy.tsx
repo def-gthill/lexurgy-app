@@ -23,10 +23,10 @@ describe("SyntaxTreeEditor", () => {
     function saveTree(root: SyntaxNode) {
       saved = true;
       expect(root.nodeTypeId).to.equal(wantedId);
-      expect(root.children).to.deep.equal({
-        Subject: { romanized: "sha" },
-        Verb: { romanized: "dor" },
-      });
+      expect(root.children).to.deep.equal([
+        ["Subject", { romanized: "sha" }],
+        ["Verb", { romanized: "dor" }],
+      ]);
     }
     cy.mount(
       <SyntaxTreeEditor constructions={constructions} saveTree={saveTree} />

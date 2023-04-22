@@ -35,7 +35,7 @@ async function getTranslations(
 ): Promise<Translation[]> {
   const languageId = requestQuery.language as string;
   const result = (
-    await query<QueryTranslation>(
+    await query<Translation>(
       driver,
       `MATCH (tr:Translation) -[:IS_IN]-> (lang:Language {id: $id})
       OPTIONAL MATCH (tr) -[:HAS_STRUCTURE]-> (node:SyntaxNode)
@@ -48,7 +48,7 @@ async function getTranslations(
     )
   ).map((translation) => {
     if (translation.structure) {
-      const structure = convertStructure(translation.structure);
+      const structure = translation.structure;
       return {
         ...translation,
         languageId,
@@ -64,18 +64,6 @@ async function getTranslations(
     }
   });
   return result;
-}
-
-function convertStructure(structure: QuerySyntaxNode): SyntaxNode {
-  return {
-    ...structure,
-    children: Object.fromEntries(
-      structure.children.map(([childName, child]) => [
-        childName,
-        "romanized" in child ? child : convertStructure(child),
-      ])
-    ),
-  };
 }
 
 async function postTranslation(translation: Translation): Promise<Translation> {
@@ -102,7 +90,7 @@ async function postTranslation(translation: Translation): Promise<Translation> {
     MATCH (cons:Construction {id: $structure.nodeTypeId})
     CREATE (node) -[:HAS_TYPE]-> (cons)
     WITH node
-    UNWIND [k in KEYS($structure.children) | [k, $structure.children[k]]] AS child
+    UNWIND $structure.children AS child
     CREATE (word:Word {romanized: child[1].romanized})
     CREATE (node) -[:HAS_CHILD {name: child[0]}]-> (word)
     WITH word, child[1].stemId AS stemId
@@ -124,7 +112,7 @@ async function linkStems(
 }
 
 function getStems(structure: SyntaxNode): string[] {
-  return Object.values(structure.children).flatMap((child) =>
+  return structure.children.flatMap(([_name, child]) =>
     "romanized" in child ? [child.romanized] : getStems(child)
   );
 }
@@ -154,13 +142,11 @@ function addLexemeLinks(
 ): SyntaxNode {
   return {
     ...structure,
-    children: Object.fromEntries(
-      Object.entries(structure.children).map(([childName, child]) => [
-        childName,
-        "romanized" in child
-          ? { ...child, stemId: lexemes.get(child.romanized)?.id }
-          : addLexemeLinks(child, lexemes),
-      ])
-    ),
+    children: structure.children.map(([childName, child]) => [
+      childName,
+      "romanized" in child
+        ? { ...child, stemId: lexemes.get(child.romanized)?.id }
+        : addLexemeLinks(child, lexemes),
+    ]),
   };
 }

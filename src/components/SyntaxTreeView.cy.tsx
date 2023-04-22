@@ -4,10 +4,10 @@ import SyntaxTreeView from "./SyntaxTreeView";
 describe("SyntaxTreeView", () => {
   it("displays a one-node syntax tree", () => {
     const root: SyntaxNode = {
-      children: {
-        Subject: { romanized: "sha" },
-        Verb: { romanized: "dor" },
-      },
+      children: [
+        ["Subject", { romanized: "sha" }],
+        ["Verb", { romanized: "dor" }],
+      ],
     };
     cy.mount(<SyntaxTreeView root={root} />);
     cy.contains("Subject");
@@ -22,10 +22,10 @@ describe("SyntaxTreeView", () => {
         name: "Intransitive Clause",
         children: ["Subject", "Verb"],
       },
-      children: {
-        Subject: { romanized: "sha" },
-        Verb: { romanized: "dor" },
-      },
+      children: [
+        ["Subject", { romanized: "sha" }],
+        ["Verb", { romanized: "dor" }],
+      ],
     };
     cy.mount(<SyntaxTreeView root={root} />);
     cy.contains("Intransitive Clause");
@@ -37,41 +37,59 @@ describe("SyntaxTreeView", () => {
 
   it("displays a complex syntax tree", () => {
     const root: SyntaxNode = {
-      children: {
-        Subject: {
-          children: {
-            Det: { romanized: "the" },
-            Noun: {
-              children: {
-                Modifier: { romanized: "quick" },
-                Noun: {
-                  children: {
-                    Modifier: { romanized: "brown" },
-                    Noun: { romanized: "fox" },
-                  },
+      children: [
+        [
+          "Subject",
+          {
+            children: [
+              ["Det", { romanized: "the" }],
+              [
+                "Noun",
+                {
+                  children: [
+                    ["Modifier", { romanized: "quick" }],
+                    [
+                      "Noun",
+                      {
+                        children: [
+                          ["Modifier", { romanized: "brown" }],
+                          ["Noun", { romanized: "fox" }],
+                        ],
+                      },
+                    ],
+                  ],
                 },
-              },
-            },
+              ],
+            ],
           },
-        },
-        Verb: {
-          children: {
-            Verb: { romanized: "jumps" },
-            Prep: { romanized: "over" },
+        ],
+        [
+          "Verb",
+          {
+            children: [
+              ["Verb", { romanized: "jumps" }],
+              ["Prep", { romanized: "over" }],
+            ],
           },
-        },
-        Object: {
-          children: {
-            Det: { romanized: "the" },
-            Noun: {
-              children: {
-                Modifier: { romanized: "lazy" },
-                Noun: { romanized: "dog" },
-              },
-            },
+        ],
+        [
+          "Object",
+          {
+            children: [
+              ["Det", { romanized: "the" }],
+              [
+                "Noun",
+                {
+                  children: [
+                    ["Modifier", { romanized: "lazy" }],
+                    ["Noun", { romanized: "dog" }],
+                  ],
+                },
+              ],
+            ],
           },
-        },
-      },
+        ],
+      ],
     };
     cy.mount(<SyntaxTreeView root={root} />);
     for (const word of [

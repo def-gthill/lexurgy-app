@@ -26,7 +26,7 @@ function SyntaxNodeView({
         <div className={styles.nodeType}>{node.construction.name}</div>
       )}
       <div className={styles.branchContent}>
-        {Object.entries(node.children).map(([childName, child]) =>
+        {node.children.map(([childName, child]) =>
           "romanized" in child ? (
             <div key={childName} className={styles.leaf}>
               <div className={styles.nodeType}>{childName}</div>
