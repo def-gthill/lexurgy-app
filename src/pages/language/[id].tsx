@@ -1,4 +1,5 @@
 import HiddenEditor from "@/components/HiddenEditor";
+import LanguageHeader from "@/components/LanguageHeader";
 import LanguageInfo from "@/components/LanguageInfo";
 import StructuredTranslationEditor from "@/components/StructuredTranslationEditor";
 import TranslationEditor from "@/components/TranslationEditor";
@@ -33,6 +34,7 @@ export default function LanguageOverview() {
               content={`"${language.name}, a constructed language"`}
             />
           </Head>
+          <LanguageHeader id={id} active="Main" />
           <main>
             <h1>{language.name}</h1>
             <h2>Translations</h2>

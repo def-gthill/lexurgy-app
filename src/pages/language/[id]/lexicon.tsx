@@ -1,4 +1,5 @@
 import HiddenEditor from "@/components/HiddenEditor";
+import LanguageHeader from "@/components/LanguageHeader";
 import LanguageInfo from "@/components/LanguageInfo";
 import LexiconEntryEditor from "@/components/LexiconEntryEditor";
 import LexiconView from "@/components/LexiconView";
@@ -31,6 +32,7 @@ export default function LexiconPage() {
               content={`"Lexicon for ${language.name}, a constructed language"`}
             />
           </Head>
+          <LanguageHeader id={id} active="Lexicon" />
           <main>
             <h1>{language.name} Lexicon</h1>
             <HiddenEditor

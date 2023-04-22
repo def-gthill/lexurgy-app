@@ -3,31 +3,51 @@ import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import { signOut } from "next-auth/react";
 import NextLink from "next/link";
 
-export default function Header() {
+export default function Header({
+  links,
+  active,
+}: {
+  links?: { label: string; url: string }[];
+  active?: string;
+}) {
   return (
     <NavigationMenu.Root>
       <NavigationMenu.List className={styles.NavigationMenuList}>
-        <NavigationMenu.Item>
-          <Link href="/">Lexurgy</Link>
-        </NavigationMenu.Item>
-        <NavigationMenu.Item>
-          <NavigationMenu.Link
-            className={styles.NavigationMenuLink}
-            href="https://github.com/def-gthill/lexurgy-app"
-          >
-            GitHub
-          </NavigationMenu.Link>
-        </NavigationMenu.Item>
-        <NavigationMenu.Item>
-          <NavigationMenu.Link
-            className={styles.NavigationMenuLink}
-            onSelect={() => {
-              signOut();
-            }}
-          >
-            Sign Out
-          </NavigationMenu.Link>
-        </NavigationMenu.Item>
+        <div className={styles.leftGroup}>
+          <NavigationMenu.Item>
+            <Link href="/">Lexurgy</Link>
+          </NavigationMenu.Item>
+        </div>
+        <div className={styles.centreGroup}>
+          {links?.map(({ label, url }) => (
+            <NavigationMenu.Item key={label}>
+              <Link href={url} active={active === label}>
+                {label}
+              </Link>
+            </NavigationMenu.Item>
+          ))}
+        </div>
+        <div className={styles.rightGroup}>
+          <NavigationMenu.Item>
+            <NavigationMenu.Link
+              className={styles.NavigationMenuLink}
+              href="https://github.com/def-gthill/lexurgy-app"
+            >
+              GitHub
+            </NavigationMenu.Link>
+          </NavigationMenu.Item>
+          <NavigationMenu.Item>
+            <NavigationMenu.Link
+              className={styles.NavigationMenuLink}
+              href="javascript:void(0)"
+              onSelect={() => {
+                signOut();
+              }}
+            >
+              Sign Out
+            </NavigationMenu.Link>
+          </NavigationMenu.Item>
+        </div>
       </NavigationMenu.List>
     </NavigationMenu.Root>
   );

@@ -1,9 +1,28 @@
 .NavigationMenuList {
   display: flex;
+  justify-content: stretch;
   background-color: var(--primary);
   color: var(--foreground-always-light);
   padding: 4px;
   list-style: none;
+}
+
+.leftGroup {
+  display: flex;
+  flex: 1;
+  justify-content: left;
+}
+
+.centreGroup {
+  display: flex;
+  flex-grow: 0;
+  justify-content: center;
+}
+
+.rightGroup {
+  display: flex;
+  flex: 1;
+  justify-content: right;
 }
 
 .NavigationMenuLink {
@@ -13,6 +32,7 @@
   padding: 8px;
 }
 
-.NavigationMenuLink:hover {
+.NavigationMenuLink:hover,
+.NavigationMenuLink[data-active] {
   background-color: var(--primary-dark);
 }

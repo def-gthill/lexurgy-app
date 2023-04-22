@@ -1,3 +1,4 @@
+import Header from "@/components/Header";
 import HiddenEditor from "@/components/HiddenEditor";
 import LanguageInfoEditor from "@/components/LanguageInfoEditor";
 import Language from "@/models/Language";
@@ -26,6 +27,7 @@ export default function Home() {
         <title>Lexurgy</title>
         <meta name="description" content="A high-powered conlanger's toolkit" />
       </Head>
+      <Header />
       <main>
         <h1>My Workspace</h1>
         <h2>Languages</h2>
