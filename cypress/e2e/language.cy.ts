@@ -17,6 +17,13 @@ describe("a language page", () => {
     cy.title().should("equal", "Lexurgy - Examplish Lexicon");
     cy.contains("Examplish Lexicon").should("be.visible");
   });
+
+  it("has a link to the syntax page", () => {
+    cy.visit(`/language/${examplishUuid}`);
+    cy.contains("Syntax").click();
+    cy.title().should("equal", "Lexurgy - Examplish Syntax");
+    cy.contains("Examplish Syntax").should("be.visible");
+  });
 });
 
 export {};

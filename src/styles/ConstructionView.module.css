@@ -1,0 +1,12 @@
+.children {
+  display: flex;
+}
+
+.child {
+  background-color: hsl(100, 50%, 30%);
+  color: var(--foreground-always-light);
+  margin: 2px;
+  padding: 4px;
+  border-radius: 4px;
+  text-align: center;
+}
