@@ -16,9 +16,23 @@ export default function Home() {
   );
   const { mutate } = useSWRConfig();
   if (error !== undefined) {
-    return <div>Error loading workspace</div>;
+    return (
+      <>
+        <Header />
+        <main>
+          <div>Error loading workspace</div>
+        </main>
+      </>
+    );
   } else if (languages === undefined) {
-    return <div>Loading workspace...</div>;
+    return (
+      <>
+        <Header />
+        <main>
+          <div>Loading workspace...</div>
+        </main>
+      </>
+    );
   }
   languages.sort((a: Language, b: Language) => a.name.localeCompare(b.name));
   return (
