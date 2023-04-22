@@ -1,6 +1,10 @@
 describe("the translation editor", () => {
   const examplishUuid = "b1365a98-00d1-4633-8e04-9c48259dd698";
 
+  beforeEach(() => {
+    cy.exec("npm run db:reset && npm run db:seed:examplish");
+  });
+
   it("lets the user create a simple translation", () => {
     cy.visit(`/language/${examplishUuid}`);
     cy.contains("Add Translation").click();
