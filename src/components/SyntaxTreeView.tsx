@@ -33,7 +33,12 @@ function SyntaxNodeView({
               <div>{(child as Word).romanized}</div>
             </div>
           ) : (
-            <SyntaxNodeView node={child} level={level + 1} name={childName} />
+            <SyntaxNodeView
+              key={childName}
+              node={child}
+              level={level + 1}
+              name={childName}
+            />
           )
         )}
       </div>
