@@ -1,4 +1,6 @@
+import ConstructionEditor from "@/components/ConstructionEditor";
 import ConstructionView from "@/components/ConstructionView";
+import HiddenEditor from "@/components/HiddenEditor";
 import LanguagePage from "@/components/LanguagePage";
 import Construction from "@/models/Construction";
 import Language from "@/models/Language";
@@ -32,6 +34,18 @@ export default function SyntaxPage() {
           </Head>
           <main>
             <h1>{language.name} Syntax</h1>
+            <HiddenEditor
+              showButtonLabel="Add Construction"
+              component={(value, onChange) => (
+                <ConstructionEditor construction={value} onChange={onChange} />
+              )}
+              initialValue={{
+                languageId: language.id,
+                name: "",
+                children: [""],
+              }}
+              onSave={saveConstruction}
+            />
             {constructions.map((construction) => (
               <ConstructionView
                 construction={construction}
@@ -43,4 +57,9 @@ export default function SyntaxPage() {
       )}
     />
   );
+
+  async function saveConstruction(construction: Construction) {
+    await axios.post("/api/constructions", construction);
+    mutate(`/api/constructions?language=${id}`);
+  }
 }

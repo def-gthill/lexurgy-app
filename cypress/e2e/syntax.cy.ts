@@ -11,4 +11,17 @@ describe("the construction editor", () => {
     cy.contains("Subject");
     cy.contains("Verb");
   });
+
+  it("lets the user create a construction", () => {
+    cy.visit(`/language/${examplishUuid}/syntax`);
+    cy.contains("Add Construction").click();
+    cy.get("#name").type("Noun Phrase");
+    cy.get("#slot1").type("Noun");
+    cy.contains("Add Slot").click();
+    cy.get("#slot2").type("Modifier");
+    cy.contains("Save").click();
+    cy.contains("Noun Phrase");
+    cy.reload();
+    cy.contains("Noun Phrase");
+  });
 });

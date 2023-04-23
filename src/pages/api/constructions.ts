@@ -37,7 +37,7 @@ async function postConstruction(
     driver,
     `MATCH (lang:Language {id: $languageId})
     MERGE (cons:Construction {id: $id}) -[:IS_IN]-> (lang)
-    SET name = $name, children = $children`,
+    SET cons.name = $name, cons.children = $children`,
     { ...construction }
   );
   return construction;
