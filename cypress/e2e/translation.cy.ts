@@ -56,3 +56,5 @@ describe("the translation editor", () => {
     cy.contains("Fyel dor.");
   });
 });
+
+export {};
