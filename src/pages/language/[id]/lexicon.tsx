@@ -20,6 +20,9 @@ export default function LexiconPage() {
   );
   const lexemes = data || [];
   const { mutate } = useSWRConfig();
+  lexemes.sort((a: Lexeme, b: Lexeme) =>
+    a.romanized.localeCompare(b.romanized)
+  );
   return (
     <LanguagePage
       activeLink="Lexicon"
