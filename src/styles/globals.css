@@ -16,6 +16,21 @@
     var(--primary-sat),
     calc(var(--primary-lit) - 10%)
   );
+
+  --danger-hue: 0;
+  --danger-sat: 90%;
+  --danger-lit: 40%;
+  --danger: hsl(var(--danger-hue), var(--danger-sat), var(--danger-lit));
+  --danger-dark: hsl(
+    var(--danger-hue),
+    var(--danger-sat),
+    calc(var(--danger-lit) - 10%)
+  );
+  --danger-grey: hsl(
+    var(--danger-hue),
+    calc(var(--danger-sat) - 70%),
+    var(--danger-lit)
+  );
 }
 
 @media (prefers-color-scheme: dark) {
@@ -132,12 +147,43 @@ button:hover {
   background-color: var(--primary-dark);
 }
 
+button.danger {
+  background-color: var(--danger);
+  color: var(--foreground-always-light);
+}
+
+button.danger:hover {
+  background-color: var(--danger-dark);
+}
+
+button.danger:disabled {
+  background-color: var(--danger-grey);
+}
+
 .buttons {
   padding: 2px;
 }
 
 .buttons > button {
   margin: 2px;
+}
+
+.AlertDialogOverlay {
+  background-color: hsl(0 0% 50% / 20%);
+  position: fixed;
+  inset: 0;
+}
+
+.AlertDialogContent {
+  background-color: var(--card-background);
+  border-radius: 6px;
+  border-style: solid;
+  border-color: var(--foreground);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 25px;
 }
 
 @media (prefers-color-scheme: dark) {
