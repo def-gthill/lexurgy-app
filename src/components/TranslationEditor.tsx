@@ -1,6 +1,15 @@
+import Construction from "@/models/Construction";
 import Language from "@/models/Language";
+import { structureToRomanized } from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
+import * as Label from "@radix-ui/react-label";
+import axios from "axios";
+import useSWR from "swr";
 import Fields, { Field } from "./Fields";
+import SyntaxTreeEditor from "./SyntaxTreeEditor";
+import SyntaxTreeView from "./SyntaxTreeView";
+
+const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function TranslationEditor({
   language,
@@ -11,20 +20,42 @@ export default function TranslationEditor({
   translation: Translation;
   onChange: (newTranslation: Translation) => void;
 }) {
+  const { data: constructions } = useSWR<Construction[], Error>(
+    `/api/constructions?language=${language.id}`,
+    fetcher
+  );
+  const syntaxTreeEditor = constructions ? (
+    <div>
+      <SyntaxTreeEditor
+        constructions={constructions}
+        saveTree={(structure) =>
+          onChange({
+            ...translation,
+            romanized: structureToRomanized(structure),
+            structure: structure,
+          })
+        }
+      />
+    </div>
+  ) : (
+    <div>No Constructions</div>
+  );
   return (
-    <Fields>
-      <Field
-        id="text"
-        name={`${language.name} Text`}
-        value={translation.romanized}
-        onChange={(value) => onChange({ ...translation, romanized: value })}
-      />
-      <Field
-        id="translation"
-        name="Free Translation"
-        value={translation.translation}
-        onChange={(value) => onChange({ ...translation, translation: value })}
-      />
-    </Fields>
+    <>
+      <Fields>
+        <Label.Root htmlFor="structure">Structure</Label.Root>
+        {translation.structure ? (
+          <SyntaxTreeView root={translation.structure} />
+        ) : (
+          syntaxTreeEditor
+        )}
+        <Field
+          id="translation"
+          name="Free Translation"
+          value={translation.translation}
+          onChange={(value) => onChange({ ...translation, translation: value })}
+        />
+      </Fields>
+    </>
   );
 }

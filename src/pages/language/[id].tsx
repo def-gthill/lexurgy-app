@@ -1,6 +1,5 @@
 import HiddenEditor from "@/components/HiddenEditor";
 import LanguagePage from "@/components/LanguagePage";
-import StructuredTranslationEditor from "@/components/StructuredTranslationEditor";
 import TranslationEditor from "@/components/TranslationEditor";
 import TranslationView from "@/components/TranslationView";
 import Language from "@/models/Language";
@@ -41,22 +40,6 @@ export default function LanguageOverview() {
               showButtonLabel="Add Translation"
               component={(value, onChange) => (
                 <TranslationEditor
-                  language={language}
-                  translation={value}
-                  onChange={onChange}
-                />
-              )}
-              initialValue={{
-                languageId: language.id,
-                romanized: "",
-                translation: "",
-              }}
-              onSave={saveTranslation}
-            />
-            <HiddenEditor
-              showButtonLabel="Add Structured Translation"
-              component={(value, onChange) => (
-                <StructuredTranslationEditor
                   language={language}
                   translation={value}
                   onChange={onChange}

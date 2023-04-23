@@ -5,20 +5,9 @@ describe("the translation editor", () => {
     cy.exec("npm run db:reset && npm run db:seed:examplish");
   });
 
-  it("lets the user create a simple translation", () => {
-    cy.visit(`/language/${examplishUuid}`);
-    cy.contains("Add Translation").click();
-    cy.get("#text").type("Sha dor.");
-    cy.get("#translation").type("The cat is sleeping.");
-    cy.contains("Save").click();
-    cy.contains("Sha dor.");
-    cy.reload();
-    cy.contains("Sha dor.");
-  });
-
   it("lets the user create a one-node syntax tree", () => {
     cy.visit(`/language/${examplishUuid}`);
-    cy.contains("Add Structured Translation").click();
+    cy.contains("Add Translation").click();
     cy.get("#construction").select("Intransitive Clause");
     cy.contains("Create").click();
     cy.contains("Subject").type("sha");
@@ -39,7 +28,7 @@ describe("the translation editor", () => {
   it("lets the user create a syntax tree with lexicon links", () => {
     cy.exec("npm run db:seed:examplish:lexicon");
     cy.visit(`/language/${examplishUuid}`);
-    cy.contains("Add Structured Translation").click();
+    cy.contains("Add Translation").click();
     cy.get("#construction").select("Intransitive Clause");
     cy.contains("Create").click();
     cy.contains("Subject").type("sha");
