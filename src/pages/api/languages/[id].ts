@@ -1,15 +1,16 @@
-import getDriver from "@/db";
+import getDriver, { query } from "@/db";
 import Language from "@/models/Language";
+import { HttpStatusCode } from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const driver = getDriver();
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Language>
+  res: NextApiResponse<Language | string>
 ) {
+  const { id } = req.query;
   if (req.method === "GET") {
-    const { id } = req.query;
     const session = driver.session();
     try {
       const result = await session.run(
@@ -27,5 +28,16 @@ export default async function handler(
     } finally {
       await session.close();
     }
+  } else if (req.method == "DELETE") {
+    const language = await query<Language>(
+      driver,
+      `MATCH (lang:Language {id: $id})
+      OPTIONAL MATCH (lang) <-[:IS_IN]- (n)
+      DETACH DELETE lang, n RETURN lang`,
+      { id }
+    );
+    res.status(HttpStatusCode.Ok).json(`Language ${language} deleted`);
+  } else {
+    res.status(HttpStatusCode.MethodNotAllowed);
   }
 }

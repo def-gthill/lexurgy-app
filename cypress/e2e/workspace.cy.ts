@@ -28,7 +28,7 @@ describe("the workspace page", () => {
     cy.contains("Delete").click();
     cy.get("#confirm").type("Examplish");
     cy.get(".AlertDialogContent").contains("Delete").click();
-    cy.get(".card").should("be.empty");
+    cy.get(".card").should("not.exist");
   });
 });
 

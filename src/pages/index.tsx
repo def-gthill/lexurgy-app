@@ -76,56 +76,63 @@ export default function Home() {
     await axios.post("/api/languages", language);
     mutate(`/api/languages`);
   }
-}
 
-function DeleteLanguageConfirmDialog({ language }: { language: Language }) {
-  const [confirmText, setConfirmText] = useState("");
-  return (
-    <div className="buttons">
-      <AlertDialog.Root>
-        <AlertDialog.Trigger asChild>
-          <button className="danger">Delete</button>
-        </AlertDialog.Trigger>
-        <AlertDialog.Portal>
-          <AlertDialog.Overlay className="AlertDialogOverlay" />
-          <AlertDialog.Content className="AlertDialogContent">
-            <AlertDialog.Title className="AlertDialogTitle">
-              Are you absolutely sure?
-            </AlertDialog.Title>
-            <AlertDialog.Description className="AlertDialogDescription">
-              <p>
-                This will permanently delete {language.name} and all its data.
-                This cannot be undone.
-              </p>
-              <Label.Root htmlFor="confirm">
-                Type the name of the language:
-              </Label.Root>
-              <input
-                type="text"
-                id="confirm"
-                value={confirmText}
-                onChange={(event) => setConfirmText(event.target.value)}
-              />
-            </AlertDialog.Description>
-            <div className="buttons">
-              <AlertDialog.Cancel asChild>
-                <button>Cancel</button>
-              </AlertDialog.Cancel>
-              <AlertDialog.Action asChild>
-                <button
-                  className="danger"
-                  disabled={
-                    confirmText.toLocaleLowerCase() !==
-                    language.name.toLocaleLowerCase()
-                  }
-                >
-                  Delete
-                </button>
-              </AlertDialog.Action>
-            </div>
-          </AlertDialog.Content>
-        </AlertDialog.Portal>
-      </AlertDialog.Root>
-    </div>
-  );
+  function DeleteLanguageConfirmDialog({ language }: { language: Language }) {
+    const [confirmText, setConfirmText] = useState("");
+    const { mutate } = useSWRConfig();
+    return (
+      <div className="buttons">
+        <AlertDialog.Root>
+          <AlertDialog.Trigger asChild>
+            <button className="danger">Delete</button>
+          </AlertDialog.Trigger>
+          <AlertDialog.Portal>
+            <AlertDialog.Overlay className="AlertDialogOverlay" />
+            <AlertDialog.Content className="AlertDialogContent">
+              <AlertDialog.Title className="AlertDialogTitle">
+                Are you absolutely sure?
+              </AlertDialog.Title>
+              <AlertDialog.Description className="AlertDialogDescription">
+                <p>
+                  This will permanently delete {language.name} and all its data.
+                  This cannot be undone.
+                </p>
+                <Label.Root htmlFor="confirm">
+                  Type the name of the language:
+                </Label.Root>
+                <input
+                  type="text"
+                  id="confirm"
+                  value={confirmText}
+                  onChange={(event) => setConfirmText(event.target.value)}
+                />
+              </AlertDialog.Description>
+              <div className="buttons">
+                <AlertDialog.Cancel asChild>
+                  <button>Cancel</button>
+                </AlertDialog.Cancel>
+                <AlertDialog.Action asChild>
+                  <button
+                    className="danger"
+                    disabled={
+                      confirmText.toLocaleLowerCase() !==
+                      language.name.toLocaleLowerCase()
+                    }
+                    onClick={deleteLanguage}
+                  >
+                    Delete
+                  </button>
+                </AlertDialog.Action>
+              </div>
+            </AlertDialog.Content>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>
+      </div>
+    );
+
+    async function deleteLanguage() {
+      await axios.delete(`/api/languages/${language.id}`);
+      mutate(`/api/languages`);
+    }
+  }
 }
