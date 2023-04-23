@@ -1,4 +1,3 @@
 {
-  "extends": "next/core-web-vitals",
-  "react/jsx-key": [true, { "checkFragmentSyntaxShorthand": true }]
+  "extends": "next/core-web-vitals"
 }

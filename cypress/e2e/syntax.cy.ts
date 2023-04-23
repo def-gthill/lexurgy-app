@@ -25,3 +25,5 @@ describe("the construction editor", () => {
     cy.contains("Noun Phrase");
   });
 });
+
+export {};
