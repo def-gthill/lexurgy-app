@@ -23,8 +23,6 @@ export default function LanguageOverview() {
       .data || [];
   const { mutate } = useSWRConfig();
 
-  console.log(translations);
-
   return (
     <LanguagePage
       activeLink="Main"
