@@ -4,22 +4,20 @@ import HiddenEditor from "@/components/HiddenEditor";
 import LanguagePage from "@/components/LanguagePage";
 import Construction from "@/models/Construction";
 import Language from "@/models/Language";
-import axios from "axios";
+import usePersistentCollection from "@/usePersistentCollection";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import useSWR, { useSWRConfig } from "swr";
-
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function SyntaxPage() {
   const router = useRouter();
   const id = router.query.id as string;
-  const { data } = useSWR<Construction[], Error>(
-    `/api/constructions?language=${id}`,
-    fetcher
+
+  const constructionCollection = usePersistentCollection<Construction>(
+    "/api/constructions",
+    `/api/constructions?language=${id}`
   );
-  const constructions = data || [];
-  const { mutate } = useSWRConfig();
+  const constructions = constructionCollection.getOrEmpty();
+
   return (
     <LanguagePage
       activeLink="Syntax"
@@ -44,7 +42,7 @@ export default function SyntaxPage() {
                 name: "",
                 children: [""],
               }}
-              onSave={saveConstruction}
+              onSave={constructionCollection.save}
             />
             {constructions.map((construction) => (
               <ConstructionView
@@ -57,9 +55,4 @@ export default function SyntaxPage() {
       )}
     />
   );
-
-  async function saveConstruction(construction: Construction) {
-    await axios.post("/api/constructions", construction);
-    mutate(`/api/constructions?language=${id}`);
-  }
 }

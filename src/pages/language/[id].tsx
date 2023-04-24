@@ -5,23 +5,23 @@ import TranslationView from "@/components/TranslationView";
 import Construction from "@/models/Construction";
 import Language from "@/models/Language";
 import Translation from "@/models/Translation";
-import axios from "axios";
+import usePersistentCollection from "@/usePersistentCollection";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import useSWR, { useSWRConfig } from "swr";
-
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function LanguageOverview() {
   const router = useRouter();
   const id = router.query.id as string;
-  const translations =
-    useSWR<Translation[], Error>(`/api/translations?language=${id}`, fetcher)
-      .data || [];
-  const constructions =
-    useSWR<Construction[], Error>(`/api/constructions?language=${id}`, fetcher)
-      .data || [];
-  const { mutate } = useSWRConfig();
+  const translationCollection = usePersistentCollection<Translation>(
+    "/api/translations",
+    `/api/translations?language=${id}`
+  );
+  const translations = translationCollection.getOrEmpty();
+  const constructionCollection = usePersistentCollection<Construction>(
+    "/api/constructions",
+    `/api/constructions?language=${id}`
+  );
+  const constructions = constructionCollection.getOrEmpty();
 
   return (
     <LanguagePage
@@ -52,14 +52,14 @@ export default function LanguageOverview() {
                 romanized: "",
                 translation: "",
               }}
-              onSave={saveTranslation}
+              onSave={translationCollection.save}
             />
             {translations.map((translation) => (
               <TranslationView
                 constructions={constructions}
                 translation={translation}
                 key={translation.id}
-                onUpdate={saveTranslation}
+                onUpdate={translationCollection.save}
               />
             ))}
           </main>
@@ -67,9 +67,4 @@ export default function LanguageOverview() {
       )}
     />
   );
-
-  async function saveTranslation(translation: Translation) {
-    await axios.post("/api/translations", translation);
-    mutate(`/api/translations?language=${id}`);
-  }
 }
