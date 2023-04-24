@@ -1,12 +1,12 @@
 import Header from "@/components/Header";
 import HiddenEditor from "@/components/HiddenEditor";
 import LanguageInfoEditor from "@/components/LanguageInfoEditor";
+import LanguageInfoView from "@/components/LanguageInfoView";
 import Language from "@/models/Language";
 import usePersistentCollection from "@/usePersistentCollection";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import * as Label from "@radix-ui/react-label";
 import Head from "next/head";
-import Link from "next/link";
 import { useState } from "react";
 
 export default function Home() {
@@ -33,16 +33,12 @@ export default function Home() {
             onSave={languageCollection.save}
           />
           {languages.map((language) => (
-            <div
-              className="card"
+            <LanguageInfoView
               key={language.id}
-              style={{ display: "flex", alignItems: "center" }}
-            >
-              <Link href={`/language/${language.id}`} style={{ flexGrow: 1 }}>
-                {language.name}
-              </Link>
-              <DeleteLanguageConfirmDialog language={language} />
-            </div>
+              language={language}
+              onUpdate={languageCollection.save}
+              onDelete={languageCollection.delete}
+            />
           ))}
         </>
       );

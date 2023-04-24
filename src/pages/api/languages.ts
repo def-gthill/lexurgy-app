@@ -21,8 +21,12 @@ async function postLanguage(language: Language): Promise<Language> {
   if (language.id === undefined) {
     language.id = crypto.randomUUID();
   }
-  await execute(driver, "CREATE (:Language {id: $id, name: $name})", {
-    ...language,
-  });
+  await execute(
+    driver,
+    "MERGE (lang:Language {id: $id}) SET lang.name = $name",
+    {
+      ...language,
+    }
+  );
   return language;
 }
