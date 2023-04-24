@@ -2,42 +2,53 @@ import Header from "@/components/Header";
 import HiddenEditor from "@/components/HiddenEditor";
 import LanguageInfoEditor from "@/components/LanguageInfoEditor";
 import Language from "@/models/Language";
+import usePersistentCollection from "@/usePersistentCollection";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import * as Label from "@radix-ui/react-label";
-import axios from "axios";
 import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
-import useSWR, { useSWRConfig } from "swr";
-
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function Home() {
-  const { data: languages, error } = useSWR<Language[], Error>(
-    "/api/languages",
-    fetcher
-  );
-  const { mutate } = useSWRConfig();
-  if (error !== undefined) {
-    return (
-      <>
-        <Header />
-        <main>
-          <div>Error loading workspace</div>
-        </main>
-      </>
-    );
-  } else if (languages === undefined) {
-    return (
-      <>
-        <Header />
-        <main>
-          <div>Loading workspace...</div>
-        </main>
-      </>
-    );
-  }
-  languages.sort((a: Language, b: Language) => a.name.localeCompare(b.name));
+  const languageCollection =
+    usePersistentCollection<Language>("/api/languages");
+
+  const content = languageCollection.fold({
+    onLoading: () => <div>Loading workspace...</div>,
+    onError: () => <div>Error loading workspace</div>,
+    onReady: (languages) => {
+      languages.sort((a: Language, b: Language) =>
+        a.name.localeCompare(b.name)
+      );
+      return (
+        <>
+          <h1>My Workspace</h1>
+          <h2>Languages</h2>
+          <HiddenEditor
+            showButtonLabel="New Language"
+            component={(value, onChange) => (
+              <LanguageInfoEditor language={value} onChange={onChange} />
+            )}
+            initialValue={{ name: "" }}
+            onSave={languageCollection.save}
+          />
+          {languages.map((language) => (
+            <div
+              className="card"
+              key={language.id}
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              <Link href={`/language/${language.id}`} style={{ flexGrow: 1 }}>
+                {language.name}
+              </Link>
+              <DeleteLanguageConfirmDialog language={language} />
+            </div>
+          ))}
+        </>
+      );
+    },
+  });
+
   return (
     <>
       <Head>
@@ -45,41 +56,12 @@ export default function Home() {
         <meta name="description" content="A high-powered conlanger's toolkit" />
       </Head>
       <Header />
-      <main>
-        <h1>My Workspace</h1>
-        <h2>Languages</h2>
-        <HiddenEditor
-          showButtonLabel="New Language"
-          component={(value, onChange) => (
-            <LanguageInfoEditor language={value} onChange={onChange} />
-          )}
-          initialValue={{ name: "" }}
-          onSave={saveLanguage}
-        />
-        {languages.map((language) => (
-          <div
-            className="card"
-            key={language.id}
-            style={{ display: "flex", alignItems: "center" }}
-          >
-            <Link href={`/language/${language.id}`} style={{ flexGrow: 1 }}>
-              {language.name}
-            </Link>
-            <DeleteLanguageConfirmDialog language={language} />
-          </div>
-        ))}
-      </main>
+      <main>{content}</main>
     </>
   );
 
-  async function saveLanguage(language: Language) {
-    await axios.post("/api/languages", language);
-    mutate(`/api/languages`);
-  }
-
   function DeleteLanguageConfirmDialog({ language }: { language: Language }) {
     const [confirmText, setConfirmText] = useState("");
-    const { mutate } = useSWRConfig();
     return (
       <div className="buttons">
         <AlertDialog.Root>
@@ -118,7 +100,7 @@ export default function Home() {
                       confirmText.toLocaleLowerCase() !==
                       language.name.toLocaleLowerCase()
                     }
-                    onClick={deleteLanguage}
+                    onClick={() => languageCollection.delete(language.id!)}
                   >
                     Delete
                   </button>
@@ -129,10 +111,5 @@ export default function Home() {
         </AlertDialog.Root>
       </div>
     );
-
-    async function deleteLanguage() {
-      await axios.delete(`/api/languages/${language.id}`);
-      mutate(`/api/languages`);
-    }
   }
 }
