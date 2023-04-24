@@ -4,22 +4,21 @@ import LexiconEntryEditor from "@/components/LexiconEntryEditor";
 import LexiconView from "@/components/LexiconView";
 import Language from "@/models/Language";
 import Lexeme from "@/models/Lexeme";
-import axios from "axios";
+import usePersistentCollection from "@/usePersistentCollection";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import useSWR, { useSWRConfig } from "swr";
-
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function LexiconPage() {
   const router = useRouter();
   const id = router.query.id as string;
-  const { data } = useSWR<Lexeme[], Error>(
-    `/api/lexemes?language=${id}`,
-    fetcher
+
+  const lexicon = usePersistentCollection<Lexeme>(
+    "/api/lexemes",
+    `/api/lexemes?language=${id}`
   );
-  const lexemes = data || [];
-  const { mutate } = useSWRConfig();
+
+  const lexemes = lexicon.getOrEmpty();
+
   lexemes.sort((a: Lexeme, b: Lexeme) =>
     a.romanized.localeCompare(b.romanized)
   );
@@ -52,21 +51,16 @@ export default function LexiconPage() {
                 pos: "",
                 definitions: [""],
               }}
-              onSave={saveLexeme}
+              onSave={lexicon.save}
             />
             <LexiconView
               language={language}
               lexicon={lexemes}
-              onUpdate={saveLexeme}
+              onUpdate={lexicon.save}
             />
           </main>
         </>
       )}
     />
   );
-
-  async function saveLexeme(lexeme: Lexeme) {
-    await axios.post("/api/lexemes", lexeme);
-    mutate(`/api/lexemes?language=${id}`);
-  }
 }
