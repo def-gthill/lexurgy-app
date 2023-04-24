@@ -6,37 +6,40 @@ import { useState } from "react";
 
 export default function SyntaxTreeEditor({
   constructions,
+  root,
   saveTree,
 }: {
   constructions: Construction[];
+  root?: SyntaxNode;
   saveTree: (root: SyntaxNode) => void;
 }) {
   const [chosenConstruction, setChosenConstruction] = useState(
     constructions[0].name
   );
   const [activeConstruction, setActiveConstruction] =
-    useState<Construction | null>(null);
+    useState<Construction | null>(root?.construction || null);
   const [activeChildren, setActiveChildren] = useState<
     [string, Word | SyntaxNode][]
-  >([]);
+  >(root?.children || []);
 
   if (activeConstruction) {
     return (
       <div className="editor">
         <div style={{ display: "flex", flexDirection: "row" }}>
-          {activeConstruction.children.map((child) => (
+          {activeConstruction.children.map((childName) => (
             <div
-              key={child}
+              key={childName}
               style={{ display: "flex", flexDirection: "column" }}
             >
-              <label htmlFor={child}>{child}</label>
+              <label htmlFor={childName}>{childName}</label>
               <input
                 type="text"
-                id={child}
+                id={childName}
+                value={getChild(activeChildren, childName)}
                 onChange={(event) => {
                   setActiveChildren(
                     update(activeChildren, [
-                      child,
+                      childName,
                       { romanized: event.target.value },
                     ])
                   );
@@ -50,6 +53,7 @@ export default function SyntaxTreeEditor({
             onClick={() =>
               saveTree({
                 nodeTypeId: activeConstruction.id,
+                construction: activeConstruction,
                 children: activeChildren,
               })
             }
@@ -84,5 +88,21 @@ export default function SyntaxTreeEditor({
         (constructions) => constructions.name === chosenConstruction
       ) || null
     );
+  }
+
+  function getChild(
+    children: [string, Word | SyntaxNode][],
+    childName: string
+  ): string {
+    const entry = children.find(([name]) => name === childName);
+    if (!entry) {
+      return "";
+    }
+    const [_name, child] = entry;
+    if ("romanized" in child) {
+      return child.romanized;
+    } else {
+      return "";
+    }
   }
 }

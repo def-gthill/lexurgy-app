@@ -2,6 +2,7 @@ import HiddenEditor from "@/components/HiddenEditor";
 import LanguagePage from "@/components/LanguagePage";
 import TranslationEditor from "@/components/TranslationEditor";
 import TranslationView from "@/components/TranslationView";
+import Construction from "@/models/Construction";
 import Language from "@/models/Language";
 import Translation from "@/models/Translation";
 import axios from "axios";
@@ -14,12 +15,15 @@ const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 export default function LanguageOverview() {
   const router = useRouter();
   const id = router.query.id as string;
-  const { data } = useSWR<Translation[], Error>(
-    `/api/translations?language=${id}`,
-    fetcher
-  );
-  const translations = data || [];
+  const translations =
+    useSWR<Translation[], Error>(`/api/translations?language=${id}`, fetcher)
+      .data || [];
+  const constructions =
+    useSWR<Construction[], Error>(`/api/constructions?language=${id}`, fetcher)
+      .data || [];
   const { mutate } = useSWRConfig();
+
+  console.log(translations);
 
   return (
     <LanguagePage
@@ -40,7 +44,7 @@ export default function LanguageOverview() {
               showButtonLabel="Add Translation"
               component={(value, onChange) => (
                 <TranslationEditor
-                  language={language}
+                  constructions={constructions}
                   translation={value}
                   onChange={onChange}
                 />
@@ -53,7 +57,12 @@ export default function LanguageOverview() {
               onSave={saveTranslation}
             />
             {translations.map((translation) => (
-              <TranslationView translation={translation} key={translation.id} />
+              <TranslationView
+                constructions={constructions}
+                translation={translation}
+                key={translation.id}
+                onUpdate={saveTranslation}
+              />
             ))}
           </main>
         </>

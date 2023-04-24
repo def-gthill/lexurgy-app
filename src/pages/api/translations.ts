@@ -81,10 +81,14 @@ async function postTranslation(translation: Translation): Promise<Translation> {
   }
   let query = `
   MATCH (lang:Language {id: $languageId})
-  CREATE (tr:Translation {id: $id, romanized: $romanized, translation: $translation})
-  CREATE (tr) -[:IS_IN]-> (lang)`;
+  MERGE (tr:Translation {id: $id}) -[:IS_IN]-> (lang)
+  SET tr.romanized = $romanized, tr.translation = $translation
+  WITH tr
+  OPTIONAL MATCH (tr) -[:HAS_STRUCTURE]-> (node:SyntaxNode)
+  DETACH DELETE node`;
   if (translation.structure) {
     query += `
+    WITH tr
     CREATE (tr) -[:HAS_STRUCTURE]-> (node:SyntaxNode)
     WITH node
     MATCH (cons:Construction {id: $structure.nodeTypeId})

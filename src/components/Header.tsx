@@ -39,7 +39,7 @@ export default function Header({
           <NavigationMenu.Item>
             <NavigationMenu.Link
               className={styles.NavigationMenuLink}
-              href="javascript:void(0)"
+              href="#"
               onSelect={() => {
                 signOut();
               }}

@@ -1,53 +1,52 @@
 import Construction from "@/models/Construction";
-import Language from "@/models/Language";
 import { structureToRomanized } from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
 import * as Label from "@radix-ui/react-label";
-import axios from "axios";
-import useSWR from "swr";
+import { useState } from "react";
 import Fields, { Field } from "./Fields";
 import SyntaxTreeEditor from "./SyntaxTreeEditor";
 import SyntaxTreeView from "./SyntaxTreeView";
 
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
-
 export default function TranslationEditor({
-  language,
+  constructions,
   translation,
   onChange,
 }: {
-  language: Language;
+  constructions?: Construction[];
   translation: Translation;
   onChange: (newTranslation: Translation) => void;
 }) {
-  const { data: constructions } = useSWR<Construction[], Error>(
-    `/api/constructions?language=${language.id}`,
-    fetcher
-  );
-  const syntaxTreeEditor = constructions ? (
-    <div>
-      <SyntaxTreeEditor
-        constructions={constructions}
-        saveTree={(structure) =>
-          onChange({
-            ...translation,
-            romanized: structureToRomanized(structure),
-            structure: structure,
-          })
-        }
-      />
-    </div>
-  ) : (
-    <div>No Constructions</div>
-  );
+  const [editing, setEditing] = useState(!translation.structure);
+  const syntaxTreeEditor =
+    constructions && constructions.length > 0 ? (
+      <div>
+        <SyntaxTreeEditor
+          constructions={constructions}
+          root={translation.structure}
+          saveTree={(structure) => {
+            setEditing(false);
+            onChange({
+              ...translation,
+              romanized: structureToRomanized(structure),
+              structure: structure,
+            });
+          }}
+        />
+      </div>
+    ) : (
+      <div>No Constructions</div>
+    );
   return (
     <>
       <Fields>
         <Label.Root htmlFor="structure">Structure</Label.Root>
-        {translation.structure ? (
-          <SyntaxTreeView root={translation.structure} />
-        ) : (
+        {editing ? (
           syntaxTreeEditor
+        ) : (
+          <div>
+            <SyntaxTreeView root={translation.structure || { children: [] }} />
+            <button onClick={() => setEditing(true)}>Edit</button>
+          </div>
         )}
         <Field
           id="translation"

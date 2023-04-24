@@ -44,6 +44,28 @@ describe("the translation editor", () => {
     cy.visit(`/language/${examplishUuid}`);
     cy.contains("Fyel dor.");
   });
+
+  it("lets the user edit an existing translation", () => {
+    cy.visit(`/language/${examplishUuid}`);
+    cy.contains("Add Translation").click();
+    cy.get("#construction").select("Intransitive Clause");
+    cy.contains("Create").click();
+    cy.contains("Subject").type("sha");
+    cy.contains("Verb").type("dor");
+    cy.contains("Done").click();
+    cy.get("#translation").type("The cat is sleeping.");
+    cy.contains("Save").click();
+    cy.contains("Sha dor.");
+    cy.contains("Edit").click();
+    cy.contains("Edit").click();
+    cy.get("#Subject").clear().type("fyel");
+    cy.contains("Done").click();
+    cy.contains("Save").click();
+    cy.contains("Fyel dor.");
+    cy.reload();
+    cy.contains("Fyel dor.");
+    cy.contains("Sha dor.").should("not.exist");
+  });
 });
 
 export {};

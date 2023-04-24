@@ -26,7 +26,7 @@ export async function resourceEndpoint<T>(
 ) {
   const { id } = req.query;
   if (typeof id !== "string") {
-    res.status(HttpStatusCode.BadRequest);
+    res.status(HttpStatusCode.BadRequest).json('Parameter "id" not set');
   } else if (req.method == "GET") {
     const result = await get(id);
     if (result.length === 0) {
