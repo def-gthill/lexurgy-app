@@ -1,4 +1,4 @@
-import SyntaxNode from "@/models/SyntaxNode";
+import SyntaxNode, { childrenInOrder } from "@/models/SyntaxNode";
 import Word from "@/models/Word";
 import styles from "@/styles/SyntaxTreeView.module.css";
 
@@ -26,7 +26,7 @@ function SyntaxNodeView({
         <div className={styles.nodeType}>{node.construction.name}</div>
       )}
       <div className={styles.branchContent}>
-        {node.children.map(([childName, child]) =>
+        {childrenInOrder(node).map(([childName, child]) =>
           "romanized" in child ? (
             <div key={childName} className={styles.leaf}>
               <div className={styles.nodeType}>{childName}</div>

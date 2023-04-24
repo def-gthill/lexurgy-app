@@ -7,24 +7,26 @@ export default interface SyntaxNode {
   children: [string, Word | SyntaxNode][];
 }
 
+export function childrenInOrder(
+  structure: SyntaxNode
+): [string, Word | SyntaxNode][] {
+  return (
+    structure.construction?.children
+      .filter((childName) =>
+        structure.children.some(([name]) => name === childName)
+      )
+      .map(
+        (childName) => structure.children.find(([name]) => name === childName)!
+      ) || structure.children
+  );
+}
+
 export function structureToRomanized(structure: SyntaxNode): string {
-  if (structure.construction) {
-    return finishTranslation(
-      structure.construction.children
-        .map((childName) =>
-          childToRomanized(
-            structure.children.find(([name]) => name === childName)![1]
-          )
-        )
-        .join(" ")
-    );
-  } else {
-    return finishTranslation(
-      structure.children
-        .map(([_name, child]) => childToRomanized(child))
-        .join(" ")
-    );
-  }
+  return finishTranslation(
+    childrenInOrder(structure)
+      .map(([_name, child]) => childToRomanized(child))
+      .join(" ")
+  );
 }
 
 function childToRomanized(child: SyntaxNode | Word): string {
