@@ -60,6 +60,7 @@ export default function LanguageOverview() {
                 translation={translation}
                 key={translation.id}
                 onUpdate={translationCollection.save}
+                onDelete={translationCollection.delete}
               />
             ))}
           </main>

@@ -9,10 +9,12 @@ export default function TranslationView({
   constructions,
   translation,
   onUpdate,
+  onDelete,
 }: {
   constructions?: Construction[];
   translation: Translation;
   onUpdate?: (newTranslation: Translation) => void;
+  onDelete?: (id: string) => void;
 }) {
   const [showingStructure, setShowingStructure] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -38,8 +40,8 @@ export default function TranslationView({
       <p>{`"${editedTranslation.translation}"`}</p>
     </>
   );
-  if (onUpdate) {
-    return editing ? (
+  if (onUpdate && editing) {
+    return (
       <Editor
         component={(value, onChange) => (
           <TranslationEditor
@@ -55,14 +57,23 @@ export default function TranslationView({
           onUpdate({ ...value, id: translation.id });
         }}
       />
-    ) : (
+    );
+  } else {
+    return (
       <li className="card" style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flexGrow: 1 }}>{content}</div>
         <div className="buttons">
-          <button onClick={() => setEditing(true)}>Edit</button>
+          {onUpdate && <button onClick={() => setEditing(true)}>Edit</button>}
+          {onDelete && (
+            <button
+              className="danger"
+              onClick={() => onDelete(translation.id!)}
+            >
+              Delete
+            </button>
+          )}
         </div>
       </li>
     );
   }
-  return <div className="card">{content}</div>;
 }

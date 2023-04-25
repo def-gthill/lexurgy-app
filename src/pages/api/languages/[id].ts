@@ -9,7 +9,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Language | string>
 ) {
-  resourceEndpoint(req, res, getLanguage, deleteLanguage);
+  await resourceEndpoint(req, res, getLanguage, deleteLanguage);
 }
 
 async function getLanguage(id: string): Promise<Language[]> {

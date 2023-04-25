@@ -9,9 +9,9 @@ export async function collectionEndpoint<T>(
   get: (query: RequestQuery) => Promise<T[]>,
   post: (resource: T) => Promise<T>
 ) {
-  if (req.method == "GET") {
+  if (req.method === "GET") {
     res.status(HttpStatusCode.Ok).json(await get(req.query));
-  } else if (req.method == "POST") {
+  } else if (req.method === "POST") {
     res.status(HttpStatusCode.Created).json(await post(req.body));
   } else {
     res.status(HttpStatusCode.MethodNotAllowed);
@@ -27,14 +27,14 @@ export async function resourceEndpoint<T>(
   const { id } = req.query;
   if (typeof id !== "string") {
     res.status(HttpStatusCode.BadRequest).json('Parameter "id" not set');
-  } else if (req.method == "GET") {
+  } else if (req.method === "GET") {
     const result = await get(id);
     if (result.length === 0) {
       res.status(HttpStatusCode.NotFound);
     } else {
       res.status(HttpStatusCode.Ok).json(result[0]);
     }
-  } else if (req.method == "DELETE") {
+  } else if (req.method === "DELETE") {
     const result = await delete_(id);
     if (result.length === 0) {
       res.status(HttpStatusCode.Ok).json("Not found");

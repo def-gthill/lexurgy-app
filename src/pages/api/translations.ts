@@ -85,7 +85,8 @@ async function postTranslation(translation: Translation): Promise<Translation> {
   SET tr.romanized = $romanized, tr.translation = $translation
   WITH tr
   OPTIONAL MATCH (tr) -[:HAS_STRUCTURE]-> (node:SyntaxNode)
-  DETACH DELETE node`;
+  OPTIONAL MATCH (node) -[:HAS_CHILD]-> (word:Word)
+  DETACH DELETE node, word`;
   if (translation.structure) {
     query += `
     WITH tr

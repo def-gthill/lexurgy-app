@@ -5,8 +5,7 @@ describe("the translation editor", () => {
     cy.exec("npm run db:reset && npm run db:seed:examplish");
   });
 
-  it("lets the user create a one-node syntax tree", () => {
-    cy.visit(`/language/${examplishUuid}`);
+  function createTranslation() {
     cy.contains("Add Translation").click();
     cy.get("#construction").select("Intransitive Clause");
     cy.contains("Create").click();
@@ -16,6 +15,11 @@ describe("the translation editor", () => {
     cy.contains("Subject");
     cy.get("#translation").type("The cat is sleeping.");
     cy.contains("Save").click();
+  }
+
+  it("lets the user create a one-node syntax tree", () => {
+    cy.visit(`/language/${examplishUuid}`);
+    createTranslation();
     cy.contains("Sha dor.");
     cy.contains("Show Structure").click();
     cy.contains("Subject");
@@ -28,14 +32,7 @@ describe("the translation editor", () => {
   it("lets the user create a syntax tree with lexicon links", () => {
     cy.exec("npm run db:seed:examplish:lexicon");
     cy.visit(`/language/${examplishUuid}`);
-    cy.contains("Add Translation").click();
-    cy.get("#construction").select("Intransitive Clause");
-    cy.contains("Create").click();
-    cy.contains("Subject").type("sha");
-    cy.contains("Verb").type("dor");
-    cy.contains("Done").click();
-    cy.get("#translation").type("The cat is sleeping.");
-    cy.contains("Save").click();
+    createTranslation();
     cy.visit(`/language/${examplishUuid}/lexicon`);
     cy.contains("cat").parents(".card").contains("Edit").click();
     cy.get("#romanized").clear().type("fyel");
@@ -47,14 +44,7 @@ describe("the translation editor", () => {
 
   it("lets the user edit an existing translation", () => {
     cy.visit(`/language/${examplishUuid}`);
-    cy.contains("Add Translation").click();
-    cy.get("#construction").select("Intransitive Clause");
-    cy.contains("Create").click();
-    cy.contains("Subject").type("sha");
-    cy.contains("Verb").type("dor");
-    cy.contains("Done").click();
-    cy.get("#translation").type("The cat is sleeping.");
-    cy.contains("Save").click();
+    createTranslation();
     cy.contains("Sha dor.");
     cy.contains("Edit").click();
     cy.contains("Edit").click();
@@ -64,6 +54,14 @@ describe("the translation editor", () => {
     cy.contains("Fyel dor.");
     cy.reload();
     cy.contains("Fyel dor.");
+    cy.contains("Sha dor.").should("not.exist");
+  });
+
+  it("lets the user delete a translation", () => {
+    cy.visit(`/language/${examplishUuid}`);
+    createTranslation();
+    cy.contains("Sha dor.");
+    cy.contains("Delete").click();
     cy.contains("Sha dor.").should("not.exist");
   });
 });
