@@ -3,6 +3,7 @@ import Construction from "@/models/Construction";
 import SyntaxNode from "@/models/SyntaxNode";
 import Word from "@/models/Word";
 import { useState } from "react";
+import SyntaxTreeView from "./SyntaxTreeView";
 
 export default function SyntaxTreeEditor({
   constructions,
@@ -26,27 +27,25 @@ export default function SyntaxTreeEditor({
     return (
       <div className="editor">
         <div style={{ display: "flex", flexDirection: "row" }}>
-          {activeConstruction.children.map((childName) => (
-            <div
-              key={childName}
-              style={{ display: "flex", flexDirection: "column" }}
-            >
-              <label htmlFor={childName}>{childName}</label>
-              <input
-                type="text"
-                id={childName}
-                value={getChild(activeChildren, childName)}
-                onChange={(event) => {
+          {activeConstruction.children.map((childName) => {
+            let child = getChildNode(activeChildren, childName);
+            if (!child) {
+              child = { romanized: "" };
+            }
+            return (
+              <ChildEditor
+                key={childName}
+                constructions={constructions}
+                childName={childName}
+                child={child}
+                onChange={(newValue) =>
                   setActiveChildren(
-                    update(activeChildren, [
-                      childName,
-                      { romanized: event.target.value },
-                    ])
-                  );
-                }}
-              ></input>
-            </div>
-          ))}
+                    update(activeChildren, [childName, newValue])
+                  )
+                }
+              />
+            );
+          })}
         </div>
         <div className="buttons">
           <button
@@ -90,19 +89,65 @@ export default function SyntaxTreeEditor({
     );
   }
 
-  function getChild(
+  function getChildNode(
     children: [string, Word | SyntaxNode][],
     childName: string
-  ): string {
+  ): Word | SyntaxNode | undefined {
     const entry = children.find(([name]) => name === childName);
     if (!entry) {
-      return "";
+      return undefined;
     }
     const [_name, child] = entry;
-    if ("romanized" in child) {
-      return child.romanized;
-    } else {
-      return "";
-    }
+    return child;
+  }
+}
+
+function ChildEditor({
+  constructions,
+  childName,
+  child,
+  onChange,
+}: {
+  constructions: Construction[];
+  childName: string;
+  child: Word | SyntaxNode;
+  onChange: (newValue: Word | SyntaxNode) => void;
+}) {
+  const [editingSubtree, setEditingSubtree] = useState(true);
+  if ("romanized" in child) {
+    return (
+      <div
+        key={childName}
+        className="editor"
+        style={{ display: "flex", flexDirection: "column" }}
+      >
+        <label htmlFor={childName}>{childName}</label>
+        <input
+          type="text"
+          id={childName}
+          value={child.romanized}
+          onChange={(event) => {
+            onChange({ romanized: event.target.value });
+          }}
+        ></input>
+        <div className="buttons">
+          <button onClick={() => onChange({ children: [] })}>Expand</button>
+        </div>
+      </div>
+    );
+  } else if (editingSubtree) {
+    return (
+      <SyntaxTreeEditor
+        key={childName}
+        constructions={constructions}
+        root={child}
+        saveTree={(root: SyntaxNode) => {
+          setEditingSubtree(false);
+          onChange(root);
+        }}
+      />
+    );
+  } else {
+    return <SyntaxTreeView root={child} />;
   }
 }
