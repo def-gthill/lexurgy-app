@@ -66,30 +66,45 @@ async function postTranslation(translation: Translation): Promise<Translation> {
     translation.romanized = structureToRomanized(translation.structure);
   }
   const flatTranslation = flatten(translation);
-  let query = `
+  const query = `
   MATCH (lang:Language {id: $languageId})
   MERGE (tr:Translation {id: $id}) -[:IS_IN]-> (lang)
   SET tr.romanized = $romanized, tr.translation = $translation
   WITH tr
   OPTIONAL MATCH (tr) -[:HAS_STRUCTURE]-> (node:SyntaxNode)
   OPTIONAL MATCH (node) -[:HAS_CHILD]-> (word:Word)
-  DETACH DELETE node, word`;
-  if (translation.structure) {
-    query += `
-    WITH tr
-    CREATE (tr) -[:HAS_STRUCTURE]-> (node:SyntaxNode)
-    WITH node
-    MATCH (cons:Construction {id: $structure.nodeTypeId})
-    CREATE (node) -[:HAS_TYPE]-> (cons)
-    WITH node
-    UNWIND $structure.children AS child
-    CREATE (word:Word {romanized: child[1].romanized})
-    CREATE (node) -[:HAS_CHILD {name: child[0]}]-> (word)
-    WITH word, child[1].stemId AS stemId
-    MATCH (lex:Lexeme {id: stemId})
-    CREATE (word) -[:HAS_STEM]-> (lex)`;
+  DETACH DELETE node, word
+  WITH tr, $flatStructure AS structure
+  WHERE structure IS NOT NULL
+  CREATE (tr) -[:HAS_STRUCTURE]-> (:SyntaxNode {id: 0, ownerId: tr.id})
+  WITH tr, structure
+  CALL {
+    WITH tr, structure
+    UNWIND structure.nodes AS node
+    MERGE (sn:SyntaxNode {id: node.id, ownerId: tr.id})
+    WITH node, sn
+    MATCH (cons:Construction {id: node.nodeTypeId})
+    CREATE (sn) -[:HAS_TYPE]-> (cons)
   }
-  await execute(driver, query, { ...translation });
+  CALL {
+    WITH tr, structure
+    UNWIND structure.nodeLimbs AS limb
+    MATCH (parent:SyntaxNode {id: limb.parent, ownerId: tr.id})
+    MATCH (child:SyntaxNode {id: limb.child, ownerId: tr.id})
+    CREATE (parent) -[:HAS_CHILD {name: limb.childName}]-> (child)
+  }
+  CALL {
+    WITH tr, structure
+    UNWIND structure.wordLimbs AS limb
+    MATCH (parent:SyntaxNode {id: limb.parent, ownerId: tr.id})
+    CREATE (word:Word {romanized: limb.child.romanized})
+    CREATE (parent) -[:HAS_CHILD {name: limb.childName}]-> (word)
+    WITH word, limb.child.stemId AS stemId
+    MATCH (lex:Lexeme {id: stemId})
+    CREATE (word) -[:HAS_STEM]-> (lex)
+  }
+  `;
+  await execute(driver, query, { ...flatTranslation });
   return translation;
 }
 

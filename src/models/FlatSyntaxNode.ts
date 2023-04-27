@@ -7,8 +7,9 @@ export interface FlatTranslation extends Translation {
   flatStructure?: FlatStructure;
 }
 
+// The root always has ID 0
 export interface FlatStructure {
-  root: FlatSyntaxNode;
+  nodes: FlatSyntaxNode[];
   nodeLimbs: NodeLimb[];
   wordLimbs: WordLimb[];
 }
@@ -22,7 +23,7 @@ export interface FlatSyntaxNode {
 export interface NodeLimb {
   parent: number;
   childName: string;
-  child: FlatSyntaxNode;
+  child: number;
 }
 
 export interface WordLimb {
@@ -78,7 +79,7 @@ function flattenStructureWithIds(structure: SyntaxNodeWithId): FlatStructure {
         : {
             parent: structure.id,
             childName: name,
-            child: flattenNode(child),
+            child: child.id,
           }
   );
 
@@ -98,7 +99,10 @@ function flattenStructureWithIds(structure: SyntaxNodeWithId): FlatStructure {
   );
 
   return {
-    root: flattenNode(structure),
+    nodes: [
+      flattenNode(structure),
+      ...flatChildren.flatMap((child) => child.nodes),
+    ],
     nodeLimbs: [
       ...directNodeLimbs,
       ...flatChildren.flatMap((child) => child.nodeLimbs),

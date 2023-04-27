@@ -1,3 +1,4 @@
+import { range } from "@/array";
 import { FlatStructure, flattenStructure } from "./FlatSyntaxNode";
 
 describe("flattenStructure", () => {
@@ -6,7 +7,7 @@ describe("flattenStructure", () => {
       children: [],
     });
     const expected: FlatStructure = {
-      root: { id: 0 },
+      nodes: [{ id: 0 }],
       nodeLimbs: [],
       wordLimbs: [],
     };
@@ -23,14 +24,16 @@ describe("flattenStructure", () => {
       children: [],
     });
     const expected: FlatStructure = {
-      root: {
-        id: 0,
-        nodeTypeId: "foobarbaz",
-        construction: {
-          name: "Foo",
-          children: ["bar", "baz"],
+      nodes: [
+        {
+          id: 0,
+          nodeTypeId: "foobarbaz",
+          construction: {
+            name: "Foo",
+            children: ["bar", "baz"],
+          },
         },
-      },
+      ],
       nodeLimbs: [],
       wordLimbs: [],
     };
@@ -45,7 +48,7 @@ describe("flattenStructure", () => {
       ],
     });
     const expected: FlatStructure = {
-      root: { id: 0 },
+      nodes: [{ id: 0 }],
       nodeLimbs: [],
       wordLimbs: [
         { parent: 0, childName: "Foo", child: { romanized: "foo" } },
@@ -63,10 +66,10 @@ describe("flattenStructure", () => {
       ],
     });
     const expected: FlatStructure = {
-      root: { id: 0 },
+      nodes: [{ id: 0 }, { id: 1 }, { id: 2 }],
       nodeLimbs: [
-        { parent: 0, childName: "Foo", child: { id: 1 } },
-        { parent: 0, childName: "Bar", child: { id: 2 } },
+        { parent: 0, childName: "Foo", child: 1 },
+        { parent: 0, childName: "Bar", child: 2 },
       ],
       wordLimbs: [],
     };
@@ -97,10 +100,10 @@ describe("flattenStructure", () => {
       ],
     });
     const expected: FlatStructure = {
-      root: { id: 0 },
+      nodes: [{ id: 0 }, { id: 1 }, { id: 2 }],
       nodeLimbs: [
-        { parent: 0, childName: "Foo", child: { id: 1 } },
-        { parent: 0, childName: "Bar", child: { id: 2 } },
+        { parent: 0, childName: "Foo", child: 1 },
+        { parent: 0, childName: "Bar", child: 2 },
       ],
       wordLimbs: [
         { parent: 1, childName: "Foo", child: { romanized: "a" } },
@@ -136,14 +139,14 @@ describe("flattenStructure", () => {
       ],
     });
     const expected: FlatStructure = {
-      root: { id: 0 },
+      nodes: range(7).map((i) => ({ id: i })),
       nodeLimbs: [
-        { parent: 0, childName: "Foo", child: { id: 1 } },
-        { parent: 0, childName: "Bar", child: { id: 4 } },
-        { parent: 1, childName: "Foo", child: { id: 2 } },
-        { parent: 1, childName: "Bar", child: { id: 3 } },
-        { parent: 4, childName: "Foo", child: { id: 5 } },
-        { parent: 4, childName: "Bar", child: { id: 6 } },
+        { parent: 0, childName: "Foo", child: 1 },
+        { parent: 0, childName: "Bar", child: 4 },
+        { parent: 1, childName: "Foo", child: 2 },
+        { parent: 1, childName: "Bar", child: 3 },
+        { parent: 4, childName: "Foo", child: 5 },
+        { parent: 4, childName: "Bar", child: 6 },
       ],
       wordLimbs: [],
     };
