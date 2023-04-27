@@ -42,7 +42,7 @@ describe("the translation endpoint", () => {
     const translation: Translation = {
       id: translationId,
       languageId: examplishUuid,
-      romanized: "Sha dor.",
+      romanized: "Le sha nwa dor.",
       structure: {
         nodeTypeId: clauseUuid,
         children: [

@@ -8,8 +8,9 @@ export interface FlatTranslation extends Translation {
 }
 
 export interface FlatStructure {
-  nodes: FlatSyntaxNode[];
-  limbs: Limb[];
+  root: FlatSyntaxNode;
+  nodeLimbs: NodeLimb[];
+  wordLimbs: WordLimb[];
 }
 
 export interface FlatSyntaxNode {
@@ -18,10 +19,16 @@ export interface FlatSyntaxNode {
   construction?: Construction;
 }
 
-export interface Limb {
+export interface NodeLimb {
   parent: number;
   childName: string;
-  child: number | Word;
+  child: FlatSyntaxNode;
+}
+
+export interface WordLimb {
+  parent: number;
+  childName: string;
+  child: Word;
 }
 
 export function flatten(translation: Translation): FlatTranslation {
@@ -64,25 +71,51 @@ function assignIds(
 }
 
 function flattenStructureWithIds(structure: SyntaxNodeWithId): FlatStructure {
-  const directLimbs = structure.children.map(([name, child]) => ({
-    parent: structure.id,
-    childName: name,
-    child: "romanized" in child ? child : child.id,
-  }));
+  const directNodeLimbs: NodeLimb[] = structure.children.flatMap(
+    ([name, child]) =>
+      "romanized" in child
+        ? []
+        : {
+            parent: structure.id,
+            childName: name,
+            child: flattenNode(child),
+          }
+  );
+
+  const directWordLimbs: WordLimb[] = structure.children.flatMap(
+    ([name, child]) =>
+      "romanized" in child
+        ? {
+            parent: structure.id,
+            childName: name,
+            child,
+          }
+        : []
+  );
 
   const flatChildren = structure.children.flatMap(([_name, child]) =>
     "romanized" in child ? [] : flattenStructureWithIds(child)
   );
 
-  const thisNode: FlatSyntaxNode & {
-    children?: [string, Word | SyntaxNode][];
-  } = structure;
-  delete thisNode.children;
-
   return {
-    nodes: [thisNode, ...flatChildren.flatMap((child) => child.nodes)],
-    limbs: [...directLimbs, ...flatChildren.flatMap((child) => child.limbs)],
+    root: flattenNode(structure),
+    nodeLimbs: [
+      ...directNodeLimbs,
+      ...flatChildren.flatMap((child) => child.nodeLimbs),
+    ],
+    wordLimbs: [
+      ...directWordLimbs,
+      ...flatChildren.flatMap((child) => child.wordLimbs),
+    ],
   };
+}
+
+function flattenNode(node: SyntaxNodeWithId): FlatSyntaxNode {
+  const result: FlatSyntaxNode & {
+    children?: [string, Word | SyntaxNode][];
+  } = { ...node };
+  delete result.children;
+  return result;
 }
 
 interface SyntaxNodeWithId {
