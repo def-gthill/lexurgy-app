@@ -29,6 +29,37 @@ describe("the translation editor", () => {
     cy.contains("Subject");
   });
 
+  it("lets the user create a multi-node syntax tree", () => {
+    cy.visit(`/language/${examplishUuid}`);
+    cy.contains("Add Translation").click();
+    cy.get("#construction").select("Intransitive Clause");
+    cy.contains("Create").click();
+    cy.contains("Subject")
+      .parents(".editor")
+      .first()
+      .contains("Expand")
+      .click();
+    cy.get("#construction").select("Noun Phrase");
+    cy.contains("Create").click();
+    cy.contains("Det").type("le");
+    cy.contains("Noun").type("sha");
+    cy.contains("Modifier").type("nwa");
+    cy.contains("Done").click();
+    cy.contains("Verb").type("dor");
+    cy.contains("Done");
+    cy.get("#translation").type("The black cat is sleeping.");
+    cy.contains("Save").click();
+    cy.contains("Le sha nwa dor.");
+    cy.contains("Show Structure").click();
+    cy.contains("Subject");
+    cy.contains("Det");
+    cy.reload();
+    cy.contains("Le sha nwa dor.");
+    cy.contains("Show Structure").click();
+    cy.contains("Subject");
+    cy.contains("Det");
+  });
+
   it("lets the user create a syntax tree with lexicon links", () => {
     cy.exec("npm run db:seed:examplish:lexicon");
     cy.visit(`/language/${examplishUuid}`);

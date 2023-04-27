@@ -1,27 +1,13 @@
 import { RequestQuery, collectionEndpoint } from "@/api";
 import getDriver, { execute, query } from "@/db";
-import Construction from "@/models/Construction";
+import { flatten } from "@/models/FlatSyntaxNode";
 import Lexeme from "@/models/Lexeme";
 import SyntaxNode, { structureToRomanized } from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
-import Word from "@/models/Word";
 import * as crypto from "crypto";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const driver = getDriver();
-
-interface QueryTranslation {
-  id?: string;
-  romanized: string;
-  structure?: QuerySyntaxNode;
-  translation: string;
-}
-
-interface QuerySyntaxNode {
-  nodeTypeId?: string;
-  construction?: Construction;
-  children: [string, Word | QuerySyntaxNode][];
-}
 
 export default async function handler(
   req: NextApiRequest,
@@ -79,6 +65,7 @@ async function postTranslation(translation: Translation): Promise<Translation> {
   if (translation.structure) {
     translation.romanized = structureToRomanized(translation.structure);
   }
+  const flatTranslation = flatten(translation);
   let query = `
   MATCH (lang:Language {id: $languageId})
   MERGE (tr:Translation {id: $id}) -[:IS_IN]-> (lang)
