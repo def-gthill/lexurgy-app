@@ -1,5 +1,5 @@
 import { range } from "@/array";
-import { FlatStructure, flattenStructure } from "./FlatSyntaxNode";
+import { FlatStructure, flattenStructure } from "./FlatTranslation";
 
 describe("flattenStructure", () => {
   it("flattens a node with no children into an empty structure", () => {

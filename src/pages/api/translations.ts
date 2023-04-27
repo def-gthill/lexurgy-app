@@ -1,6 +1,6 @@
 import { RequestQuery, collectionEndpoint } from "@/api";
 import getDriver, { execute, query } from "@/db";
-import { flatten } from "@/models/FlatSyntaxNode";
+import { flatten } from "@/models/FlatTranslation";
 import Lexeme from "@/models/Lexeme";
 import SyntaxNode, { structureToRomanized } from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
