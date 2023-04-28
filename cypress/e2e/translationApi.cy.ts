@@ -1,3 +1,4 @@
+import SyntaxNode from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
 
 describe("the translation endpoint", () => {
@@ -35,7 +36,20 @@ describe("the translation endpoint", () => {
       method: "GET",
     })
       .its("body")
-      .should("containSubset", translation);
+      .should((actual: Translation) => {
+        expect(actual.id).to.equal(translation.id!);
+        expect(actual.languageId).to.equal(translation.languageId!);
+        expect(actual.romanized).to.equal(translation.romanized);
+        expect(actual.translation).to.equal(translation.translation);
+        expect(actual.structure!.nodeTypeId).to.equal(
+          translation.structure!.nodeTypeId
+        );
+        const children = actual.structure!.children;
+        expect(children).to.have.deep.members([
+          ["Subject", { romanized: "sha" }],
+          ["Verb", { romanized: "dor" }],
+        ]);
+      });
   });
 
   it("can round-trip a multi-node syntax tree", () => {
@@ -73,6 +87,24 @@ describe("the translation endpoint", () => {
       method: "GET",
     })
       .its("body")
-      .should("containSubset", translation);
+      .should((actual: Translation) => {
+        expect(actual.id).to.equal(translation.id!);
+        expect(actual.languageId).to.equal(translation.languageId!);
+        expect(actual.romanized).to.equal(translation.romanized);
+        expect(actual.translation).to.equal(translation.translation);
+        expect(actual.structure!.nodeTypeId).to.equal(
+          translation.structure!.nodeTypeId
+        );
+        const children = actual.structure!.children;
+        expect(children).to.deep.include(["Verb", { romanized: "dor" }]);
+        const nestedChildren = (
+          children.find(([name]) => name === "Subject")![1] as SyntaxNode
+        ).children;
+        expect(nestedChildren).to.have.deep.members([
+          ["Det", { romanized: "le" }],
+          ["Noun", { romanized: "sha" }],
+          ["Modifier", { romanized: "nwa" }],
+        ]);
+      });
   });
 });

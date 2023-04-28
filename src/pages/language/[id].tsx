@@ -44,7 +44,11 @@ export default function LanguageOverview() {
                 <TranslationEditor
                   constructions={constructions}
                   translation={value}
-                  onChange={onChange}
+                  onChange={(value) => {
+                    console.log("Called from TranslationEditor.onChange");
+                    console.log(value);
+                    onChange(value);
+                  }}
                 />
               )}
               initialValue={{
@@ -52,7 +56,11 @@ export default function LanguageOverview() {
                 romanized: "",
                 translation: "",
               }}
-              onSave={translationCollection.save}
+              onSave={(value: Translation) => {
+                console.log("Called from HiddenEditor.onSave");
+                console.log(value);
+                translationCollection.save(value);
+              }}
             />
             {translations.map((translation) => (
               <TranslationView

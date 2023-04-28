@@ -128,3 +128,36 @@ interface SyntaxNodeWithId {
   construction?: Construction;
   children: [string, Word | SyntaxNodeWithId][];
 }
+
+export function inflate(flatTranslation: FlatTranslation): Translation {
+  const result = {
+    ...flatTranslation,
+    structure: flatTranslation.flatStructure
+      ? inflateStructure(flatTranslation.flatStructure)
+      : undefined,
+  };
+  delete result.flatStructure;
+  return result;
+}
+
+export function inflateStructure(flatStructure: FlatStructure): SyntaxNode {
+  const nodes: SyntaxNode[] = [];
+  for (const node of flatStructure.nodes) {
+    nodes[node.id] = inflateNode(node);
+  }
+  for (const { parent, childName, child } of flatStructure.nodeLimbs) {
+    nodes[parent].children.push([childName, nodes[child]]);
+  }
+  for (const { parent, childName, child } of flatStructure.wordLimbs) {
+    nodes[parent].children.push([childName, child]);
+  }
+  return nodes[0];
+}
+
+function inflateNode(node: FlatSyntaxNode): SyntaxNode {
+  const result: SyntaxNode & {
+    id?: number;
+  } = { ...node, children: [] };
+  delete result.id;
+  return result;
+}

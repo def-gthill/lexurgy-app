@@ -1,6 +1,6 @@
 import { RequestQuery, collectionEndpoint } from "@/api";
 import getDriver, { execute, query } from "@/db";
-import { flatten } from "@/models/FlatTranslation";
+import { FlatTranslation, flatten, inflate } from "@/models/FlatTranslation";
 import Lexeme from "@/models/Lexeme";
 import SyntaxNode, { structureToRomanized } from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
@@ -21,18 +21,46 @@ async function getTranslations(
 ): Promise<Translation[]> {
   const languageId = requestQuery.language as string;
   const result = (
-    await query<Translation>(
+    await query<FlatTranslation>(
       driver,
       `MATCH (tr:Translation) -[:IS_IN]-> (lang:Language {id: $id})
-      OPTIONAL MATCH (tr) -[:HAS_STRUCTURE]-> (node:SyntaxNode)
-      OPTIONAL MATCH (node) -[:HAS_TYPE]-> (cons:Construction)
-      OPTIONAL MATCH (node) -[child:HAS_CHILD]-> (word:Word)
-      OPTIONAL MATCH (word) -[:HAS_STEM]-> (lex:Lexeme)
-      WITH tr, node, cons, collect([child.name, word {romanized: coalesce(lex.romanized, word.romanized), .stemId }]) as children
-      RETURN tr {.id, .romanized, structure: node {nodeTypeId: cons.id, construction: cons {.*}, children: children}, .translation}`,
+      OPTIONAL MATCH (tr) -[:HAS_STRUCTURE]-> (root:SyntaxNode)
+      WITH tr, root, lang
+      CALL {
+        WITH root
+        OPTIONAL MATCH (root) -[:HAS_CHILD*]-> (node:SyntaxNode)
+        WITH root, [root] + collect(node) AS nodes
+        WITH
+        COLLECT {
+          UNWIND nodes AS parent
+          MATCH (parent) -[limb:HAS_CHILD]-> (child:SyntaxNode)
+          WITH {parent: parent.id, childName: limb.name, child: child.id} AS limb
+          RETURN limb
+        } AS nodeLimbs,
+        COLLECT {
+          UNWIND nodes AS parent
+          MATCH (parent) -[limb:HAS_CHILD]-> (child:Word)
+          OPTIONAL MATCH (word) -[:HAS_STEM]-> (lex:Lexeme)
+          WITH {
+            parent: parent.id,
+            childName: limb.name,
+            child: word {romanized: coalesce(lex.romanized, word.romanized), stemId: lex.id}
+          } AS limb
+          RETURN limb
+        } AS wordLimbs,
+        COLLECT {
+          UNWIND nodes as node
+          OPTIONAL MATCH (node) -[:HAS_TYPE]-> (cons:Construction)
+          RETURN node {.id, nodeTypeId: cons.id, construction: cons {.*}}
+        } AS nodes
+        RETURN {nodes: nodes, nodeLimbs: nodeLimbs, wordLimbs: wordLimbs} AS structure
+      }
+      RETURN tr {.id, languageId: lang.id, .romanized, flatStructure: structure, .translation}
+      `,
       { id: languageId }
     )
-  ).map((translation) => {
+  ).map((flatTranslation) => {
+    const translation = inflate(flatTranslation);
     if (translation.structure) {
       const structure = translation.structure;
       return {
@@ -104,7 +132,10 @@ async function postTranslation(translation: Translation): Promise<Translation> {
     CREATE (word) -[:HAS_STEM]-> (lex)
   }
   `;
-  await execute(driver, query, { ...flatTranslation });
+  await execute(driver, query, {
+    ...flatTranslation,
+    flatStructure: flatTranslation.flatStructure || null,
+  });
   return translation;
 }
 

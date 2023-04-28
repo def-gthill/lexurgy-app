@@ -30,7 +30,7 @@ export async function resourceEndpoint<T>(
   } else if (req.method === "GET") {
     const result = await get(id);
     if (result.length === 0) {
-      res.status(HttpStatusCode.NotFound);
+      res.status(HttpStatusCode.NotFound).json("Not found");
     } else {
       res.status(HttpStatusCode.Ok).json(result[0]);
     }

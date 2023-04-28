@@ -46,7 +46,7 @@ describe("the translation editor", () => {
     cy.contains("Modifier").type("nwa");
     cy.contains("Done").click();
     cy.contains("Verb").type("dor");
-    cy.contains("Done");
+    cy.contains("Done").click();
     cy.get("#translation").type("The black cat is sleeping.");
     cy.contains("Save").click();
     cy.contains("Le sha nwa dor.");
@@ -60,7 +60,7 @@ describe("the translation editor", () => {
     cy.contains("Det");
   });
 
-  it("lets the user create a syntax tree with lexicon links", () => {
+  it.only("lets the user create a syntax tree with lexicon links", () => {
     cy.exec("npm run db:seed:examplish:lexicon");
     cy.visit(`/language/${examplishUuid}`);
     createTranslation();

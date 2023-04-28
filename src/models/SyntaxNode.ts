@@ -22,18 +22,20 @@ export function childrenInOrder(
 }
 
 export function structureToRomanized(structure: SyntaxNode): string {
-  return finishTranslation(
-    childrenInOrder(structure)
-      .map(([_name, child]) => childToRomanized(child))
-      .join(" ")
-  );
+  return finishTranslation(childrenToRomanized(structure));
+}
+
+function childrenToRomanized(node: SyntaxNode): string {
+  return childrenInOrder(node)
+    .map(([_name, child]) => childToRomanized(child))
+    .join(" ");
 }
 
 function childToRomanized(child: SyntaxNode | Word): string {
   if ("romanized" in child) {
     return child.romanized;
   } else {
-    return structureToRomanized(child);
+    return childrenToRomanized(child);
   }
 }
 
