@@ -31,10 +31,6 @@ export async function query<T>(
   const session = driver.session();
   try {
     const rawResult = await session.run(query, parameters);
-    if (rawResult.records[0] && rawResult.records[0].keys.includes("tr")) {
-      console.log("Printing now...");
-      console.log(rawResult.records[0].get("tr").flatStructure.wordLimbs);
-    }
     const finalResult = rawResult.records.map((record) => {
       if (record.length === 1) {
         return mapSingle(record.get(record.keys[0])) as T;

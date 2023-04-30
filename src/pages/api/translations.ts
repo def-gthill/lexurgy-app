@@ -39,7 +39,7 @@ async function getTranslations(
         } AS nodeLimbs,
         COLLECT {
           UNWIND nodes AS parent
-          MATCH (parent) -[limb:HAS_CHILD]-> (child:Word)
+          MATCH (parent) -[limb:HAS_CHILD]-> (word:Word)
           OPTIONAL MATCH (word) -[:HAS_STEM]-> (lex:Lexeme)
           WITH {
             parent: parent.id,
