@@ -6,7 +6,8 @@ export default function getDriver(): Driver {
     neo4j.auth.basic(
       process.env.NEO4J_USERNAME || "",
       process.env.NEO4J_PASSWORD || ""
-    )
+    ),
+    { disableLosslessIntegers: true }
   );
 }
 
@@ -50,6 +51,17 @@ export async function query<T>(
   function mapSingle(record: unknown): unknown {
     if (record && typeof record === "object" && "properties" in record) {
       return record.properties;
+    } else if (record && record instanceof Array) {
+      const result = record.map(mapSingle);
+      return result;
+    } else if (record && typeof record === "object") {
+      const result: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(record)) {
+        if (value !== null) {
+          result[key] = mapSingle(value);
+        }
+      }
+      return result;
     } else {
       return record;
     }

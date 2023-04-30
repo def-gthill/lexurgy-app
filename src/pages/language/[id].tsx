@@ -45,8 +45,6 @@ export default function LanguageOverview() {
                   constructions={constructions}
                   translation={value}
                   onChange={(value) => {
-                    console.log("Called from TranslationEditor.onChange");
-                    console.log(value);
                     onChange(value);
                   }}
                 />
@@ -57,8 +55,6 @@ export default function LanguageOverview() {
                 translation: "",
               }}
               onSave={(value: Translation) => {
-                console.log("Called from HiddenEditor.onSave");
-                console.log(value);
                 translationCollection.save(value);
               }}
             />
