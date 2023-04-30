@@ -35,7 +35,7 @@ CALL {
   COLLECT {
     UNWIND nodes as node
     OPTIONAL MATCH (node) -[:HAS_TYPE]-> (cons:Construction)
-    RETURN node {.id, nodeTypeId: cons.id, construction: cons {.*}}
+    RETURN node {.id, nodeTypeId: cons.id, construction: cons}
   } AS nodes
   RETURN {nodes: nodes, nodeLimbs: nodeLimbs, wordLimbs: wordLimbs} AS structure
 }
