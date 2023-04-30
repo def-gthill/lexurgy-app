@@ -60,7 +60,7 @@ describe("the translation editor", () => {
     cy.contains("Det");
   });
 
-  it.only("lets the user create a syntax tree with lexicon links", () => {
+  it("lets the user create a syntax tree with lexicon links", () => {
     cy.exec("npm run db:seed:examplish:lexicon");
     cy.visit(`/language/${examplishUuid}`);
     createTranslation();
