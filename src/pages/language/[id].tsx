@@ -6,8 +6,10 @@ import Construction from "@/models/Construction";
 import Language from "@/models/Language";
 import Translation from "@/models/Translation";
 import usePersistentCollection from "@/usePersistentCollection";
+import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { useSWRConfig } from "swr";
 
 export default function LanguageOverview() {
   const router = useRouter();
@@ -22,6 +24,7 @@ export default function LanguageOverview() {
     `/api/constructions?language=${id}`
   );
   const constructions = constructionCollection.getOrEmpty();
+  const { mutate } = useSWRConfig();
 
   return (
     <LanguagePage
@@ -54,8 +57,16 @@ export default function LanguageOverview() {
                 romanized: "",
                 translation: "",
               }}
-              onSave={(value: Translation) => {
-                translationCollection.save(value);
+              onSave={async (value: Translation) => {
+                const savedTranslation = await translationCollection.save(
+                  value
+                );
+                if (savedTranslation.id) {
+                  await axios.post(
+                    `/api/translations/${savedTranslation.id}/check`
+                  );
+                  mutate(`/api/glitches?language=${language.id}`);
+                }
               }}
             />
             {translations.map((translation) => (

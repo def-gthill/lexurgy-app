@@ -16,21 +16,16 @@ export default interface Glitch {
 
   // What kind of resource is missing?
   referentType: string;
-  // Which resource is missing?
-  referent: MissingReferent;
+  // Do we have an ID for the missing resource?
+  referentIsId: boolean;
+  // How we know which resource is being referenced.
+  // This is the ID if one is available, otherwise
+  // it's the matching key that's being used to search for
+  // the resource.
+  referentKey: string;
   // What part of the resource is invalid?
   // This is a list of property names and array indices that
   // let you navigate to the where the missing resource would be.
   // Empty if the entire resource is missing.
   referentPartPath: [string | number][];
-}
-
-export interface MissingReferent {
-  // Do we have an ID for the missing resource?
-  isId: boolean;
-  // How we know which resource is being referenced.
-  // This is the ID if one is available, otherwise
-  // it's the matching key that's being used to search for
-  // the resource.
-  key: string;
 }

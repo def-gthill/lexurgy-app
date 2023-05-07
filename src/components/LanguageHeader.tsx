@@ -19,18 +19,18 @@ export default function LanguageHeader({
   if (glitchCount) {
     links.push({
       label: glitchCountLabel(glitchCount),
-      url: `/language/${id}/breaches`,
+      url: `/language/${id}/glitches`,
     });
   }
   return <Header links={links} active={active} />;
 }
 
-function glitchCountLabel(breachCount: number): string {
-  if (breachCount === 0) {
-    return "No Breaches";
-  } else if (breachCount === 1) {
-    return "1 Breach";
+function glitchCountLabel(glitchCount: number): string {
+  if (glitchCount === 0) {
+    return "No Glitches";
+  } else if (glitchCount === 1) {
+    return "1 Glitch";
   } else {
-    return `${breachCount} Breaches`;
+    return `${glitchCount} Glitches`;
   }
 }

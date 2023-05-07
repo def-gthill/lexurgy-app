@@ -38,12 +38,26 @@ describe("the translation glitch endpoint", () => {
     });
 
     cy.request({
-      url: "/api/glitches?language=Examplish",
+      url: `/api/glitches?language=${examplishUuid}`,
       method: "GET",
     })
       .its("body")
       .should((actual: Glitch[]) => {
         expect(actual).to.have.length(2);
+        const catMissing = actual.find(
+          (glitch) => glitch.referentKey === "sha"
+        );
+        expect(catMissing?.dependentType).to.equal("Translation");
+        expect(catMissing?.dependentId).to.equal(translationId);
+        expect(catMissing?.dependentPartPath).to.deep.equal([
+          "structure",
+          "children",
+          "Subject",
+          "stem",
+        ]);
+        expect(catMissing?.referentType).to.equal("Lexeme");
+        expect(catMissing?.referentIsId).to.be.false;
+        expect(catMissing?.referentPartPath).to.be.empty;
       });
   });
 });
