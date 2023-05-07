@@ -33,6 +33,7 @@ declare global {
     interface Chainable {
       resetDb(): Chainable<void>;
       prepareExamplish(): Chainable<void>;
+      prepareExamplishLexicon(): Chainable<void>;
       goToExamplish(): Chainable<void>;
       createTranslation(translation: UserTranslation): Chainable<void>;
     }
@@ -47,6 +48,10 @@ Cypress.Commands.add("resetDb", () => {
 
 Cypress.Commands.add("prepareExamplish", () => {
   cy.exec("npm run db:seed:examplish");
+});
+
+Cypress.Commands.add("prepareExamplishLexicon", () => {
+  cy.exec("npm run db:seed:examplish:lexicon");
 });
 
 Cypress.Commands.add("goToExamplish", () => {

@@ -9,8 +9,7 @@ MATCH (tr:Translation {id: $id})
 OPTIONAL MATCH (tr) -[:IS_IN]-> (lang:Language)
 MATCH (tr) -[:HAS_STRUCTURE]-> (root:SyntaxNode)
 MATCH path = (root) -[:HAS_CHILD*]-> (word:Word)
-OPTIONAL MATCH (word) -[:HAS_STEM]-> (lex:Lexeme)
-WHERE lex IS NULL
+WHERE NOT (word) -[:HAS_STEM]-> (:Lexeme)
 CREATE (gl:Glitch {
   id: randomUUID(),
   dependentType: 'Translation',
