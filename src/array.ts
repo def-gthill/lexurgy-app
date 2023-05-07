@@ -4,6 +4,10 @@ export function set<T>(array: T[], index: number, newValue: T): T[] {
   return newArray;
 }
 
+export function removeDuplicates<T>(array: T[]): T[] {
+  return [...new Set(array)];
+}
+
 export function range(stop: number): number[] {
   return [...Array(stop).keys()];
 }

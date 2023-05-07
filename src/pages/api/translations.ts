@@ -1,4 +1,5 @@
 import { RequestQuery, collectionEndpoint } from "@/api";
+import { removeDuplicates } from "@/array";
 import getDriver, { execute, query } from "@/db";
 import { FlatTranslation, flatten, inflate } from "@/models/FlatTranslation";
 import Lexeme from "@/models/Lexeme";
@@ -112,7 +113,7 @@ async function linkStems(
   languageId: string,
   structure: SyntaxNode
 ): Promise<SyntaxNode> {
-  const stems = getStems(structure);
+  const stems = removeDuplicates(getStems(structure));
   const stemToLexeme = await getLinkedLexemes(languageId, stems);
   const result = addLexemeLinks(structure, stemToLexeme);
   return result;

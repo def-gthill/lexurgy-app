@@ -61,8 +61,8 @@ describe("the translation editor", () => {
   });
 
   it("lets the user create a syntax tree with lexicon links", () => {
-    cy.exec("npm run db:seed:examplish:lexicon");
-    cy.visit(`/language/${examplishUuid}`);
+    cy.prepareExamplishLexicon();
+    cy.goToLanguage("Examplish");
     createTranslation();
     cy.visit(`/language/${examplishUuid}/lexicon`);
     cy.contains("cat").parents(".card").contains("Edit").click();
@@ -71,6 +71,28 @@ describe("the translation editor", () => {
     cy.contains("fyel");
     cy.visit(`/language/${examplishUuid}`);
     cy.contains("Fyel dor.");
+  });
+
+  it("links multiple copies of the same word", () => {
+    cy.prepareExamplishLexicon();
+    cy.goToLanguage("Examplish");
+    cy.createTranslation({
+      structure: {
+        construction: "Intransitive Clause",
+        children: [
+          ["Subject", "sha"],
+          ["Verb", "sha"],
+        ],
+      },
+      translation: "The cat is catting",
+    });
+    cy.visit(`/language/${examplishUuid}/lexicon`);
+    cy.contains("cat").parents(".card").contains("Edit").click();
+    cy.get("#romanized").clear().type("fyel");
+    cy.contains("Save").click();
+    cy.contains("fyel");
+    cy.visit(`/language/${examplishUuid}`);
+    cy.contains("Fyel fyel.");
   });
 
   it("lets the user edit an existing translation", () => {

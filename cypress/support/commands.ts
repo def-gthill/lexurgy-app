@@ -34,13 +34,15 @@ declare global {
       resetDb(): Chainable<void>;
       prepareExamplish(): Chainable<void>;
       prepareExamplishLexicon(): Chainable<void>;
-      goToExamplish(): Chainable<void>;
+      goToLanguage(name: string): Chainable<void>;
       createTranslation(translation: UserTranslation): Chainable<void>;
     }
   }
 }
 
 const examplishUuid = "b1365a98-00d1-4633-8e04-9c48259dd698";
+
+const languages = new Map([["Examplish", examplishUuid]]);
 
 Cypress.Commands.add("resetDb", () => {
   cy.exec("npm run db:reset");
@@ -54,8 +56,9 @@ Cypress.Commands.add("prepareExamplishLexicon", () => {
   cy.exec("npm run db:seed:examplish:lexicon");
 });
 
-Cypress.Commands.add("goToExamplish", () => {
-  cy.visit(`/language/${examplishUuid}`);
+Cypress.Commands.add("goToLanguage", (name: string) => {
+  const id = languages.get(name);
+  cy.visit(`/language/${id}`);
 });
 
 Cypress.Commands.add("createTranslation", (translation: UserTranslation) => {

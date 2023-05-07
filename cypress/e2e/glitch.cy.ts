@@ -5,13 +5,13 @@ describe("the glitch link", () => {
   });
 
   it("doesn't show the glitch indicator in a pristine language", () => {
-    cy.goToExamplish();
+    cy.goToLanguage("Examplish");
     cy.contains("Main");
     cy.contains("Glitch").should("not.exist");
   });
 
   it("indicates glitches if the user creates a translation with non-existent words", () => {
-    cy.goToExamplish();
+    cy.goToLanguage("Examplish");
     cy.createTranslation({
       structure: {
         construction: "Intransitive Clause",
@@ -27,7 +27,7 @@ describe("the glitch link", () => {
 
   it("doesn't show the glitch indicator if the user creates a translation with real words", () => {
     cy.prepareExamplishLexicon();
-    cy.goToExamplish();
+    cy.goToLanguage("Examplish");
     cy.createTranslation({
       structure: {
         construction: "Intransitive Clause",
