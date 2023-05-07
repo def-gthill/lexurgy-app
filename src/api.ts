@@ -5,16 +5,34 @@ export type RequestQuery = NextApiRequest["query"];
 
 export async function collectionEndpoint<T>(
   req: NextApiRequest,
+  res: NextApiResponse<T[]>,
+  get: (query: RequestQuery) => Promise<T[]>
+): Promise<void>;
+export async function collectionEndpoint<T>(
+  req: NextApiRequest,
   res: NextApiResponse<T | T[]>,
   get: (query: RequestQuery) => Promise<T[]>,
   post: (resource: T) => Promise<T>
+): Promise<void>;
+export async function collectionEndpoint<T>(
+  req: NextApiRequest,
+  res: NextApiResponse<T | T[]>,
+  get: (query: RequestQuery) => Promise<T[]>,
+  post?: (resource: T) => Promise<T>
 ) {
   if (req.method === "GET") {
     res.status(HttpStatusCode.Ok).json(await get(req.query));
-  } else if (req.method === "POST") {
+  } else if (post && req.method === "POST") {
     res.status(HttpStatusCode.Created).json(await post(req.body));
   } else {
-    res.status(HttpStatusCode.MethodNotAllowed);
+    let allow = "GET";
+    if (post) {
+      allow = `${allow}, POST`;
+    }
+    res
+      .status(HttpStatusCode.MethodNotAllowed)
+      .setHeader("allow", allow)
+      .json([]);
   }
 }
 
@@ -42,6 +60,9 @@ export async function resourceEndpoint<T>(
       res.status(HttpStatusCode.Ok).json(`Object ${result[0]} deleted`);
     }
   } else {
-    res.status(HttpStatusCode.MethodNotAllowed);
+    res
+      .status(HttpStatusCode.MethodNotAllowed)
+      .setHeader("allow", "GET, DELETE")
+      .json("");
   }
 }

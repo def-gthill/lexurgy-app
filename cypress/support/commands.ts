@@ -1,4 +1,7 @@
 /// <reference types="cypress" />
+
+import UserTranslation from "./UserTranslation";
+
 // ***********************************************
 // This example commands.ts shows you how to
 // create various custom commands and overwrite
@@ -24,6 +27,44 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      resetDb(): Chainable<void>;
+      prepareExamplish(): Chainable<void>;
+      goToExamplish(): Chainable<void>;
+      createTranslation(translation: UserTranslation): Chainable<void>;
+    }
+  }
+}
+
+const examplishUuid = "b1365a98-00d1-4633-8e04-9c48259dd698";
+
+Cypress.Commands.add("resetDb", () => {
+  cy.exec("npm run db:reset");
+});
+
+Cypress.Commands.add("prepareExamplish", () => {
+  cy.exec("npm run db:seed:examplish");
+});
+
+Cypress.Commands.add("goToExamplish", () => {
+  cy.visit(`/language/${examplishUuid}`);
+});
+
+Cypress.Commands.add("createTranslation", (translation: UserTranslation) => {
+  cy.contains("Add Translation").click();
+  cy.get("#construction").select(translation.structure.construction);
+  cy.contains("Create").click();
+  for (const [childName, child] of translation.structure.children) {
+    cy.contains(childName).type(child as string);
+  }
+  cy.contains("Done").click();
+  cy.get("#translation").type(translation.translation);
+  cy.contains("Save").click();
+});
+
 //
 // declare global {
 //   namespace Cypress {
