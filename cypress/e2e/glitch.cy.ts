@@ -24,3 +24,5 @@ describe("the glitch link", () => {
     cy.contains("2 Glitches");
   });
 });
+
+export {};
