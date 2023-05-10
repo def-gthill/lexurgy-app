@@ -45,19 +45,18 @@ describe("the translation glitch endpoint", () => {
       .should((actual: Glitch[]) => {
         expect(actual).to.have.length(2);
         const catMissing = actual.find(
-          (glitch) => glitch.referentKey === "sha"
+          (glitch) => glitch.referent.searchTerm === "sha"
         );
-        expect(catMissing?.dependentType).to.equal("Translation");
-        expect(catMissing?.dependentId).to.equal(translationId);
-        expect(catMissing?.dependentPartPath).to.deep.equal([
+        expect(catMissing?.dependent.type).to.equal("Translation");
+        expect(catMissing?.dependent.value.id).to.equal(translationId);
+        expect(catMissing?.dependent.invalidPartPath).to.deep.equal([
           "structure",
           "children",
           "Subject",
           "stem",
         ]);
-        expect(catMissing?.referentType).to.equal("Lexeme");
-        expect(catMissing?.referentIsId).to.be.false;
-        expect(catMissing?.referentPartPath).to.be.empty;
+        expect(catMissing?.referent.referenceType).to.equal("Undefined");
+        expect(catMissing?.referent.type).to.equal("Lexeme");
       });
   });
 

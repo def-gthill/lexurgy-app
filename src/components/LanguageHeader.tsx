@@ -1,6 +1,6 @@
 import Header from "./Header";
 
-export type LanguageLink = "Main" | "Lexicon" | "Syntax";
+export type LanguageLink = "Main" | "Lexicon" | "Syntax" | "Glitches";
 
 export default function LanguageHeader({
   id,
@@ -25,7 +25,7 @@ export default function LanguageHeader({
   return <Header links={links} active={active} />;
 }
 
-function glitchCountLabel(glitchCount: number): string {
+export function glitchCountLabel(glitchCount: number): string {
   if (glitchCount === 0) {
     return "No Glitches";
   } else if (glitchCount === 1) {

@@ -22,7 +22,12 @@ describe("the glitch link", () => {
       },
       translation: "The cat is sleeping",
     });
-    cy.contains("2 Glitches");
+    cy.contains("2 Glitches").click();
+    cy.contains("non-existent lexeme");
+    cy.contains("Sha dor");
+    cy.contains("The cat is sleeping");
+    cy.contains("Add Lexeme");
+    cy.contains("Delete Translation");
   });
 
   it("doesn't show the glitch indicator if the user creates a translation with real words", () => {

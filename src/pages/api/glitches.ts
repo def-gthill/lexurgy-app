@@ -19,7 +19,19 @@ async function getGlitches(requestQuery: RequestQuery): Promise<Glitch[]> {
       driver,
       `MATCH (gl:Glitch) -[:IS_IN]-> (lang:Language {id: $id})
       MATCH (gl) -[:WAS_FOUND_IN]-> (dependent)
-      RETURN gl {.*, dependentId: dependent.id}`,
+      RETURN {
+        id: gl.id,
+        dependent: {
+          type: gl.dependentType,
+          value: dependent,
+          invalidPartPath: gl.dependentPartPath
+        },
+        referent: {
+          referenceType: 'Undefined',
+          type: gl.referentType,
+          searchTerm: gl.referentKey
+        }
+      }`,
       { id: languageId }
     )
   ).map((glitch) => ({ ...glitch, languageId }));
