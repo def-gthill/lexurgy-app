@@ -1,3 +1,4 @@
+import { Saved } from "./Saved";
 import Translation from "./Translation";
 
 export default interface Glitch {
@@ -9,7 +10,7 @@ export default interface Glitch {
 
 export interface DependentTranslation {
   type: "Translation";
-  value: Translation;
+  value: Saved<Translation>;
   invalidPartPath: [string | number][];
 }
 

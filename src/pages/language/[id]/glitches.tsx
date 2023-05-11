@@ -31,7 +31,7 @@ export default function GlitchPage() {
           <main>
             <h1>{language.name} Glitches</h1>
             {glitches.map((glitch) => (
-              <GlitchView glitch={glitch} key={glitch.id} />
+              <GlitchView language={language} glitch={glitch} key={glitch.id} />
             ))}
           </main>
         </>
