@@ -87,4 +87,32 @@ describe("SyntaxTreeEditor", () => {
       .click()
       .then(() => expect(saved).to.be.true);
   });
+
+  it("disables the Done button while there are empty children", () => {
+    cy.mount(
+      <SyntaxTreeEditor constructions={constructions} saveTree={() => {}} />
+    );
+    cy.get("#construction").select("Intransitive Clause");
+    cy.contains("Create").click();
+    cy.contains("Done").should("be.disabled");
+    cy.contains("Subject").type("sha");
+    cy.contains("Done").should("be.disabled");
+    cy.contains("Verb").type("dor");
+    cy.contains("Done").should("be.enabled");
+  });
+
+  it("disables the Done button while sub-nodes are still being edited", () => {
+    cy.mount(
+      <SyntaxTreeEditor constructions={constructions} saveTree={() => {}} />
+    );
+    cy.get("#construction").select("Intransitive Clause");
+    cy.contains("Create").click();
+    cy.contains("Verb").type("dor");
+    cy.contains("Subject")
+      .parents(".editor")
+      .first()
+      .contains("Expand")
+      .click();
+    cy.contains("Done").should("be.disabled");
+  });
 });

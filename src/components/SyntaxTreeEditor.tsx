@@ -56,6 +56,10 @@ export default function SyntaxTreeEditor({
                 children: activeChildren,
               })
             }
+            disabled={
+              activeChildren.filter(([_childName, child]) => isComplete(child))
+                .length < activeConstruction.children.length
+            }
           >
             Done
           </button>
@@ -99,6 +103,17 @@ export default function SyntaxTreeEditor({
     }
     const [_name, child] = entry;
     return child;
+  }
+
+  function isComplete(child: Word | SyntaxNode): boolean {
+    if ("romanized" in child) {
+      return !!child.romanized;
+    } else {
+      return (
+        child.children.filter(([_childName, child]) => isComplete(child))
+          .length === child.construction?.children.length
+      );
+    }
   }
 }
 
