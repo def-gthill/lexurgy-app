@@ -37,6 +37,7 @@ export default function TranslationMissingLexemeView({
             />
           )}
           initialValue={{
+            languageId: language.id,
             romanized: missingLexeme,
             pos: "",
             definitions: [""],

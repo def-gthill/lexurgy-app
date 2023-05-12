@@ -2,6 +2,7 @@ import LanguagePage from "@/components/LanguagePage";
 import GlitchView from "@/components/glitches/GlitchView";
 import Glitch from "@/models/Glitch";
 import Language from "@/models/Language";
+import useGlitchResolver from "@/useGlitchResolver";
 import useReadOnlyPersistentCollection from "@/useReadOnlyPersistentCollection";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -13,8 +14,9 @@ export default function GlitchPage() {
   const glitchCollection = useReadOnlyPersistentCollection<Glitch>(
     `/api/glitches?language=${id}`
   );
-
   const glitches = glitchCollection.getOrEmpty();
+
+  const resolver = useGlitchResolver(id);
 
   return (
     <LanguagePage
@@ -31,7 +33,12 @@ export default function GlitchPage() {
           <main>
             <h1>{language.name} Glitches</h1>
             {glitches.map((glitch) => (
-              <GlitchView language={language} glitch={glitch} key={glitch.id} />
+              <GlitchView
+                language={language}
+                glitch={glitch}
+                resolver={resolver}
+                key={glitch.id}
+              />
             ))}
           </main>
         </>

@@ -36,6 +36,7 @@ declare global {
       prepareExamplishLexicon(): Chainable<void>;
       goToLanguage(name: string): Chainable<void>;
       createTranslation(translation: UserTranslation): Chainable<void>;
+      waitForApiResult(url: string, name: string): Chainable<void>;
     }
   }
 }
@@ -71,6 +72,11 @@ Cypress.Commands.add("createTranslation", (translation: UserTranslation) => {
   cy.contains("Done").click();
   cy.get("#translation").type(translation.translation);
   cy.contains("Save").click();
+});
+
+Cypress.Commands.add("waitForApiResult", (url: string, name: string) => {
+  cy.intercept(url).as(name);
+  cy.wait(`@${name}`);
 });
 
 //

@@ -2,6 +2,7 @@ import { RequestQuery, collectionEndpoint } from "@/api";
 import getDriver, { query } from "@/db";
 import Glitch from "@/models/Glitch";
 import { NextApiRequest, NextApiResponse } from "next";
+import { glitchQuery } from "./glitches/[id]";
 
 const driver = getDriver();
 
@@ -18,20 +19,7 @@ async function getGlitches(requestQuery: RequestQuery): Promise<Glitch[]> {
     await query<Glitch>(
       driver,
       `MATCH (gl:Glitch) -[:IS_IN]-> (lang:Language {id: $id})
-      MATCH (gl) -[:WAS_FOUND_IN]-> (dependent)
-      RETURN {
-        id: gl.id,
-        dependent: {
-          type: gl.dependentType,
-          value: dependent,
-          invalidPartPath: gl.dependentPartPath
-        },
-        referent: {
-          referenceType: 'Undefined',
-          type: gl.referentType,
-          searchTerm: gl.referentKey
-        }
-      }`,
+      ${glitchQuery}`,
       { id: languageId }
     )
   ).map((glitch) => ({ ...glitch, languageId }));
