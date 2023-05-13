@@ -7,24 +7,26 @@ describe("the translation endpoint", () => {
   const clauseUuid = "8361bff7-57b8-461f-bb1a-c6109d070205";
   const phraseUuid = "6bc72dc1-6e25-4f55-acb5-a65678ff71e7";
 
+  const oneNodeTranslation: Translation = {
+    id: translationId,
+    languageId: examplishUuid,
+    romanized: "Sha dor.",
+    structure: {
+      nodeTypeId: clauseUuid,
+      children: [
+        ["Subject", { romanized: "sha" }],
+        ["Verb", { romanized: "dor" }],
+      ],
+    },
+    translation: "The cat is sleeping.",
+  };
+
   beforeEach(() => {
     cy.exec("npm run db:reset && npm run db:seed:examplish");
   });
 
   it("can round-trip a one-node syntax tree", () => {
-    const translation: Translation = {
-      id: translationId,
-      languageId: examplishUuid,
-      romanized: "Sha dor.",
-      structure: {
-        nodeTypeId: clauseUuid,
-        children: [
-          ["Subject", { romanized: "sha" }],
-          ["Verb", { romanized: "dor" }],
-        ],
-      },
-      translation: "The cat is sleeping.",
-    };
+    const translation = oneNodeTranslation;
 
     cy.request({
       url: "/api/translations",
@@ -106,5 +108,13 @@ describe("the translation endpoint", () => {
           ["Modifier", { romanized: "nwa" }],
         ]);
       });
+  });
+
+  it("can post the same translation twice without duplicating", () => {
+    const translation = oneNodeTranslation;
+
+    cy.postTranslation(translation);
+    cy.postTranslation(translation);
+    cy.getTranslations("Examplish").should("have.length", 1);
   });
 });

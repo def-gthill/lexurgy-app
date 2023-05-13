@@ -39,5 +39,6 @@ describe("the resolution of Translation Missing Lexeme glitches", () => {
     cy.changeRomanization("Examplish", "rabbit", "kone");
     cy.goToLanguage("Examplish");
     cy.contains("Kone dor.");
+    cy.get(".card").should("have.length", 1);
   });
 });

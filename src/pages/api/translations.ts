@@ -7,7 +7,11 @@ import SyntaxNode, { structureToRomanized } from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
 import * as crypto from "crypto";
 import { NextApiRequest, NextApiResponse } from "next";
-import { repair, translationQuery } from "./translations/[id]";
+import {
+  deleteTranslation,
+  repair,
+  translationQuery,
+} from "./translations/[id]";
 
 const driver = getDriver();
 
@@ -36,7 +40,9 @@ async function getTranslations(
 }
 
 async function postTranslation(translation: Translation): Promise<Translation> {
-  if (translation.id === undefined) {
+  if (translation.id) {
+    await deleteTranslation(translation.id);
+  } else {
     translation.id = crypto.randomUUID();
   }
   if (translation.languageId && translation.structure) {
@@ -51,12 +57,13 @@ async function postTranslation(translation: Translation): Promise<Translation> {
   const flatTranslation = flatten(translation);
   const query = `
   MATCH (lang:Language {id: $languageId})
-  MERGE (tr:Translation {id: $id}) -[:IS_IN]-> (lang)
-  SET tr.romanized = $romanized, tr.translation = $translation
-  WITH tr
-  OPTIONAL MATCH (tr) -[:HAS_STRUCTURE]-> (node:SyntaxNode)
-  OPTIONAL MATCH (node) -[:HAS_CHILD]-> (word:Word)
-  DETACH DELETE node, word
+  CREATE (
+    tr:Translation {
+      id: $id,
+      romanized: $romanized,
+      translation: $translation
+    }
+  ) -[:IS_IN]-> (lang)
   WITH tr, $flatStructure AS structure
   WHERE structure IS NOT NULL
   CREATE (tr) -[:HAS_STRUCTURE]-> (:SyntaxNode {id: 0, ownerId: tr.id})

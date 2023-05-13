@@ -79,7 +79,7 @@ export function repair(translation: Translation): Translation {
   }
 }
 
-async function deleteTranslation(id: string): Promise<Translation[]> {
+export async function deleteTranslation(id: string): Promise<Translation[]> {
   return await query<Translation>(
     driver,
     `MATCH (tr:Translation {id: $id})

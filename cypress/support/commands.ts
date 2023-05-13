@@ -1,5 +1,6 @@
 /// <reference types="cypress" />
 
+import Translation from "@/models/Translation";
 import UserTranslation from "./UserTranslation";
 
 // ***********************************************
@@ -42,6 +43,8 @@ declare global {
         lexeme: string,
         newRomanization: string
       ): Chainable<void>;
+      getTranslations(language: string): Chainable<Translation[]>;
+      postTranslation(translation: Translation): Chainable<void>;
       waitForApiResult(url: string, name: string): Chainable<void>;
     }
   }
@@ -94,6 +97,23 @@ Cypress.Commands.add(
     cy.contains("Save").click();
   }
 );
+
+Cypress.Commands.add("getTranslations", (language: string) => {
+  return cy
+    .request({
+      url: `/api/translations?language=${languages.get(language)}`,
+      method: "GET",
+    })
+    .its("body");
+});
+
+Cypress.Commands.add("postTranslation", (translation: Translation) => {
+  cy.request({
+    url: "/api/translations",
+    method: "POST",
+    body: translation,
+  });
+});
 
 Cypress.Commands.add("waitForApiResult", (url: string, name: string) => {
   cy.intercept(url).as(name);
