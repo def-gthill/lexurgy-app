@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "cypress": "cypress open",
-    "cypress-all": "cypress run",
+    "cypress-unit": "cypress run --component",
+    "cypress-accept": "cypress run",
     "db:reset": "node cypress/db/dbReset.mjs",
     "db:seed:examplish": "node cypress/db/dbSeedExamplish.mjs",
     "db:seed:examplish:lexicon": "node cypress/db/dbSeedExamplishLexicon.mjs"
