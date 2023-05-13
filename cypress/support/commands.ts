@@ -35,7 +35,13 @@ declare global {
       prepareExamplish(): Chainable<void>;
       prepareExamplishLexicon(): Chainable<void>;
       goToLanguage(name: string): Chainable<void>;
+      goToLexicon(name: string): Chainable<void>;
       createTranslation(translation: UserTranslation): Chainable<void>;
+      changeRomanization(
+        language: string,
+        lexeme: string,
+        newRomanization: string
+      ): Chainable<void>;
       waitForApiResult(url: string, name: string): Chainable<void>;
     }
   }
@@ -62,6 +68,11 @@ Cypress.Commands.add("goToLanguage", (name: string) => {
   cy.visit(`/language/${id}`);
 });
 
+Cypress.Commands.add("goToLexicon", (name: string) => {
+  const id = languages.get(name);
+  cy.visit(`/language/${id}/lexicon`);
+});
+
 Cypress.Commands.add("createTranslation", (translation: UserTranslation) => {
   cy.contains("Add Translation").click();
   cy.get("#construction").select(translation.structure.construction);
@@ -73,6 +84,16 @@ Cypress.Commands.add("createTranslation", (translation: UserTranslation) => {
   cy.get("#translation").type(translation.translation);
   cy.contains("Save").click();
 });
+
+Cypress.Commands.add(
+  "changeRomanization",
+  (language: string, lexeme: string, newRomanization: string) => {
+    cy.goToLexicon(language);
+    cy.contains(lexeme).parents(".card").contains("Edit").click();
+    cy.get("#romanized").clear().type(newRomanization);
+    cy.contains("Save").click();
+  }
+);
 
 Cypress.Commands.add("waitForApiResult", (url: string, name: string) => {
   cy.intercept(url).as(name);

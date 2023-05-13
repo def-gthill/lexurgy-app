@@ -1,34 +1,45 @@
 import axios from "axios";
 import { useSWRConfig } from "swr";
+import Glitch from "./models/Glitch";
 import Lexeme from "./models/Lexeme";
+import Translation from "./models/Translation";
 
 export default function useGlitchResolver(languageId: string): GlitchResolver {
   const { mutate } = useSWRConfig();
   return {
-    async addLexeme(glitchId: string, lexeme: Lexeme): Promise<Lexeme> {
-      await deleteGlitch(glitchId);
+    async deleteGlitch(id: string): Promise<Glitch> {
+      const deletedValue = (await axios.delete(`/api/glitches/${id}`)).data;
+      mutate(`/api/glitches?language=${languageId}`);
+      return deletedValue;
+    },
+    async addLexeme(lexeme: Lexeme): Promise<Lexeme> {
       const postUrl = "/api/lexemes";
       const getUrl = `/api/lexemes?language=${languageId}`;
       const postedValue = (await axios.post<Lexeme>(postUrl, lexeme)).data;
       mutate(getUrl);
       return postedValue;
     },
-    async deleteTranslation(glitchId: string, id: string): Promise<void> {
-      await deleteGlitch(glitchId);
+    async addTranslation(translation: Translation): Promise<Translation> {
+      const postUrl = "/api/translations";
+      const getUrl = `/api/translations?language=${languageId}`;
+      const postedValue = (await axios.post<Translation>(postUrl, translation))
+        .data;
+      mutate(getUrl);
+      return postedValue;
+    },
+    async deleteTranslation(id: string): Promise<Translation> {
       const deleteUrl = `/api/translations/${id}`;
       const getUrl = `/api/translations?language=${languageId}`;
-      await axios.delete(deleteUrl);
+      const deletedValue = (await axios.delete(deleteUrl)).data;
       mutate(getUrl);
+      return deletedValue;
     },
   };
-
-  async function deleteGlitch(id: string) {
-    await axios.delete(`/api/glitches/${id}`);
-    mutate(`/api/glitches?language=${languageId}`);
-  }
 }
 
 export interface GlitchResolver {
-  addLexeme(glitchId: string, lexeme: Lexeme): Promise<Lexeme>;
-  deleteTranslation(glitchId: string, id: string): Promise<void>;
+  deleteGlitch(id: string): Promise<Glitch>;
+  addLexeme(lexeme: Lexeme): Promise<Lexeme>;
+  addTranslation(translation: Translation): Promise<Translation>;
+  deleteTranslation(id: string): Promise<Translation>;
 }

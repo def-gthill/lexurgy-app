@@ -24,12 +24,20 @@ export default function GlitchView({
         missingLexeme={glitch.referent.searchTerm}
         addLexeme={
           resolver
-            ? (lexeme) => resolver.addLexeme(glitch.id, lexeme)
+            ? async (lexeme) => {
+                await resolver.addLexeme(lexeme);
+                // Re-post the translation to link it up to the new lexeme.
+                await resolver.addTranslation(glitch.dependent.value);
+                await resolver.deleteGlitch(glitch.id);
+              }
             : undefined
         }
         deleteTranslation={
           resolver
-            ? (id) => resolver?.deleteTranslation(glitch.id, id)
+            ? async (id) => {
+                await resolver.deleteTranslation(id);
+                await resolver.deleteGlitch(glitch.id);
+              }
             : undefined
         }
       />

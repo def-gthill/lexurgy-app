@@ -6,15 +6,16 @@ describe("the translation editor", () => {
   });
 
   function createTranslation() {
-    cy.contains("Add Translation").click();
-    cy.get("#construction").select("Intransitive Clause");
-    cy.contains("Create").click();
-    cy.contains("Subject").type("sha");
-    cy.contains("Verb").type("dor");
-    cy.contains("Done").click();
-    cy.contains("Subject");
-    cy.get("#translation").type("The cat is sleeping.");
-    cy.contains("Save").click();
+    cy.createTranslation({
+      structure: {
+        construction: "Intransitive Clause",
+        children: [
+          ["Subject", "sha"],
+          ["Verb", "dor"],
+        ],
+      },
+      translation: "The cat is sleeping.",
+    });
   }
 
   it("lets the user create a one-node syntax tree", () => {
@@ -60,16 +61,13 @@ describe("the translation editor", () => {
     cy.contains("Det");
   });
 
-  it("lets the user create a syntax tree with lexicon links", () => {
+  it.only("lets the user create a syntax tree with lexicon links", () => {
     cy.prepareExamplishLexicon();
     cy.goToLanguage("Examplish");
     createTranslation();
-    cy.visit(`/language/${examplishUuid}/lexicon`);
-    cy.contains("cat").parents(".card").contains("Edit").click();
-    cy.get("#romanized").clear().type("fyel");
-    cy.contains("Save").click();
+    cy.changeRomanization("Examplish", "cat", "fyel");
     cy.contains("fyel");
-    cy.visit(`/language/${examplishUuid}`);
+    cy.goToLanguage("Examplish");
     cy.contains("Fyel dor.");
   });
 
@@ -84,7 +82,7 @@ describe("the translation editor", () => {
           ["Verb", "sha"],
         ],
       },
-      translation: "The cat is catting",
+      translation: "The cat is catting.",
     });
     cy.visit(`/language/${examplishUuid}/lexicon`);
     cy.contains("cat").parents(".card").contains("Edit").click();

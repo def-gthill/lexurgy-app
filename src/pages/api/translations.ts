@@ -7,7 +7,7 @@ import SyntaxNode, { structureToRomanized } from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
 import * as crypto from "crypto";
 import { NextApiRequest, NextApiResponse } from "next";
-import { translationQuery } from "./translations/[id]";
+import { repair, translationQuery } from "./translations/[id]";
 
 const driver = getDriver();
 
@@ -30,22 +30,7 @@ async function getTranslations(
       { id: languageId }
     )
   ).map((flatTranslation) => {
-    const translation = inflate(flatTranslation);
-    if (translation.structure) {
-      const structure = translation.structure;
-      return {
-        ...translation,
-        languageId,
-        romanized: structureToRomanized(structure),
-        structure,
-      };
-    } else {
-      return {
-        ...translation,
-        languageId,
-        structure: undefined,
-      };
-    }
+    return repair(inflate(flatTranslation));
   });
   return result;
 }

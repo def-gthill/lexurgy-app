@@ -2,7 +2,7 @@ import { RequestQuery, collectionEndpoint } from "@/api";
 import getDriver, { query } from "@/db";
 import Glitch from "@/models/Glitch";
 import { NextApiRequest, NextApiResponse } from "next";
-import { glitchQuery } from "./glitches/[id]";
+import { glitchQuery, inflateGlitch } from "./glitches/[id]";
 
 const driver = getDriver();
 
@@ -22,6 +22,6 @@ async function getGlitches(requestQuery: RequestQuery): Promise<Glitch[]> {
       ${glitchQuery}`,
       { id: languageId }
     )
-  ).map((glitch) => ({ ...glitch, languageId }));
+  ).map(inflateGlitch);
   return result;
 }

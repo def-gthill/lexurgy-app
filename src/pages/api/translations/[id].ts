@@ -59,18 +59,24 @@ async function getTranslation(id: string): Promise<Translation[]> {
       { id }
     )
   ).map((flatTranslation) => {
-    const translation = inflate(flatTranslation);
-    if (translation.structure) {
-      const structure = translation.structure;
-      return {
-        ...translation,
-        romanized: structureToRomanized(structure),
-        structure,
-      };
-    } else {
-      return translation;
-    }
+    return repair(inflate(flatTranslation));
   });
+}
+
+export function repair(translation: Translation): Translation {
+  if (translation.structure) {
+    const structure = translation.structure;
+    return {
+      ...translation,
+      romanized: structureToRomanized(structure),
+      structure,
+    };
+  } else {
+    return {
+      ...translation,
+      structure: undefined,
+    };
+  }
 }
 
 async function deleteTranslation(id: string): Promise<Translation[]> {

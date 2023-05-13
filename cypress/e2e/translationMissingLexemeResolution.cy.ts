@@ -36,5 +36,8 @@ describe("the resolution of Translation Missing Lexeme glitches", () => {
     cy.contains("non-existent lexeme").should("not.exist");
     cy.contains("Lexicon").click();
     cy.contains("rabbit");
+    cy.changeRomanization("Examplish", "rabbit", "kone");
+    cy.goToLanguage("Examplish");
+    cy.contains("Kone dor.");
   });
 });
