@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 
 import Translation from "@/models/Translation";
+import { UserSoundChangeInputs } from "./UserSoundChangeInputs";
 import UserTranslation from "./UserTranslation";
 
 // ***********************************************

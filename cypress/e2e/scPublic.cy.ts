@@ -8,3 +8,5 @@ describe("the public sound changer page", () => {
     cy.scOutputWordsAre(["faa", "bar"]);
   });
 });
+
+export {};

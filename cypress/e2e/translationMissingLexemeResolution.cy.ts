@@ -42,3 +42,5 @@ describe("the resolution of Translation Missing Lexeme glitches", () => {
     cy.get(".card").should("have.length", 1);
   });
 });
+
+export {};

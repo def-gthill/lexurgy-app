@@ -1,4 +1,4 @@
-interface UserSoundChangeInputs {
+export interface UserSoundChangeInputs {
   inputWords: string[];
   changes: string;
 }
