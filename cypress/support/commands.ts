@@ -150,17 +150,21 @@ Cypress.Commands.add("goToScPublic", () => {
 });
 
 Cypress.Commands.add("runSc", (inputs: UserSoundChangeInputs) => {
-  cy.contains("Input Words").type(inputs.inputWords.join("\n"));
+  for (const input of inputs.inputWords) {
+    cy.get("input").last().type(input);
+    cy.contains("Add Word").click();
+  }
   cy.contains("Sound Changes").type(inputs.changes);
   cy.contains("Apply").click();
 });
 
 Cypress.Commands.add("scOutputWordsAre", (expectedWords: string[]) => {
-  cy.get("#output-words")
-    .contains(expectedWords[0])
-    .then((textarea) => {
-      expect(textarea.text().split("\n")).to.deep.equal(expectedWords);
-    });
+  cy.contains(expectedWords[0]);
+  expectedWords.forEach((word, i) => {
+    cy.get(`tbody > :nth-child(${i + 1}) > :last`).then((element) =>
+      expect(element.text()).to.equal(word)
+    );
+  });
 });
 
 Cypress.Commands.add("waitForApiResult", (url: string, name: string) => {
