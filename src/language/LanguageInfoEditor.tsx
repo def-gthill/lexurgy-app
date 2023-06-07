@@ -1,5 +1,5 @@
-import Language from "@/models/Language";
-import Fields, { Field } from "./Fields";
+import Fields, { Field } from "@/components/Fields";
+import Language from "@/language/Language";
 
 export default function LanguageInfoEditor({
   language,

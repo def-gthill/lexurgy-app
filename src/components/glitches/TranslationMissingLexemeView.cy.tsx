@@ -1,5 +1,5 @@
+import Language from "@/language/Language";
 import Glitch from "@/models/Glitch";
-import Language from "@/models/Language";
 import Lexeme from "@/models/Lexeme";
 import { Saved } from "@/models/Saved";
 import Translation from "@/models/Translation";

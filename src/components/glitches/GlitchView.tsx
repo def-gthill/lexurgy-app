@@ -1,5 +1,5 @@
+import Language from "@/language/Language";
 import Glitch from "@/models/Glitch";
-import Language from "@/models/Language";
 import { GlitchResolver } from "@/useGlitchResolver";
 import TranslationMissingLexemeView from "./TranslationMissingLexemeView";
 

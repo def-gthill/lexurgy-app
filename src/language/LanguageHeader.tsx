@@ -1,4 +1,4 @@
-import Header from "./Header";
+import Header from "../components/Header";
 
 export type LanguageLink = "Main" | "Lexicon" | "Syntax" | "Glitches";
 

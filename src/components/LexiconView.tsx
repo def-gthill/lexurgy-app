@@ -1,4 +1,4 @@
-import Language from "@/models/Language";
+import Language from "@/language/Language";
 import Lexeme from "@/models/Lexeme";
 import styles from "@/styles/LexiconView.module.css";
 import { useState } from "react";

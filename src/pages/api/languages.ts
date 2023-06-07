@@ -1,32 +1,11 @@
 import { collectionEndpoint } from "@/api";
-import getDriver, { execute, query } from "@/db";
-import Language from "@/models/Language";
-import * as crypto from "crypto";
+import Language from "@/language/Language";
+import { getLanguages, postLanguage } from "@/language/languageEndpoint";
 import { NextApiRequest, NextApiResponse } from "next";
-
-const driver = getDriver();
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Language | Language[]>
 ) {
   await collectionEndpoint(req, res, getLanguages, postLanguage);
-}
-
-async function getLanguages(): Promise<Language[]> {
-  return await query<Language>(driver, "MATCH (lang:Language) RETURN lang;");
-}
-
-async function postLanguage(language: Language): Promise<Language> {
-  if (language.id === undefined) {
-    language.id = crypto.randomUUID();
-  }
-  await execute(
-    driver,
-    "MERGE (lang:Language {id: $id}) SET lang.name = $name",
-    {
-      ...language,
-    }
-  );
-  return language;
 }

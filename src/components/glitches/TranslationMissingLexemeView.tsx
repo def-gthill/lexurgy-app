@@ -1,5 +1,5 @@
+import Language from "@/language/Language";
 import { DependentTranslation } from "@/models/Glitch";
-import Language from "@/models/Language";
 import Lexeme from "@/models/Lexeme";
 import { useState } from "react";
 import Editor from "../Editor";

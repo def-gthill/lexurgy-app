@@ -2,7 +2,7 @@ import HiddenEditor from "@/components/HiddenEditor";
 import LanguagePage from "@/components/LanguagePage";
 import LexiconEntryEditor from "@/components/LexiconEntryEditor";
 import LexiconView from "@/components/LexiconView";
-import Language from "@/models/Language";
+import Language from "@/language/Language";
 import Lexeme from "@/models/Lexeme";
 import usePersistentCollection from "@/usePersistentCollection";
 import Head from "next/head";

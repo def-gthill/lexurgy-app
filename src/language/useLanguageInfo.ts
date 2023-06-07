@@ -1,4 +1,4 @@
-import Language from "@/models/Language";
+import Language from "@/language/Language";
 import axios from "axios";
 import { useRouter } from "next/router";
 import useSWR from "swr";

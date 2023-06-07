@@ -1,9 +1,9 @@
-import Language from "@/models/Language";
+import Editor from "@/components/Editor";
+import Language from "@/language/Language";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import * as Label from "@radix-ui/react-label";
 import Link from "next/link";
 import { useState } from "react";
-import Editor from "./Editor";
 import LanguageInfoEditor from "./LanguageInfoEditor";
 
 export default function LanguageInfoView({
