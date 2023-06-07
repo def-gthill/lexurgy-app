@@ -1,6 +1,6 @@
-import LanguagePage from "@/components/LanguagePage";
 import GlitchView from "@/components/glitches/GlitchView";
 import Language from "@/language/Language";
+import LanguagePage from "@/language/LanguagePage";
 import Glitch from "@/models/Glitch";
 import useGlitchResolver from "@/useGlitchResolver";
 import useReadOnlyPersistentCollection from "@/useReadOnlyPersistentCollection";
