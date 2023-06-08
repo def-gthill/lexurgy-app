@@ -53,6 +53,9 @@ declare global {
       goToScPublic(): Chainable<void>;
       runSc(inputs: UserSoundChangeInputs): Chainable<void>;
       scOutputWordsAre(expectedWords: string[]): Chainable<void>;
+      scIntermediateWordsAre(
+        expectedWords: [string, string[]][]
+      ): Chainable<void>;
       waitForApiResult(url: string, name: string): Chainable<void>;
     }
   }
@@ -166,6 +169,23 @@ Cypress.Commands.add("scOutputWordsAre", (expectedWords: string[]) => {
     );
   });
 });
+
+Cypress.Commands.add(
+  "scIntermediateWordsAre",
+  (expectedWords: [string, string[]][]) => {
+    cy.contains(expectedWords[0][0]);
+    expectedWords.forEach(([key, words], i) => {
+      cy.get(`thead > tr > :nth-child(${2 * (i + 1) + 1})`).then((element) =>
+        expect(element.text()).to.equal(key)
+      );
+      words.forEach((word, j) => {
+        cy.get(
+          `tbody > :nth-child(${j + 1}) > :nth-child(${2 * (i + 1) + 1})`
+        ).then((element) => expect(element.text()).to.equal(word));
+      });
+    });
+  }
+);
 
 Cypress.Commands.add("waitForApiResult", (url: string, name: string) => {
   cy.intercept(url).as(name);

@@ -9,6 +9,9 @@ import { WordHistory } from "./WordHistory";
 
 export default function ScPublic() {
   const [soundChanges, setSoundChanges] = useState("");
+  const [intermediateStageNames, setIntermediateStageNames] = useState<
+    string[]
+  >([]);
   const [histories, setHistories] = useState<WordHistory[]>([
     { inputWord: "", outputWord: null, intermediates: new Map() },
   ]);
@@ -36,6 +39,12 @@ export default function ScPublic() {
                 <tr>
                   <th>Input Word</th>
                   <th></th>
+                  {intermediateStageNames.map((name) => (
+                    <>
+                      <th>{toNiceName(name)}</th>
+                      <th></th>
+                    </>
+                  ))}
                   <th>Output Word</th>
                 </tr>
               </thead>
@@ -52,6 +61,15 @@ export default function ScPublic() {
                       />
                     </td>
                     <td>{history.outputWord && ">"}</td>
+                    {intermediateStageNames.map((name) => {
+                      const intermediateWord = history.intermediates.get(name);
+                      return (
+                        <>
+                          <td>{intermediateWord}</td>
+                          <td>{intermediateWord && ">"}</td>
+                        </>
+                      );
+                    })}
                     <td>{history.outputWord}</td>
                   </tr>
                 ))}
@@ -84,15 +102,30 @@ export default function ScPublic() {
     setHistories(set(histories, i, { ...histories[i], inputWord: word }));
   }
 
+  function toNiceName(name: string) {
+    return name
+      .split("-")
+      .map((word) => word.slice(0, 1).toLocaleUpperCase() + word.slice(1))
+      .join(" ");
+  }
+
   async function runSc() {
     const response = await axios.post<Scv1Response>("/api/scv1", {
       changes: soundChanges,
       inputWords: histories.map((history) => history.inputWord),
     });
+    setIntermediateStageNames(
+      Object.getOwnPropertyNames(response.data.intermediateWords)
+    );
     setHistories(
       histories.map((history, i) => ({
         ...history,
         outputWord: response.data.outputWords[i],
+        intermediates: new Map(
+          Object.entries(response.data.intermediateWords).map(
+            ([stage, words]) => [stage, words[i]]
+          )
+        ),
       }))
     );
   }
