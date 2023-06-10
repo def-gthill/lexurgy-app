@@ -1,13 +1,12 @@
 import { set } from "@/array";
 import Header from "@/components/Header";
-import { entries, keys, toMap, values } from "@/map";
-import * as Checkbox from "@radix-ui/react-checkbox";
-import { CheckIcon } from "@radix-ui/react-icons";
+import Switch from "@/components/Switch";
+import { entries, hasElements, keys, toMap, values } from "@/map";
 import * as Label from "@radix-ui/react-label";
-import * as Switch from "@radix-ui/react-switch";
 import axios from "axios";
 import Head from "next/head";
 import { useState } from "react";
+import HistoryTable from "./HistoryTable";
 import Scv1Response from "./Scv1Response";
 import { WordHistory } from "./WordHistory";
 
@@ -17,11 +16,15 @@ export default function ScPublic() {
     string[]
   >([]);
   const [histories, setHistories] = useState<WordHistory[]>([
-    { inputWord: "", outputWord: null, intermediates: new Map() },
+    {
+      inputWord: "",
+      outputWord: null,
+      intermediates: new Map(),
+      tracing: false,
+    },
   ]);
   const [showingStages, setShowingStages] = useState(true);
   const [tracing, setTracing] = useState(false);
-  const [tracingEachWord, setTracingEachWord] = useState<boolean[]>([]);
   return (
     <>
       <Head>
@@ -41,94 +44,31 @@ export default function ScPublic() {
             value={soundChanges}
           />
           <div>
-            <table>
-              <thead>
-                <tr>
-                  {tracing && <th>Trace</th>}
-                  <th>Input Word</th>
-                  <th></th>
-                  {showingStages &&
-                    intermediateStageNames.map((name) => (
-                      <>
-                        <th>{toNiceName(name)}</th>
-                        <th></th>
-                      </>
-                    ))}
-                  <th>Output Word</th>
-                </tr>
-              </thead>
-              <tbody>
-                {histories.map((history, i) => (
-                  <tr key={i}>
-                    {tracing && (
-                      <td>
-                        <Checkbox.Root
-                          className="CheckboxRoot"
-                          id={`tracing-${i}`}
-                          checked={!!tracingEachWord[i]}
-                          onCheckedChange={(checked) => {
-                            setTracingEachWord(
-                              set(tracingEachWord, i, checked === true)
-                            );
-                          }}
-                        >
-                          <Checkbox.Indicator className="CheckboxIndicator">
-                            <CheckIcon />
-                          </Checkbox.Indicator>
-                        </Checkbox.Root>
-                      </td>
-                    )}
-                    <td>
-                      <input
-                        type="text"
-                        value={history.inputWord}
-                        onChange={(event) =>
-                          setInputWord(i, event.target.value)
-                        }
-                      />
-                    </td>
-                    <td>{history.outputWord && ">"}</td>
-                    {showingStages &&
-                      intermediateStageNames.map((name) => {
-                        const intermediateWord =
-                          history.intermediates.get(name);
-                        return (
-                          <>
-                            <td>{intermediateWord}</td>
-                            <td>{intermediateWord && ">"}</td>
-                          </>
-                        );
-                      })}
-                    <td>{history.outputWord}</td>
-                  </tr>
-                ))}
-                {histories.at(-1)?.inputWord && (
-                  <tr key={histories.length}>
-                    <td>
-                      <button onClick={addInputWord}>Add Word</button>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+            <HistoryTable
+              intermediateStageNames={intermediateStageNames}
+              histories={histories}
+              showingStages={showingStages}
+              tracing={tracing}
+              setInputWord={setInputWord}
+              setTracing={setTracingWord}
+            />
+            {histories.at(-1)?.inputWord && (
+              <div className="buttons">
+                <button onClick={addInputWord}>Add Word</button>
+              </div>
+            )}
             <Label.Root htmlFor="show-stages">Show Stages</Label.Root>
-            <Switch.Root
-              className="SwitchRoot"
+            <Switch
               id="show-stages"
               checked={showingStages}
               onCheckedChange={setShowingStages}
-            >
-              <Switch.Thumb className="SwitchThumb" />
-            </Switch.Root>
+            />
             <Label.Root htmlFor="trace-changes">Trace Changes</Label.Root>
-            <Switch.Root
-              className="SwitchRoot"
+            <Switch
               id="trace-changes"
               checked={tracing}
               onCheckedChange={setTracing}
-            >
-              <Switch.Thumb className="SwitchThumb" />
-            </Switch.Root>
+            />
           </div>
           <div className="buttons">
             <button onClick={runSc}>Apply</button>
@@ -141,7 +81,12 @@ export default function ScPublic() {
   function addInputWord() {
     setHistories([
       ...histories,
-      { inputWord: "", outputWord: null, intermediates: new Map() },
+      {
+        inputWord: "",
+        outputWord: null,
+        intermediates: new Map(),
+        tracing: false,
+      },
     ]);
   }
 
@@ -149,11 +94,8 @@ export default function ScPublic() {
     setHistories(set(histories, i, { ...histories[i], inputWord: word }));
   }
 
-  function toNiceName(name: string) {
-    return name
-      .split("-")
-      .map((word) => word.slice(0, 1).toLocaleUpperCase() + word.slice(1))
-      .join(" ");
+  function setTracingWord(i: number, tracing: boolean) {
+    setHistories(set(histories, i, { ...histories[i], tracing }));
   }
 
   async function runSc() {
@@ -161,35 +103,44 @@ export default function ScPublic() {
       changes: soundChanges,
       inputWords: histories.map((history) => history.inputWord),
       traceWords: histories
-        .filter((_, i) => tracingEachWord[i])
+        .filter((history) => history.tracing)
         .map((history) => history.inputWord),
     });
     const intermediateWords = toMap(response.data.intermediateWords ?? {});
     const traces = toMap(response.data.traces ?? {});
-    setIntermediateStageNames(
-      response.data.traces
-        ? response.data.ruleNames.filter((ruleName) =>
-            values(traces).some((trace) =>
-              trace.some((step) => step.rule === ruleName)
-            )
+    if (hasElements(traces)) {
+      setIntermediateStageNames(
+        response.data.ruleNames.filter((ruleName) =>
+          values(traces).some((trace) =>
+            trace.some((step) => step.rule === ruleName)
           )
-        : keys(intermediateWords)
-    );
-    setHistories(
-      histories.map((history, i) => ({
-        ...history,
-        outputWord: response.data.outputWords[i],
-        intermediates: new Map(
-          response.data.traces
-            ? traces
-                .get(history.inputWord)
-                ?.map(({ rule, output }) => [rule, output])
-            : entries(intermediateWords).map(([stage, words]) => [
-                stage,
-                words[i],
-              ])
-        ),
-      }))
-    );
+        )
+      );
+      setHistories(
+        histories.map((history, i) => ({
+          ...history,
+          outputWord: response.data.outputWords[i],
+          intermediates: new Map(
+            traces
+              .get(history.inputWord)
+              ?.map(({ rule, output }) => [rule, output])
+          ),
+        }))
+      );
+    } else {
+      setIntermediateStageNames(keys(intermediateWords));
+      setHistories(
+        histories.map((history, i) => ({
+          ...history,
+          outputWord: response.data.outputWords[i],
+          intermediates: new Map(
+            entries(intermediateWords).map(([stage, words]) => [
+              stage,
+              words[i],
+            ])
+          ),
+        }))
+      );
+    }
   }
 }

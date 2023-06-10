@@ -14,6 +14,10 @@ export function entries<K, V>(map: Map<K, V>): [K, V][] {
   return [...map];
 }
 
+export function hasElements(map: Map<unknown, unknown>): boolean {
+  return map.size > 0;
+}
+
 export function update<K, V>(map: [K, V][], newEntry: [K, V]): [K, V][] {
   return [...new Map([...map, newEntry])];
 }
