@@ -102,9 +102,11 @@ export default function ScPublic() {
     const response = await axios.post<Scv1Response>("/api/scv1", {
       changes: soundChanges,
       inputWords: histories.map((history) => history.inputWord),
-      traceWords: histories
-        .filter((history) => history.tracing)
-        .map((history) => history.inputWord),
+      traceWords: tracing
+        ? histories
+            .filter((history) => history.tracing)
+            .map((history) => history.inputWord)
+        : [],
     });
     const intermediateWords = toMap(response.data.intermediateWords ?? {});
     const traces = toMap(response.data.traces ?? {});

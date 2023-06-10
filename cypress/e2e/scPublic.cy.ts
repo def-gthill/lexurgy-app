@@ -38,6 +38,18 @@ describe("the public sound changer page", () => {
     ]);
   });
 
+  it("Doesn't trace any words if tracing is turned off", () => {
+    cy.goToScPublic();
+    cy.runSc({
+      inputWords: ["aaa", "bbb", "ccc"],
+      changes: "a-to-b:\n a => b\n\nb-to-c:\n b => c\n\nc-to-d:\n c => d",
+      traceWords: ["aaa", "ccc"],
+      turnOffTracing: true,
+    });
+    cy.scOutputWordsAre(["ddd", "ddd", "ddd"]);
+    cy.scNoIntermediates();
+  });
+
   // Then can I somehow test the file import/exports and the share button?
 
   // Fatal errors

@@ -56,6 +56,7 @@ declare global {
       scIntermediateWordsAre(
         expectedWords: [string, string[]][]
       ): Chainable<void>;
+      scNoIntermediates(): Chainable<void>;
       waitForApiResult(url: string, name: string): Chainable<void>;
     }
   }
@@ -165,6 +166,9 @@ Cypress.Commands.add("runSc", (inputs: UserSoundChangeInputs) => {
       cy.get(`#tracing-${index}`).click();
     }
   }
+  if (inputs.turnOffTracing) {
+    cy.contains("Trace Changes").click();
+  }
   cy.contains("Apply").click();
 });
 
@@ -199,6 +203,12 @@ Cypress.Commands.add(
     });
   }
 );
+
+Cypress.Commands.add("scNoIntermediates", () => {
+  cy.get(`thead > tr > :nth-child(3)`).then((element) =>
+    expect(element.text()).to.equal("Output Word")
+  );
+});
 
 Cypress.Commands.add("waitForApiResult", (url: string, name: string) => {
   cy.intercept(url).as(name);
