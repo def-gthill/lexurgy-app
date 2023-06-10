@@ -23,9 +23,26 @@ describe("the public sound changer page", () => {
 
   // Stop Before
 
-  // Trace
+  it("lets the user pick words to trace", () => {
+    cy.goToScPublic();
+    cy.runSc({
+      inputWords: ["aaa", "bbb", "ccc"],
+      changes: "a-to-b:\n a => b\n\nb-to-c:\n b => c\n\nc-to-d:\n c => d",
+      traceWords: ["aaa", "ccc"],
+    });
+    cy.scOutputWordsAre(["ddd", "ddd", "ddd"]);
+    cy.scIntermediateWordsAre([
+      ["A To B", ["bbb", "", ""]],
+      ["B To C", ["ccc", "", ""]],
+      ["C To D", ["ddd", "", "ddd"]],
+    ]);
+  });
 
   // Then can I somehow test the file import/exports and the share button?
+
+  // Fatal errors
+
+  // Errors on individual words
 });
 
 export {};

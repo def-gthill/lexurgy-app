@@ -1,6 +1,10 @@
 import { set } from "@/array";
 import Header from "@/components/Header";
+import { entries, keys, toMap, values } from "@/map";
+import * as Checkbox from "@radix-ui/react-checkbox";
+import { CheckIcon } from "@radix-ui/react-icons";
 import * as Label from "@radix-ui/react-label";
+import * as Switch from "@radix-ui/react-switch";
 import axios from "axios";
 import Head from "next/head";
 import { useState } from "react";
@@ -15,6 +19,9 @@ export default function ScPublic() {
   const [histories, setHistories] = useState<WordHistory[]>([
     { inputWord: "", outputWord: null, intermediates: new Map() },
   ]);
+  const [showingStages, setShowingStages] = useState(true);
+  const [tracing, setTracing] = useState(false);
+  const [tracingEachWord, setTracingEachWord] = useState<boolean[]>([]);
   return (
     <>
       <Head>
@@ -37,20 +44,40 @@ export default function ScPublic() {
             <table>
               <thead>
                 <tr>
+                  {tracing && <th>Trace</th>}
                   <th>Input Word</th>
                   <th></th>
-                  {intermediateStageNames.map((name) => (
-                    <>
-                      <th>{toNiceName(name)}</th>
-                      <th></th>
-                    </>
-                  ))}
+                  {showingStages &&
+                    intermediateStageNames.map((name) => (
+                      <>
+                        <th>{toNiceName(name)}</th>
+                        <th></th>
+                      </>
+                    ))}
                   <th>Output Word</th>
                 </tr>
               </thead>
               <tbody>
                 {histories.map((history, i) => (
                   <tr key={i}>
+                    {tracing && (
+                      <td>
+                        <Checkbox.Root
+                          className="CheckboxRoot"
+                          id={`tracing-${i}`}
+                          checked={!!tracingEachWord[i]}
+                          onCheckedChange={(checked) => {
+                            setTracingEachWord(
+                              set(tracingEachWord, i, checked === true)
+                            );
+                          }}
+                        >
+                          <Checkbox.Indicator className="CheckboxIndicator">
+                            <CheckIcon />
+                          </Checkbox.Indicator>
+                        </Checkbox.Root>
+                      </td>
+                    )}
                     <td>
                       <input
                         type="text"
@@ -61,15 +88,17 @@ export default function ScPublic() {
                       />
                     </td>
                     <td>{history.outputWord && ">"}</td>
-                    {intermediateStageNames.map((name) => {
-                      const intermediateWord = history.intermediates.get(name);
-                      return (
-                        <>
-                          <td>{intermediateWord}</td>
-                          <td>{intermediateWord && ">"}</td>
-                        </>
-                      );
-                    })}
+                    {showingStages &&
+                      intermediateStageNames.map((name) => {
+                        const intermediateWord =
+                          history.intermediates.get(name);
+                        return (
+                          <>
+                            <td>{intermediateWord}</td>
+                            <td>{intermediateWord && ">"}</td>
+                          </>
+                        );
+                      })}
                     <td>{history.outputWord}</td>
                   </tr>
                 ))}
@@ -82,6 +111,24 @@ export default function ScPublic() {
                 )}
               </tbody>
             </table>
+            <Label.Root htmlFor="show-stages">Show Stages</Label.Root>
+            <Switch.Root
+              className="SwitchRoot"
+              id="show-stages"
+              checked={showingStages}
+              onCheckedChange={setShowingStages}
+            >
+              <Switch.Thumb className="SwitchThumb" />
+            </Switch.Root>
+            <Label.Root htmlFor="trace-changes">Trace Changes</Label.Root>
+            <Switch.Root
+              className="SwitchRoot"
+              id="trace-changes"
+              checked={tracing}
+              onCheckedChange={setTracing}
+            >
+              <Switch.Thumb className="SwitchThumb" />
+            </Switch.Root>
           </div>
           <div className="buttons">
             <button onClick={runSc}>Apply</button>
@@ -113,18 +160,34 @@ export default function ScPublic() {
     const response = await axios.post<Scv1Response>("/api/scv1", {
       changes: soundChanges,
       inputWords: histories.map((history) => history.inputWord),
+      traceWords: histories
+        .filter((_, i) => tracingEachWord[i])
+        .map((history) => history.inputWord),
     });
+    const intermediateWords = toMap(response.data.intermediateWords ?? {});
+    const traces = toMap(response.data.traces ?? {});
     setIntermediateStageNames(
-      Object.getOwnPropertyNames(response.data.intermediateWords)
+      response.data.traces
+        ? response.data.ruleNames.filter((ruleName) =>
+            values(traces).some((trace) =>
+              trace.some((step) => step.rule === ruleName)
+            )
+          )
+        : keys(intermediateWords)
     );
     setHistories(
       histories.map((history, i) => ({
         ...history,
         outputWord: response.data.outputWords[i],
         intermediates: new Map(
-          Object.entries(response.data.intermediateWords).map(
-            ([stage, words]) => [stage, words[i]]
-          )
+          response.data.traces
+            ? traces
+                .get(history.inputWord)
+                ?.map(({ rule, output }) => [rule, output])
+            : entries(intermediateWords).map(([stage, words]) => [
+                stage,
+                words[i],
+              ])
         ),
       }))
     );

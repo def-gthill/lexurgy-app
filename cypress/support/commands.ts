@@ -158,6 +158,13 @@ Cypress.Commands.add("runSc", (inputs: UserSoundChangeInputs) => {
     cy.contains("Add Word").click();
   }
   cy.contains("Sound Changes").type(inputs.changes);
+  if (inputs.traceWords) {
+    cy.contains("Trace Changes").click();
+    for (const traceWord of inputs.traceWords) {
+      const index = inputs.inputWords.indexOf(traceWord);
+      cy.get(`#tracing-${index}`).click();
+    }
+  }
   cy.contains("Apply").click();
 });
 
@@ -174,14 +181,20 @@ Cypress.Commands.add(
   "scIntermediateWordsAre",
   (expectedWords: [string, string[]][]) => {
     cy.contains(expectedWords[0][0]);
-    expectedWords.forEach(([key, words], i) => {
-      cy.get(`thead > tr > :nth-child(${2 * (i + 1) + 1})`).then((element) =>
-        expect(element.text()).to.equal(key)
-      );
-      words.forEach((word, j) => {
+    cy.get("#trace-changes").then((element) => {
+      const tracing = element.attr("data-state") === "checked";
+      const traceOffset = tracing ? 1 : 0;
+      expectedWords.forEach(([key, words], i) => {
         cy.get(
-          `tbody > :nth-child(${j + 1}) > :nth-child(${2 * (i + 1) + 1})`
-        ).then((element) => expect(element.text()).to.equal(word));
+          `thead > tr > :nth-child(${2 * (i + 1) + 1 + traceOffset})`
+        ).then((element) => expect(element.text()).to.equal(key));
+        words.forEach((word, j) => {
+          cy.get(
+            `tbody > :nth-child(${j + 1}) > :nth-child(${
+              2 * (i + 1) + 1 + traceOffset
+            })`
+          ).then((element) => expect(element.text()).to.equal(word));
+        });
       });
     });
   }
