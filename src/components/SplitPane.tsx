@@ -8,9 +8,11 @@ export default function SplitPane({ children }: { children: JSX.Element[] }) {
   useEffect(() => {
     document.addEventListener("mouseup", onMouseUp);
     document.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("resize", onResize);
     return () => {
       document.removeEventListener("mouseup", onMouseUp);
       document.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("resize", onResize);
     };
   });
 
@@ -28,9 +30,11 @@ export default function SplitPane({ children }: { children: JSX.Element[] }) {
 
   return (
     <div style={{ display: "flex" }}>
-      <div ref={leftPaneRef}>{children[0]}</div>
+      <div ref={leftPaneRef} className="SplitPaneFacet">
+        {children[0]}
+      </div>
       <div className="SplitPaneDivider" onMouseDown={onMouseDown}></div>
-      {children[1]}
+      <div className="SplitPaneFacet">{children[1]}</div>
     </div>
   );
 
@@ -51,5 +55,9 @@ export default function SplitPane({ children }: { children: JSX.Element[] }) {
       setClientWidth(clientWidth + e.clientX - dividerPos.current);
       dividerPos.current = e.clientX;
     }
+  }
+
+  function onResize() {
+    setClientWidth(null);
   }
 }

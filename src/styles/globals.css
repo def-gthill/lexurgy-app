@@ -237,6 +237,10 @@ button.danger:disabled {
   cursor: col-resize;
 }
 
+.SplitPaneFacet {
+  padding: 4px;
+}
+
 .AlertDialogOverlay {
   background-color: hsl(0 0% 50% / 20%);
   position: fixed;

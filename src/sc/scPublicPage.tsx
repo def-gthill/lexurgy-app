@@ -56,6 +56,14 @@ export default function ScPublic() {
               </Label.Root>
               <textarea
                 id="sound-changes"
+                style={{
+                  display: "block",
+                  width: "100%",
+                  resize: "none",
+                  height: "30rem",
+                  whiteSpace: "pre",
+                  wordWrap: "normal",
+                }}
                 onChange={(event) => {
                   setSoundChanges(event.target.value);
                   requestUpdatingRuleNames(event.target.value);
