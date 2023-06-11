@@ -232,6 +232,11 @@ button.danger:disabled {
   color: var(--violet11);
 }
 
+.SplitPaneDivider {
+  border: 3px solid var(--foreground);
+  cursor: col-resize;
+}
+
 .AlertDialogOverlay {
   background-color: hsl(0 0% 50% / 20%);
   position: fixed;

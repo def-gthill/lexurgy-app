@@ -1,6 +1,7 @@
 import { set } from "@/array";
 import Header from "@/components/Header";
 import Select from "@/components/Select";
+import SplitPane from "@/components/SplitPane";
 import Switch from "@/components/Switch";
 import { entries, hasElements, keys, toMap, values } from "@/map";
 import useDebounced from "@/useDebounced";
@@ -45,61 +46,70 @@ export default function ScPublic() {
       <Header />
       <main>
         <div className="card">
-          <Label.Root htmlFor="sound-changes">Sound Changes</Label.Root>
-          <textarea
-            id="sound-changes"
-            onChange={(event) => {
-              setSoundChanges(event.target.value);
-              requestUpdatingRuleNames(event.target.value);
-            }}
-            value={soundChanges}
-          />
-          {error && <div id="error">{error}</div>}
-          <div>
-            <HistoryTable
-              intermediateStageNames={intermediateStageNames}
-              histories={histories}
-              showingStages={showingStages}
-              tracing={tracing}
-              setInputWord={setInputWord}
-              setTracing={setTracingWord}
-            />
-            {histories.at(-1)?.inputWord && (
-              <div className="buttons">
-                <button onClick={addInputWord}>Add Word</button>
-              </div>
-            )}
-            <Label.Root htmlFor="show-stages">Show Stages</Label.Root>
-            <Switch
-              id="show-stages"
-              checked={showingStages}
-              onCheckedChange={setShowingStages}
-            />
-            <Label.Root htmlFor="trace-changes">Trace Changes</Label.Root>
-            <Switch
-              id="trace-changes"
-              checked={tracing}
-              onCheckedChange={setTracing}
-            />
-            <Label.Root htmlFor="start-at">Start At</Label.Root>
-            <Select
-              id="start-at"
-              options={ruleNames.map((name) => ({
-                name: toNiceName(name),
-                value: name,
-              }))}
-              onChange={setStartAt}
-            ></Select>
-            <Label.Root htmlFor="stop-before">Stop Before</Label.Root>
-            <Select
-              id="stop-before"
-              options={ruleNames.map((name) => ({
-                name: toNiceName(name),
-                value: name,
-              }))}
-              onChange={setStopBefore}
-            ></Select>
-          </div>
+          <SplitPane>
+            <div>
+              <Label.Root
+                htmlFor="sound-changes"
+                style={{ fontWeight: "bold" }}
+              >
+                Sound Changes
+              </Label.Root>
+              <textarea
+                id="sound-changes"
+                onChange={(event) => {
+                  setSoundChanges(event.target.value);
+                  requestUpdatingRuleNames(event.target.value);
+                }}
+                value={soundChanges}
+              />
+              {error && <div id="error">{error}</div>}
+            </div>
+            <div>
+              <HistoryTable
+                intermediateStageNames={intermediateStageNames}
+                histories={histories}
+                showingStages={showingStages}
+                tracing={tracing}
+                setInputWord={setInputWord}
+                setTracing={setTracingWord}
+              />
+              {histories.at(-1)?.inputWord && (
+                <div className="buttons">
+                  <button onClick={addInputWord}>Add Word</button>
+                </div>
+              )}
+              <Label.Root htmlFor="show-stages">Show Stages</Label.Root>
+              <Switch
+                id="show-stages"
+                checked={showingStages}
+                onCheckedChange={setShowingStages}
+              />
+              <Label.Root htmlFor="trace-changes">Trace Changes</Label.Root>
+              <Switch
+                id="trace-changes"
+                checked={tracing}
+                onCheckedChange={setTracing}
+              />
+              <Label.Root htmlFor="start-at">Start At</Label.Root>
+              <Select
+                id="start-at"
+                options={ruleNames.map((name) => ({
+                  name: toNiceName(name),
+                  value: name,
+                }))}
+                onChange={setStartAt}
+              ></Select>
+              <Label.Root htmlFor="stop-before">Stop Before</Label.Root>
+              <Select
+                id="stop-before"
+                options={ruleNames.map((name) => ({
+                  name: toNiceName(name),
+                  value: name,
+                }))}
+                onChange={setStopBefore}
+              ></Select>
+            </div>
+          </SplitPane>
           <div className="buttons">
             <button onClick={runSc}>Apply</button>
           </div>
