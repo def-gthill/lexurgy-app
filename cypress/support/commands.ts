@@ -169,6 +169,9 @@ Cypress.Commands.add("runSc", (inputs: UserSoundChangeInputs) => {
   if (inputs.turnOffTracing) {
     cy.contains("Trace Changes").click();
   }
+  if (inputs.startAt) {
+    cy.get("#start-at").select(inputs.startAt);
+  }
   cy.contains("Apply").click();
 });
 

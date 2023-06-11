@@ -1,12 +1,15 @@
 import { set } from "@/array";
 import Header from "@/components/Header";
+import Select from "@/components/Select";
 import Switch from "@/components/Switch";
 import { entries, hasElements, keys, toMap, values } from "@/map";
+import useDebounced from "@/useDebounced";
 import * as Label from "@radix-ui/react-label";
 import axios from "axios";
 import Head from "next/head";
 import { useState } from "react";
 import HistoryTable from "./HistoryTable";
+import Scv1Request from "./Scv1Request";
 import Scv1Response from "./Scv1Response";
 import { WordHistory } from "./WordHistory";
 
@@ -25,6 +28,9 @@ export default function ScPublic() {
   ]);
   const [showingStages, setShowingStages] = useState(true);
   const [tracing, setTracing] = useState(false);
+  const [ruleNames, setRuleNames] = useState<string[]>([]);
+  const [startAt, setStartAt] = useState<string | null>(null);
+  const requestUpdatingRuleNames = useDebounced(updateRuleNames, 500);
   return (
     <>
       <Head>
@@ -40,7 +46,10 @@ export default function ScPublic() {
           <Label.Root htmlFor="sound-changes">Sound Changes</Label.Root>
           <textarea
             id="sound-changes"
-            onChange={(event) => setSoundChanges(event.target.value)}
+            onChange={(event) => {
+              setSoundChanges(event.target.value);
+              requestUpdatingRuleNames(event.target.value);
+            }}
             value={soundChanges}
           />
           <div>
@@ -69,6 +78,15 @@ export default function ScPublic() {
               checked={tracing}
               onCheckedChange={setTracing}
             />
+            <Label.Root htmlFor="start-at">Start At</Label.Root>
+            <Select
+              id="start-at"
+              options={ruleNames.map((name) => ({
+                name: toNiceName(name),
+                value: name,
+              }))}
+              onChange={setStartAt}
+            ></Select>
           </div>
           <div className="buttons">
             <button onClick={runSc}>Apply</button>
@@ -98,8 +116,15 @@ export default function ScPublic() {
     setHistories(set(histories, i, { ...histories[i], tracing }));
   }
 
+  async function updateRuleNames(soundChanges: string) {
+    const response = await axios.post<string[]>("/api/scv1/rule-names", {
+      changes: soundChanges,
+    });
+    setRuleNames(response.data);
+  }
+
   async function runSc() {
-    const response = await axios.post<Scv1Response>("/api/scv1", {
+    const request: Scv1Request = {
       changes: soundChanges,
       inputWords: histories.map((history) => history.inputWord),
       traceWords: tracing
@@ -107,7 +132,9 @@ export default function ScPublic() {
             .filter((history) => history.tracing)
             .map((history) => history.inputWord)
         : [],
-    });
+      startAt,
+    };
+    const response = await axios.post<Scv1Response>("/api/scv1", request);
     const intermediateWords = toMap(response.data.intermediateWords ?? {});
     const traces = toMap(response.data.traces ?? {});
     if (hasElements(traces)) {
@@ -145,4 +172,11 @@ export default function ScPublic() {
       );
     }
   }
+}
+
+function toNiceName(name: string) {
+  return name
+    .split("-")
+    .map((word) => word.slice(0, 1).toLocaleUpperCase() + word.slice(1))
+    .join(" ");
 }

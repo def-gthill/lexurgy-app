@@ -19,7 +19,15 @@ describe("the public sound changer page", () => {
     cy.scIntermediateWordsAre([["Intermediate Form", ["faa", "bar"]]]);
   });
 
-  // Start At
+  it("lets the user start the changes at a specific rule", () => {
+    cy.goToScPublic();
+    cy.runSc({
+      inputWords: ["aaa", "bbb", "ccc"],
+      changes: "a-to-b:\n a => b\n\nb-to-c:\n b => c\n\nc-to-d:\n c => d",
+      startAt: "B To C",
+    });
+    cy.scOutputWordsAre(["aaa", "ddd", "ddd"]);
+  });
 
   // Stop Before
 
@@ -38,7 +46,7 @@ describe("the public sound changer page", () => {
     ]);
   });
 
-  it("Doesn't trace any words if tracing is turned off", () => {
+  it("doesn't trace any words if tracing is turned off", () => {
     cy.goToScPublic();
     cy.runSc({
       inputWords: ["aaa", "bbb", "ccc"],
