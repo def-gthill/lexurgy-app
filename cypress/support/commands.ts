@@ -172,6 +172,9 @@ Cypress.Commands.add("runSc", (inputs: UserSoundChangeInputs) => {
   if (inputs.startAt) {
     cy.get("#start-at").select(inputs.startAt);
   }
+  if (inputs.stopBefore) {
+    cy.get("#stop-before").select(inputs.stopBefore);
+  }
   cy.contains("Apply").click();
 });
 

@@ -3,4 +3,5 @@ export default interface Scv1Request {
   inputWords: string[];
   traceWords: string[];
   startAt: string | null;
+  stopBefore: string | null;
 }

@@ -30,6 +30,7 @@ export default function ScPublic() {
   const [tracing, setTracing] = useState(false);
   const [ruleNames, setRuleNames] = useState<string[]>([]);
   const [startAt, setStartAt] = useState<string | null>(null);
+  const [stopBefore, setStopBefore] = useState<string | null>(null);
   const requestUpdatingRuleNames = useDebounced(updateRuleNames, 500);
   return (
     <>
@@ -87,6 +88,15 @@ export default function ScPublic() {
               }))}
               onChange={setStartAt}
             ></Select>
+            <Label.Root htmlFor="stop-before">Stop Before</Label.Root>
+            <Select
+              id="stop-before"
+              options={ruleNames.map((name) => ({
+                name: toNiceName(name),
+                value: name,
+              }))}
+              onChange={setStopBefore}
+            ></Select>
           </div>
           <div className="buttons">
             <button onClick={runSc}>Apply</button>
@@ -133,6 +143,7 @@ export default function ScPublic() {
             .map((history) => history.inputWord)
         : [],
       startAt,
+      stopBefore,
     };
     const response = await axios.post<Scv1Response>("/api/scv1", request);
     const intermediateWords = toMap(response.data.intermediateWords ?? {});

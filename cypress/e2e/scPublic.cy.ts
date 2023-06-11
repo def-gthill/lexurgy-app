@@ -29,7 +29,15 @@ describe("the public sound changer page", () => {
     cy.scOutputWordsAre(["aaa", "ddd", "ddd"]);
   });
 
-  // Stop Before
+  it("lets the user stop changes before a specific rule", () => {
+    cy.goToScPublic();
+    cy.runSc({
+      inputWords: ["aaa", "bbb", "ccc"],
+      changes: "a-to-b:\n a => b\n\nb-to-c:\n b => c\n\nc-to-d:\n c => d",
+      stopBefore: "C To D",
+    });
+    cy.scOutputWordsAre(["ccc", "ccc", "ccc"]);
+  });
 
   it("lets the user pick words to trace", () => {
     cy.goToScPublic();

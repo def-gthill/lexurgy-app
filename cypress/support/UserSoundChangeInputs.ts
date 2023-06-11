@@ -4,4 +4,5 @@ export interface UserSoundChangeInputs {
   traceWords?: string[];
   turnOffTracing?: boolean;
   startAt?: string;
+  stopBefore?: string;
 }
