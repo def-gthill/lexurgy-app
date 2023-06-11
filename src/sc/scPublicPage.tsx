@@ -127,9 +127,17 @@ export default function ScPublic() {
   }
 
   async function updateRuleNames(soundChanges: string) {
-    const response = await axios.post<string[]>("/api/scv1/rule-names", {
-      changes: soundChanges,
-    });
+    const response = await axios.post<string[]>(
+      "/api/services",
+      {
+        changes: soundChanges,
+      },
+      {
+        params: {
+          endpoint: "scv1/rule-names",
+        },
+      }
+    );
     setRuleNames(response.data);
   }
 
@@ -145,7 +153,9 @@ export default function ScPublic() {
       startAt,
       stopBefore,
     };
-    const response = await axios.post<Scv1Response>("/api/scv1", request);
+    const response = await axios.post<Scv1Response>("/api/services", request, {
+      params: { endpoint: "scv1" },
+    });
     const intermediateWords = toMap(response.data.intermediateWords ?? {});
     const traces = toMap(response.data.traces ?? {});
     if (hasElements(traces)) {

@@ -3,11 +3,12 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<string[] | string>
+  res: NextApiResponse
 ) {
   if (req.method === "POST") {
-    const response = await axios.post<string[]>(
-      `${process.env.LEXURGY_SERVICES_URL}/scv1/rule-names`,
+    const endpoint = req.query.endpoint;
+    const response = await axios.post(
+      `${process.env.LEXURGY_SERVICES_URL}/${endpoint}`,
       req.body,
       { headers: { Authorization: process.env.LEXURGY_SERVICES_API_KEY } }
     );
