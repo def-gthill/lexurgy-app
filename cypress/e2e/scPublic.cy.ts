@@ -66,11 +66,18 @@ describe("the public sound changer page", () => {
     cy.scNoIntermediates();
   });
 
-  // Then can I somehow test the file import/exports and the share button?
-
-  // Fatal errors
+  it("displays an error message if the sound changes contain a parse-time error", () => {
+    cy.goToScPublic();
+    cy.runSc({
+      inputWords: ["aaa"],
+      changes: "bad-rule:\na =>",
+    });
+    cy.scShowsError();
+  });
 
   // Errors on individual words
+
+  // Then can I somehow test the file import/exports and the share button?
 });
 
 export {};

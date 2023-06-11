@@ -57,6 +57,7 @@ declare global {
         expectedWords: [string, string[]][]
       ): Chainable<void>;
       scNoIntermediates(): Chainable<void>;
+      scShowsError(): Chainable<void>;
       waitForApiResult(url: string, name: string): Chainable<void>;
     }
   }
@@ -214,6 +215,10 @@ Cypress.Commands.add("scNoIntermediates", () => {
   cy.get(`thead > tr > :nth-child(3)`).then((element) =>
     expect(element.text()).to.equal("Output Word")
   );
+});
+
+Cypress.Commands.add("scShowsError", () => {
+  cy.get("#error").should("be.visible");
 });
 
 Cypress.Commands.add("waitForApiResult", (url: string, name: string) => {

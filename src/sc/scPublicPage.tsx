@@ -31,6 +31,7 @@ export default function ScPublic() {
   const [ruleNames, setRuleNames] = useState<string[]>([]);
   const [startAt, setStartAt] = useState<string | null>(null);
   const [stopBefore, setStopBefore] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const requestUpdatingRuleNames = useDebounced(updateRuleNames, 500);
   return (
     <>
@@ -53,6 +54,7 @@ export default function ScPublic() {
             }}
             value={soundChanges}
           />
+          {error && <div id="error">{error}</div>}
           <div>
             <HistoryTable
               intermediateStageNames={intermediateStageNames}
@@ -127,18 +129,25 @@ export default function ScPublic() {
   }
 
   async function updateRuleNames(soundChanges: string) {
-    const response = await axios.post<string[]>(
-      "/api/services",
-      {
-        changes: soundChanges,
-      },
-      {
-        params: {
-          endpoint: "scv1/rule-names",
+    try {
+      const response = await axios.post<{ ruleNames: string[] }>(
+        "/api/services",
+        {
+          changes: soundChanges,
         },
+        {
+          params: {
+            endpoint: "scv1/validate",
+          },
+        }
+      );
+      setError(null);
+      setRuleNames(response.data.ruleNames);
+    } catch (error: any) {
+      if (error.response) {
+        setError(error.response.data.message);
       }
-    );
-    setRuleNames(response.data);
+    }
   }
 
   async function runSc() {
@@ -153,44 +162,56 @@ export default function ScPublic() {
       startAt,
       stopBefore,
     };
-    const response = await axios.post<Scv1Response>("/api/services", request, {
-      params: { endpoint: "scv1" },
-    });
-    const intermediateWords = toMap(response.data.intermediateWords ?? {});
-    const traces = toMap(response.data.traces ?? {});
-    if (hasElements(traces)) {
-      setIntermediateStageNames(
-        response.data.ruleNames.filter((ruleName) =>
-          values(traces).some((trace) =>
-            trace.some((step) => step.rule === ruleName)
+    try {
+      const response = await axios.post<Scv1Response>(
+        "/api/services",
+        request,
+        {
+          params: { endpoint: "scv1" },
+        }
+      );
+      const result = response.data;
+      const intermediateWords = toMap(result.intermediateWords ?? {});
+      const traces = toMap(result.traces ?? {});
+      setError(null);
+      if (hasElements(traces)) {
+        setIntermediateStageNames(
+          result.ruleNames.filter((ruleName) =>
+            values(traces).some((trace) =>
+              trace.some((step) => step.rule === ruleName)
+            )
           )
-        )
-      );
-      setHistories(
-        histories.map((history, i) => ({
-          ...history,
-          outputWord: response.data.outputWords[i],
-          intermediates: new Map(
-            traces
-              .get(history.inputWord)
-              ?.map(({ rule, output }) => [rule, output])
-          ),
-        }))
-      );
-    } else {
-      setIntermediateStageNames(keys(intermediateWords));
-      setHistories(
-        histories.map((history, i) => ({
-          ...history,
-          outputWord: response.data.outputWords[i],
-          intermediates: new Map(
-            entries(intermediateWords).map(([stage, words]) => [
-              stage,
-              words[i],
-            ])
-          ),
-        }))
-      );
+        );
+        setHistories(
+          histories.map((history, i) => ({
+            ...history,
+            outputWord: result.outputWords[i],
+            intermediates: new Map(
+              traces
+                .get(history.inputWord)
+                ?.map(({ rule, output }) => [rule, output])
+            ),
+          }))
+        );
+      } else {
+        setIntermediateStageNames(keys(intermediateWords));
+        setHistories(
+          histories.map((history, i) => ({
+            ...history,
+            outputWord: result.outputWords[i],
+            intermediates: new Map(
+              entries(intermediateWords).map(([stage, words]) => [
+                stage,
+                words[i],
+              ])
+            ),
+          }))
+        );
+      }
+    } catch (error: any) {
+      if (error.response) {
+        setError(error.response.data.message);
+      }
     }
   }
 }
