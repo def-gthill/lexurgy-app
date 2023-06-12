@@ -1,0 +1,8 @@
+.divider {
+  border: 3px solid var(--foreground-muted);
+  cursor: col-resize;
+}
+
+.facet {
+  padding: 4px;
+}

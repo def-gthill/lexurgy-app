@@ -1,4 +1,5 @@
 import { MouseEvent, useEffect, useRef, useState } from "react";
+import styles from "./SplitPane.module.css";
 
 export default function SplitPane({ children }: { children: JSX.Element[] }) {
   const [clientWidth, setClientWidth] = useState<number | null>(null);
@@ -30,11 +31,11 @@ export default function SplitPane({ children }: { children: JSX.Element[] }) {
 
   return (
     <div style={{ display: "flex" }}>
-      <div ref={leftPaneRef} className="SplitPaneFacet">
+      <div ref={leftPaneRef} className={styles.facet}>
         {children[0]}
       </div>
-      <div className="SplitPaneDivider" onMouseDown={onMouseDown}></div>
-      <div className="SplitPaneFacet">{children[1]}</div>
+      <div className={styles.divider} onMouseDown={onMouseDown}></div>
+      <div className={styles.facet}>{children[1]}</div>
     </div>
   );
 

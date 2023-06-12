@@ -1,0 +1,23 @@
+.root {
+  background-color: var(--background);
+  width: 25px;
+  height: 25px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--foreground-muted);
+}
+.root:hover {
+  background-color: var(--primary-dark);
+}
+.root[data-state="checked"] {
+  background-color: var(--primary);
+}
+.root:hover[data-state="checked"] {
+  background-color: var(--primary-dark);
+}
+
+.indicator {
+  color: var(--foreground-always-light);
+}
