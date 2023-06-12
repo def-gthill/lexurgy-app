@@ -1,4 +1,3 @@
-import { set } from "@/array";
 import Header from "@/components/Header";
 import Select from "@/components/Select";
 import SplitPane from "@/components/SplitPane";
@@ -78,14 +77,8 @@ export default function ScPublic() {
                 intermediateStageNames={intermediateStageNames}
                 histories={histories}
                 tracing={tracing}
-                setInputWord={setInputWord}
-                setTracing={setTracingWord}
+                setHistories={setHistories}
               />
-              {histories.at(-1)?.inputWord && (
-                <div className="buttons">
-                  <button onClick={addInputWord}>Add Word</button>
-                </div>
-              )}
               <div>
                 <Switch
                   id="trace-changes"
@@ -137,26 +130,6 @@ export default function ScPublic() {
       </main>
     </>
   );
-
-  function addInputWord() {
-    setHistories([
-      ...histories,
-      {
-        inputWord: "",
-        outputWord: null,
-        intermediates: new Map(),
-        tracing: false,
-      },
-    ]);
-  }
-
-  function setInputWord(i: number, word: string) {
-    setHistories(set(histories, i, { ...histories[i], inputWord: word }));
-  }
-
-  function setTracingWord(i: number, tracing: boolean) {
-    setHistories(set(histories, i, { ...histories[i], tracing }));
-  }
 
   async function updateRuleNames(soundChanges: string) {
     try {

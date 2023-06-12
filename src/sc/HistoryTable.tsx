@@ -1,3 +1,4 @@
+import { set } from "@/array";
 import Checkbox from "@/components/Checkbox";
 import Switch from "@/components/Switch";
 import * as Label from "@radix-ui/react-label";
@@ -8,14 +9,12 @@ export default function HistoryTable({
   intermediateStageNames,
   histories,
   tracing,
-  setInputWord,
-  setTracing,
+  setHistories,
 }: {
   intermediateStageNames: string[];
   histories: WordHistory[];
   tracing: boolean;
-  setInputWord: (index: number, word: string) => void;
-  setTracing: (index: number, tracing: boolean) => void;
+  setHistories: (histories: WordHistory[]) => void;
 }) {
   const [showingStages, setShowingStages] = useState(true);
   return (
@@ -45,7 +44,7 @@ export default function HistoryTable({
                     id={`tracing-${i}`}
                     checked={history.tracing}
                     onCheckedChange={(checked) => {
-                      setTracing(i, checked === true);
+                      setTracingWord(i, checked === true);
                     }}
                   />
                 </td>
@@ -73,6 +72,11 @@ export default function HistoryTable({
           ))}
         </tbody>
       </table>
+      {histories.at(-1)?.inputWord && (
+        <div className="buttons">
+          <button onClick={addInputWord}>Add Word</button>
+        </div>
+      )}
       <Switch
         id="show-stages"
         checked={showingStages}
@@ -81,6 +85,26 @@ export default function HistoryTable({
       <Label.Root htmlFor="show-stages">Show Stages</Label.Root>
     </div>
   );
+
+  function addInputWord() {
+    setHistories([
+      ...histories,
+      {
+        inputWord: "",
+        outputWord: null,
+        intermediates: new Map(),
+        tracing: false,
+      },
+    ]);
+  }
+
+  function setInputWord(i: number, word: string) {
+    setHistories(set(histories, i, { ...histories[i], inputWord: word }));
+  }
+
+  function setTracingWord(i: number, tracing: boolean) {
+    setHistories(set(histories, i, { ...histories[i], tracing }));
+  }
 }
 
 function toNiceName(name: string) {
