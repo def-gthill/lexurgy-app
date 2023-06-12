@@ -1,5 +1,6 @@
 .divider {
-  border: 3px solid var(--foreground-muted);
+  border-style: solid;
+  border-color: var(--foreground-muted);
   cursor: col-resize;
 }
 

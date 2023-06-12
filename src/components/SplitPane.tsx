@@ -5,6 +5,9 @@ export default function SplitPane({ children }: { children: JSX.Element[] }) {
   const [clientWidth, setClientWidth] = useState<number | null>(null);
   const dividerPos = useRef<number | null>(null);
   const leftPaneRef = useRef<HTMLDivElement | null>(null);
+  const rightPaneRef = useRef<HTMLDivElement | null>(null);
+  const dividerRef = useRef<HTMLDivElement | null>(null);
+  const dividerWidth = 4;
 
   useEffect(() => {
     document.addEventListener("mouseup", onMouseUp);
@@ -18,14 +21,19 @@ export default function SplitPane({ children }: { children: JSX.Element[] }) {
   });
 
   useEffect(() => {
-    if (leftPaneRef.current) {
+    if (leftPaneRef.current && rightPaneRef.current && dividerRef.current) {
       if (!clientWidth) {
-        setClientWidth(leftPaneRef.current.parentElement!.clientWidth / 2);
+        setClientWidth(
+          (leftPaneRef.current.parentElement!.clientWidth - dividerWidth) / 2
+        );
         return;
       }
 
       leftPaneRef.current.style.minWidth = clientWidth + "px";
       leftPaneRef.current.style.maxWidth = clientWidth + "px";
+      rightPaneRef.current.style.minWidth = clientWidth + "px";
+      rightPaneRef.current.style.maxWidth = clientWidth + "px";
+      dividerRef.current.style.borderWidth = dividerWidth / 2 + "px";
     }
   }, [clientWidth]);
 
@@ -34,8 +42,14 @@ export default function SplitPane({ children }: { children: JSX.Element[] }) {
       <div ref={leftPaneRef} className={styles.facet}>
         {children[0]}
       </div>
-      <div className={styles.divider} onMouseDown={onMouseDown}></div>
-      <div className={styles.facet}>{children[1]}</div>
+      <div
+        ref={dividerRef}
+        className={styles.divider}
+        onMouseDown={onMouseDown}
+      ></div>
+      <div ref={rightPaneRef} className={styles.facet}>
+        {children[1]}
+      </div>
     </div>
   );
 
