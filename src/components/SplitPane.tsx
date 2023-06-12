@@ -55,6 +55,7 @@ export default function SplitPane({ children }: { children: JSX.Element[] }) {
       setClientWidth(clientWidth + e.clientX - dividerPos.current);
       dividerPos.current = e.clientX;
     }
+    e.preventDefault();
   }
 
   function onResize() {
