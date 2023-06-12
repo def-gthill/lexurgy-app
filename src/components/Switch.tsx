@@ -1,4 +1,5 @@
 import { Root, Thumb } from "@radix-ui/react-switch";
+import styles from "./Switch.module.css";
 
 export default function Switch({
   id,
@@ -11,12 +12,12 @@ export default function Switch({
 }) {
   return (
     <Root
-      className="SwitchRoot"
+      className={styles.root}
       id={id}
       checked={checked}
       onCheckedChange={onCheckedChange}
     >
-      <Thumb className="SwitchThumb" />
+      <Thumb className={styles.thumb} />
     </Root>
   );
 }

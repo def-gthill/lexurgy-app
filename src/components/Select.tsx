@@ -3,11 +3,13 @@ import { keys } from "@/map";
 export default function Select<T>({
   id,
   options,
+  disabled,
   onChange,
   onOpen,
 }: {
   id: string;
   options: Option<T>[];
+  disabled?: boolean;
   onChange: (option: T) => void;
   onOpen?: () => void;
 }) {
@@ -21,6 +23,7 @@ export default function Select<T>({
   return (
     <select
       id={id}
+      disabled={disabled}
       onChange={(event) => onChange(optionMap.get(event.target.value)!)}
       onFocus={onOpen}
     >

@@ -29,6 +29,17 @@ describe("the public sound changer page", () => {
     cy.scOutputWordsAre(["aaa", "ddd", "ddd"]);
   });
 
+  it("starts at the beginning if start-at is turned off", () => {
+    cy.goToScPublic();
+    cy.runSc({
+      inputWords: ["aaa", "bbb", "ccc"],
+      changes: "a-to-b:\n a => b\n\nb-to-c:\n b => c\n\nc-to-d:\n c => d",
+      startAt: "B To C",
+      turnOffStartAt: true,
+    });
+    cy.scOutputWordsAre(["ddd", "ddd", "ddd"]);
+  });
+
   it("lets the user stop changes before a specific rule", () => {
     cy.goToScPublic();
     cy.runSc({
@@ -37,6 +48,17 @@ describe("the public sound changer page", () => {
       stopBefore: "C To D",
     });
     cy.scOutputWordsAre(["ccc", "ccc", "ccc"]);
+  });
+
+  it("continues to the end if stop-before is turned off", () => {
+    cy.goToScPublic();
+    cy.runSc({
+      inputWords: ["aaa", "bbb", "ccc"],
+      changes: "a-to-b:\n a => b\n\nb-to-c:\n b => c\n\nc-to-d:\n c => d",
+      stopBefore: "C To D",
+      turnOffStopBefore: true,
+    });
+    cy.scOutputWordsAre(["ddd", "ddd", "ddd"]);
   });
 
   it("lets the user pick words to trace", () => {

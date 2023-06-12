@@ -1,0 +1,28 @@
+.root {
+  box-sizing: content-box;
+  width: 42px;
+  height: 25px;
+  padding: 0;
+  background-color: var(--background);
+  border-radius: 9999px;
+}
+
+.root:hover {
+  background-color: var(--primary);
+}
+
+.thumb {
+  display: block;
+  width: 21px;
+  height: 21px;
+  background-color: var(--foreground);
+  border-radius: 9999px;
+  box-shadow: 0 2px 2px var(--background);
+  transition: transform 100ms;
+  transform: translateX(2px);
+  will-change: transform;
+}
+
+.thumb[data-state="checked"] {
+  transform: translateX(19px);
+}

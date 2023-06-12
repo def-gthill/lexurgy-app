@@ -171,10 +171,18 @@ Cypress.Commands.add("runSc", (inputs: UserSoundChangeInputs) => {
     cy.contains("Trace Changes").click();
   }
   if (inputs.startAt) {
+    cy.get("#start-at-enabled").click();
     cy.get("#start-at").select(inputs.startAt);
+    if (inputs.turnOffStartAt) {
+      cy.get("#start-at-enabled").click();
+    }
   }
   if (inputs.stopBefore) {
+    cy.get("#stop-before-enabled").click();
     cy.get("#stop-before").select(inputs.stopBefore);
+    if (inputs.turnOffStopBefore) {
+      cy.get("#stop-before-enabled").click();
+    }
   }
   cy.contains("Apply").click();
 });

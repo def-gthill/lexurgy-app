@@ -27,10 +27,11 @@ export default function ScPublic() {
       tracing: false,
     },
   ]);
-  const [showingStages, setShowingStages] = useState(true);
   const [tracing, setTracing] = useState(false);
   const [ruleNames, setRuleNames] = useState<string[]>([]);
+  const [startAtEnabled, setStartAtEnabled] = useState(false);
   const [startAt, setStartAt] = useState<string | null>(null);
+  const [stopBeforeEnabled, setStopBeforeEnabled] = useState(false);
   const [stopBefore, setStopBefore] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const requestUpdatingRuleNames = useDebounced(updateRuleNames, 500);
@@ -76,7 +77,6 @@ export default function ScPublic() {
               <HistoryTable
                 intermediateStageNames={intermediateStageNames}
                 histories={histories}
-                showingStages={showingStages}
                 tracing={tracing}
                 setInputWord={setInputWord}
                 setTracing={setTracingWord}
@@ -86,36 +86,48 @@ export default function ScPublic() {
                   <button onClick={addInputWord}>Add Word</button>
                 </div>
               )}
-              <Label.Root htmlFor="show-stages">Show Stages</Label.Root>
-              <Switch
-                id="show-stages"
-                checked={showingStages}
-                onCheckedChange={setShowingStages}
-              />
-              <Label.Root htmlFor="trace-changes">Trace Changes</Label.Root>
-              <Switch
-                id="trace-changes"
-                checked={tracing}
-                onCheckedChange={setTracing}
-              />
-              <Label.Root htmlFor="start-at">Start At</Label.Root>
-              <Select
-                id="start-at"
-                options={ruleNames.map((name) => ({
-                  name: toNiceName(name),
-                  value: name,
-                }))}
-                onChange={setStartAt}
-              ></Select>
-              <Label.Root htmlFor="stop-before">Stop Before</Label.Root>
-              <Select
-                id="stop-before"
-                options={ruleNames.map((name) => ({
-                  name: toNiceName(name),
-                  value: name,
-                }))}
-                onChange={setStopBefore}
-              ></Select>
+              <div>
+                <Switch
+                  id="trace-changes"
+                  checked={tracing}
+                  onCheckedChange={setTracing}
+                />
+                <Label.Root htmlFor="trace-changes">Trace Changes</Label.Root>
+              </div>
+              <div>
+                <Switch
+                  id="start-at-enabled"
+                  checked={startAtEnabled}
+                  onCheckedChange={setStartAtEnabled}
+                />
+                <Label.Root htmlFor="start-at">Start At</Label.Root>
+                <Select
+                  id="start-at"
+                  disabled={!startAtEnabled}
+                  options={ruleNames.map((name) => ({
+                    name: toNiceName(name),
+                    value: name,
+                  }))}
+                  onChange={setStartAt}
+                ></Select>
+              </div>
+              <div>
+                <Switch
+                  id="stop-before-enabled"
+                  checked={stopBeforeEnabled}
+                  onCheckedChange={setStopBeforeEnabled}
+                />
+                <Label.Root htmlFor="stop-before">Stop Before</Label.Root>
+                <Select
+                  id="stop-before"
+                  disabled={!stopBeforeEnabled}
+                  options={ruleNames.map((name) => ({
+                    name: toNiceName(name),
+                    value: name,
+                  }))}
+                  onChange={setStopBefore}
+                ></Select>
+              </div>
             </div>
           </SplitPane>
           <div className="buttons">
@@ -177,8 +189,8 @@ export default function ScPublic() {
             .filter((history) => history.tracing)
             .map((history) => history.inputWord)
         : [],
-      startAt,
-      stopBefore,
+      startAt: startAtEnabled ? startAt : null,
+      stopBefore: stopBeforeEnabled ? stopBefore : null,
     };
     try {
       const response = await axios.post<Scv1Response>(
