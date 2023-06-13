@@ -87,51 +87,64 @@ export default function ScPublic() {
                   setHistories={setHistories}
                 />
               </div>
-              <div>
+              <div style={{ display: "flex" }}>
                 <div className="buttons">
-                  <button onClick={runSc}>Apply</button>
+                  <button
+                    onClick={runSc}
+                    style={{
+                      fontSize: "2em",
+                      padding: "20px",
+                      borderRadius: "10px",
+                    }}
+                  >
+                    Apply
+                  </button>
                 </div>
                 <div>
-                  <Switch
-                    id="trace-changes"
-                    checked={tracing}
-                    onCheckedChange={setTracing}
-                  />
-                  <Label.Root htmlFor="trace-changes">Trace Changes</Label.Root>
-                </div>
-                <div>
-                  <Switch
-                    id="start-at-enabled"
-                    checked={startAtEnabled}
-                    onCheckedChange={setStartAtEnabled}
-                  />
-                  <Label.Root htmlFor="start-at">Start At</Label.Root>
-                  <Select
-                    id="start-at"
-                    disabled={!startAtEnabled}
-                    options={ruleNames.map((name) => ({
-                      name: toNiceName(name),
-                      value: name,
-                    }))}
-                    onChange={setStartAt}
-                  ></Select>
-                </div>
-                <div>
-                  <Switch
-                    id="stop-before-enabled"
-                    checked={stopBeforeEnabled}
-                    onCheckedChange={setStopBeforeEnabled}
-                  />
-                  <Label.Root htmlFor="stop-before">Stop Before</Label.Root>
-                  <Select
-                    id="stop-before"
-                    disabled={!stopBeforeEnabled}
-                    options={ruleNames.map((name) => ({
-                      name: toNiceName(name),
-                      value: name,
-                    }))}
-                    onChange={setStopBefore}
-                  ></Select>
+                  <div>
+                    <Switch
+                      id="trace-changes"
+                      checked={tracing}
+                      onCheckedChange={setTracing}
+                    />
+                    <Label.Root htmlFor="trace-changes">
+                      Trace Changes
+                    </Label.Root>
+                  </div>
+                  <div>
+                    <Switch
+                      id="start-at-enabled"
+                      checked={startAtEnabled}
+                      onCheckedChange={setStartAtEnabled}
+                    />
+                    <Label.Root htmlFor="start-at">Start At</Label.Root>
+                    <Select
+                      id="start-at"
+                      disabled={!startAtEnabled}
+                      options={ruleNames.map((name) => ({
+                        name: toNiceName(name),
+                        value: name,
+                      }))}
+                      onChange={setStartAt}
+                    ></Select>
+                  </div>
+                  <div>
+                    <Switch
+                      id="stop-before-enabled"
+                      checked={stopBeforeEnabled}
+                      onCheckedChange={setStopBeforeEnabled}
+                    />
+                    <Label.Root htmlFor="stop-before">Stop Before</Label.Root>
+                    <Select
+                      id="stop-before"
+                      disabled={!stopBeforeEnabled}
+                      options={ruleNames.map((name) => ({
+                        name: toNiceName(name),
+                        value: name,
+                      }))}
+                      onChange={setStopBefore}
+                    ></Select>
+                  </div>
                 </div>
               </div>
             </div>
