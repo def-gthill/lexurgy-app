@@ -2,12 +2,16 @@ import { MouseEvent, useEffect, useRef, useState } from "react";
 import styles from "./SplitPane.module.css";
 
 export default function SplitPane({ children }: { children: JSX.Element[] }) {
-  const [clientWidth, setClientWidth] = useState<number | null>(null);
+  const [leftPaneFraction, setLeftPaneFraction] = useState<number | null>(null);
   const dividerPos = useRef<number | null>(null);
   const leftPaneRef = useRef<HTMLDivElement | null>(null);
   const rightPaneRef = useRef<HTMLDivElement | null>(null);
   const dividerRef = useRef<HTMLDivElement | null>(null);
   const dividerWidth = 4;
+
+  // True or false, it doesn't matter; all that matters is that
+  // its value *changes* every time the window is resized.
+  const [resizeToggle, setResizeToggle] = useState(false);
 
   useEffect(() => {
     document.addEventListener("mouseup", onMouseUp);
@@ -22,20 +26,22 @@ export default function SplitPane({ children }: { children: JSX.Element[] }) {
 
   useEffect(() => {
     if (leftPaneRef.current && rightPaneRef.current && dividerRef.current) {
-      if (!clientWidth) {
-        setClientWidth(
-          (leftPaneRef.current.parentElement!.clientWidth - dividerWidth) / 2
-        );
+      const parentWidth = leftPaneRef.current.parentElement!.clientWidth;
+
+      if (leftPaneFraction === null) {
+        setLeftPaneFraction(0.5);
         return;
       }
+      const leftPaneWidth = (parentWidth - dividerWidth) * leftPaneFraction;
+      const rightPaneWidth = parentWidth - dividerWidth - leftPaneWidth;
 
-      leftPaneRef.current.style.minWidth = clientWidth + "px";
-      leftPaneRef.current.style.maxWidth = clientWidth + "px";
-      rightPaneRef.current.style.minWidth = clientWidth + "px";
-      rightPaneRef.current.style.maxWidth = clientWidth + "px";
+      leftPaneRef.current.style.minWidth = leftPaneWidth + "px";
+      leftPaneRef.current.style.maxWidth = leftPaneWidth + "px";
+      rightPaneRef.current.style.minWidth = rightPaneWidth + "px";
+      rightPaneRef.current.style.maxWidth = rightPaneWidth + "px";
       dividerRef.current.style.borderWidth = dividerWidth / 2 + "px";
     }
-  }, [clientWidth]);
+  }, [leftPaneFraction, resizeToggle]);
 
   return (
     <div style={{ display: "flex" }}>
@@ -66,14 +72,22 @@ export default function SplitPane({ children }: { children: JSX.Element[] }) {
       return;
     }
 
-    if (clientWidth) {
-      setClientWidth(clientWidth + e.clientX - dividerPos.current);
+    if (!leftPaneRef.current) {
+      return;
+    }
+
+    if (leftPaneFraction) {
+      const parentWidth = leftPaneRef.current.parentElement!.clientWidth;
+      setLeftPaneFraction(
+        leftPaneFraction + (e.clientX - dividerPos.current) / parentWidth
+      );
       dividerPos.current = e.clientX;
     }
     e.preventDefault();
   }
 
   function onResize() {
-    setClientWidth(null);
+    // Force the size computation effect to run again
+    setResizeToggle(!resizeToggle);
   }
 }
