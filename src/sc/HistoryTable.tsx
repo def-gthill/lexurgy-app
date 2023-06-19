@@ -2,8 +2,9 @@ import { set } from "@/array";
 import Checkbox from "@/components/Checkbox";
 import ScrollArea from "@/components/ScrollArea";
 import Switch from "@/components/Switch";
+import useWeakState from "@/useWeakState";
 import * as Label from "@radix-ui/react-label";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { WordHistory, emptyHistory } from "./WordHistory";
 
 export default function HistoryTable({
@@ -19,16 +20,7 @@ export default function HistoryTable({
 }) {
   const [freeEditing, setFreeEditing] = useState(false);
   const [showingStages, setShowingStages] = useState(true);
-  const [myHistories, setMyHistories] = useState(histories);
-
-  useEffect(() => {
-    setMyHistories(histories);
-  }, [histories]);
-
-  function mySetHistories(newHistories: WordHistory[]) {
-    setMyHistories(newHistories);
-    setHistories(newHistories);
-  }
+  const [myHistories, mySetHistories] = useWeakState(histories, setHistories);
 
   return (
     <div>
