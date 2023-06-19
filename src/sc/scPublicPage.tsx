@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import ImportButton from "@/components/ImportButton";
 import Select from "@/components/Select";
 import SplitPane from "@/components/SplitPane";
 import Switch from "@/components/Switch";
@@ -72,6 +73,12 @@ export default function ScPublic() {
                 value={soundChanges}
               />
               {error && <div id="error">{error}</div>}
+              <div className="buttons">
+                <ImportButton
+                  expectedFileType=".lsc"
+                  sendData={setSoundChanges}
+                />
+              </div>
             </div>
             <div
               style={{
@@ -179,7 +186,6 @@ export default function ScPublic() {
   }
 
   async function runSc() {
-    console.log(histories);
     const request: Scv1Request = {
       changes: soundChanges,
       inputWords: histories.map((history) => history.inputWord),
