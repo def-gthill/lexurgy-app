@@ -33,6 +33,7 @@ export default function ScPublic() {
   const [stopBeforeEnabled, setStopBeforeEnabled] = useState(false);
   const [stopBefore, setStopBefore] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [scRunToggle, setScRunToggle] = useState(0);
   const requestUpdatingRuleNames = useDebounced(updateRuleNames, 500);
   return (
     <>
@@ -81,6 +82,7 @@ export default function ScPublic() {
             >
               <div style={{ flexGrow: 1 }}>
                 <HistoryTable
+                  key={scRunToggle}
                   intermediateStageNames={intermediateStageNames}
                   histories={histories}
                   tracing={tracing}
@@ -177,6 +179,7 @@ export default function ScPublic() {
   }
 
   async function runSc() {
+    console.log(histories);
     const request: Scv1Request = {
       changes: soundChanges,
       inputWords: histories.map((history) => history.inputWord),
@@ -200,6 +203,7 @@ export default function ScPublic() {
       const intermediateWords = toMap(result.intermediateWords ?? {});
       const traces = toMap(result.traces ?? {});
       setError(null);
+      setScRunToggle(1 - scRunToggle);
       if (hasElements(traces)) {
         setIntermediateStageNames(
           result.ruleNames.filter((ruleName) =>

@@ -52,6 +52,10 @@ declare global {
       ): Chainable<void>;
       goToScPublic(): Chainable<void>;
       runSc(inputs: UserSoundChangeInputs): Chainable<void>;
+      startSc(): Chainable<void>;
+      scEnterFreeInputWords(inputWords: string): Chainable<void>;
+      scEnterSoundChanges(soundChanges: string): Chainable<void>;
+      scInputWordsAre(expectedWords: string[]): Chainable<void>;
       scOutputWordsAre(expectedWords: string[]): Chainable<void>;
       scIntermediateWordsAre(
         expectedWords: [string, string[]][]
@@ -184,7 +188,28 @@ Cypress.Commands.add("runSc", (inputs: UserSoundChangeInputs) => {
       cy.get("#stop-before-enabled").click();
     }
   }
+  cy.startSc();
+});
+
+Cypress.Commands.add("startSc", () => {
   cy.contains("Apply").click();
+});
+
+Cypress.Commands.add("scEnterFreeInputWords", (inputWordText: string) => {
+  cy.get("#free-edit").click();
+  cy.get("#input-words").type(inputWordText);
+});
+
+Cypress.Commands.add("scEnterSoundChanges", (soundChanges: string) => {
+  cy.contains("Sound Changes").type(soundChanges);
+});
+
+Cypress.Commands.add("scInputWordsAre", (expectedWords: string[]) => {
+  expectedWords.forEach((word, i) => {
+    cy.get(`tbody > :nth-child(${i + 1}) > :first > input`).then((element) =>
+      expect(element).to.have.value(word)
+    );
+  });
 });
 
 Cypress.Commands.add("scOutputWordsAre", (expectedWords: string[]) => {

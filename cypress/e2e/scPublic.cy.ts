@@ -8,6 +8,14 @@ describe("the public sound changer page", () => {
     cy.scOutputWordsAre(["faa", "bar"]);
   });
 
+  it("switches to the History view if the user ran sound changes in Free Edit", () => {
+    cy.goToScPublic();
+    cy.scEnterFreeInputWords("foo\nbar");
+    cy.scEnterSoundChanges("my-rule:\n o => a");
+    cy.startSc();
+    cy.scOutputWordsAre(["faa", "bar"]);
+  });
+
   it("displays intermediate forms if defined", () => {
     cy.goToScPublic();
     cy.runSc({
