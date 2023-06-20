@@ -1,3 +1,4 @@
+import { ExportButton } from "@/components/ExportButton";
 import Header from "@/components/Header";
 import ImportButton from "@/components/ImportButton";
 import LabelledSwitch from "@/components/LabelledSwitch";
@@ -81,6 +82,7 @@ export default function ScPublic() {
                     requestUpdatingRuleNames(data);
                   }}
                 />
+                <ExportButton fileName="lexurgy.lsc" data={soundChanges} />
               </div>
             </div>
             <div
