@@ -1,8 +1,8 @@
 import Header from "@/components/Header";
 import ImportButton from "@/components/ImportButton";
+import LabelledSwitch from "@/components/LabelledSwitch";
 import Select from "@/components/Select";
 import SplitPane from "@/components/SplitPane";
-import Switch from "@/components/Switch";
 import { entries, hasElements, keys, toMap, values } from "@/map";
 import useDebounced from "@/useDebounced";
 import * as Label from "@radix-ui/react-label";
@@ -76,7 +76,10 @@ export default function ScPublic() {
               <div className="buttons">
                 <ImportButton
                   expectedFileType=".lsc"
-                  sendData={setSoundChanges}
+                  sendData={(data) => {
+                    setSoundChanges(data);
+                    requestUpdatingRuleNames(data);
+                  }}
                 />
               </div>
             </div>
@@ -109,51 +112,49 @@ export default function ScPublic() {
                     Apply
                   </button>
                 </div>
-                <div>
-                  <div>
-                    <Switch
-                      id="trace-changes"
-                      checked={tracing}
-                      onCheckedChange={setTracing}
-                    />
-                    <Label.Root htmlFor="trace-changes">
-                      Trace Changes
-                    </Label.Root>
-                  </div>
-                  <div>
-                    <Switch
-                      id="start-at-enabled"
-                      checked={startAtEnabled}
-                      onCheckedChange={setStartAtEnabled}
-                    />
-                    <Label.Root htmlFor="start-at">Start At</Label.Root>
-                    <Select
-                      id="start-at"
-                      disabled={!startAtEnabled}
-                      options={ruleNames.map((name) => ({
-                        name: toNiceName(name),
-                        value: name,
-                      }))}
-                      onChange={setStartAt}
-                    ></Select>
-                  </div>
-                  <div>
-                    <Switch
-                      id="stop-before-enabled"
-                      checked={stopBeforeEnabled}
-                      onCheckedChange={setStopBeforeEnabled}
-                    />
-                    <Label.Root htmlFor="stop-before">Stop Before</Label.Root>
-                    <Select
-                      id="stop-before"
-                      disabled={!stopBeforeEnabled}
-                      options={ruleNames.map((name) => ({
-                        name: toNiceName(name),
-                        value: name,
-                      }))}
-                      onChange={setStopBefore}
-                    ></Select>
-                  </div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "max-content max-content",
+                  }}
+                >
+                  <LabelledSwitch
+                    id="trace-changes"
+                    label="Trace Changes"
+                    checked={tracing}
+                    onCheckedChange={setTracing}
+                  />
+                  <div />
+                  <LabelledSwitch
+                    id="start-at-enabled"
+                    label="Start At Rule"
+                    checked={startAtEnabled}
+                    onCheckedChange={setStartAtEnabled}
+                  />
+                  <Select
+                    id="start-at"
+                    disabled={!startAtEnabled}
+                    options={ruleNames.map((name) => ({
+                      name: toNiceName(name),
+                      value: name,
+                    }))}
+                    onChange={setStartAt}
+                  ></Select>
+                  <LabelledSwitch
+                    id="stop-before-enabled"
+                    label="Stop Before Rule"
+                    checked={stopBeforeEnabled}
+                    onCheckedChange={setStopBeforeEnabled}
+                  />
+                  <Select
+                    id="stop-before"
+                    disabled={!stopBeforeEnabled}
+                    options={ruleNames.map((name) => ({
+                      name: toNiceName(name),
+                      value: name,
+                    }))}
+                    onChange={setStopBefore}
+                  ></Select>
                 </div>
               </div>
             </div>

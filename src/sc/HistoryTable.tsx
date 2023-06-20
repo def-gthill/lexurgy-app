@@ -1,7 +1,7 @@
 import { set } from "@/array";
 import Checkbox from "@/components/Checkbox";
+import LabelledSwitch from "@/components/LabelledSwitch";
 import ScrollArea from "@/components/ScrollArea";
-import Switch from "@/components/Switch";
 import useWeakState from "@/useWeakState";
 import * as Label from "@radix-ui/react-label";
 import { Fragment, useState } from "react";
@@ -24,12 +24,12 @@ export default function HistoryTable({
 
   return (
     <div>
-      <Switch
+      <LabelledSwitch
         id="free-edit"
+        label="Edit Input List"
         checked={freeEditing}
         onCheckedChange={setFreeEditing}
       />
-      <Label.Root htmlFor="free-edit">Edit Input List</Label.Root>
       {freeEditing ? (
         <div>
           <Label.Root htmlFor="input-words" style={{ fontWeight: "bold" }}>
@@ -121,12 +121,12 @@ export default function HistoryTable({
           )}
         </div>
       )}
-      <Switch
+      <LabelledSwitch
         id="show-stages"
+        label="Show Stages"
         checked={showingStages}
         onCheckedChange={setShowingStages}
       />
-      <Label.Root htmlFor="show-stages">Show Stages</Label.Root>
     </div>
   );
 
