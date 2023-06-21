@@ -13,7 +13,7 @@ import { useState } from "react";
 import HistoryTable from "./HistoryTable";
 import Scv1Request from "./Scv1Request";
 import Scv1Response from "./Scv1Response";
-import { WordHistory } from "./WordHistory";
+import { WordHistory, emptyHistory } from "./WordHistory";
 
 export default function ScPublic() {
   const [soundChanges, setSoundChanges] = useState("");
@@ -100,6 +100,15 @@ export default function ScPublic() {
                   tracing={tracing}
                   setHistories={setHistories}
                 />
+                <div className="buttons">
+                  <ImportButton
+                    expectedFileType=".wli"
+                    sendData={(data) => {
+                      const inputWords = data.split(/[\r\n]+/);
+                      setHistories(inputWords.map(emptyHistory));
+                    }}
+                  />
+                </div>
               </div>
               <div style={{ display: "flex" }}>
                 <div className="buttons">
