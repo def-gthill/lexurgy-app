@@ -10,6 +10,7 @@ import * as Label from "@radix-ui/react-label";
 import axios from "axios";
 import Head from "next/head";
 import { useState } from "react";
+import HistoryExporter from "./HistoryExporter";
 import HistoryTable from "./HistoryTable";
 import Scv1Request from "./Scv1Request";
 import Scv1Response from "./Scv1Response";
@@ -108,6 +109,7 @@ export default function ScPublic() {
                       setHistories(inputWords.map(emptyHistory));
                     }}
                   />
+                  <HistoryExporter histories={histories} />
                 </div>
               </div>
               <div style={{ display: "flex" }}>

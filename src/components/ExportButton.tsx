@@ -2,10 +2,12 @@ export function ExportButton({
   label,
   fileName,
   data,
+  onSuccess,
 }: {
   label?: string;
   fileName: string;
   data: string;
+  onSuccess?: () => void;
 }) {
   return (
     <button className="button" onClick={writeFile}>
@@ -22,5 +24,8 @@ export function ExportButton({
     a.click();
 
     URL.revokeObjectURL(a.href);
+    if (onSuccess) {
+      onSuccess();
+    }
   }
 }
