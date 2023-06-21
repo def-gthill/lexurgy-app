@@ -57,11 +57,14 @@ export default function HistoryExporter({
         />
         <Label.Root htmlFor="include-output-words">Output Words</Label.Root>
       </div>
-      <ExportButton
-        fileName="lexurgy.wli"
-        data={data}
-        onSuccess={() => setExporting(false)}
-      />
+      <div className="buttons">
+        <ExportButton
+          fileName="lexurgy.wli"
+          data={data}
+          onSuccess={() => setExporting(false)}
+        />
+        <button onClick={() => setExporting(false)}>Cancel</button>
+      </div>
     </div>
   ) : (
     <button onClick={() => setExporting(true)}>Export</button>
