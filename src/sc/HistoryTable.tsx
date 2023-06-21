@@ -53,67 +53,74 @@ export default function HistoryTable({
           />
         </div>
       ) : (
-        <div>
-          <ScrollArea>
-            <table>
-              <thead>
-                <tr>
-                  {tracing && <th>Trace</th>}
-                  <th>Input Word</th>
-                  <th></th>
-                  {showingStages &&
-                    intermediateStageNames &&
-                    intermediateStageNames.map((name) => (
-                      <Fragment key={name}>
-                        <th>{toNiceName(name)}</th>
-                        <th></th>
-                      </Fragment>
-                    ))}
-                  <th>Output Word</th>
-                </tr>
-              </thead>
-              <tbody>
-                {myHistories.map((history, i) => (
-                  <tr key={i}>
-                    {tracing && (
-                      <td>
-                        <Checkbox
-                          id={`tracing-${i}`}
-                          checked={history.tracing}
-                          onCheckedChange={(checked) => {
-                            setTracingWord(i, checked === true);
-                          }}
-                        />
-                      </td>
-                    )}
-                    <td>
-                      <input
-                        type="text"
-                        value={history.inputWord}
-                        onChange={(event) =>
-                          setInputWord(i, event.target.value)
-                        }
-                      />
-                    </td>
-                    <td>{history.outputWord && ">"}</td>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div style={{ display: "flex", maxHeight: "18rem" }}>
+            <ScrollArea>
+              <table>
+                <thead>
+                  <tr>
+                    {tracing && <th>Trace</th>}
+                    <th>Input Word</th>
+                    <th></th>
                     {showingStages &&
                       intermediateStageNames &&
-                      intermediateStageNames.map((name) => {
-                        const intermediateWord =
-                          history.intermediates.get(name);
-                        return (
-                          <Fragment key={name}>
-                            <td>{intermediateWord}</td>
-                            <td>{intermediateWord && ">"}</td>
-                          </Fragment>
-                        );
-                      })}
-                    <td>{history.outputWord}</td>
+                      intermediateStageNames.map((name) => (
+                        <Fragment key={name}>
+                          <th>{toNiceName(name)}</th>
+                          <th></th>
+                        </Fragment>
+                      ))}
+                    <th>Output Word</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </ScrollArea>
+                </thead>
+                <tbody>
+                  {myHistories.map((history, i) => (
+                    <tr key={i}>
+                      {tracing && (
+                        <td>
+                          <Checkbox
+                            id={`tracing-${i}`}
+                            checked={history.tracing}
+                            onCheckedChange={(checked) => {
+                              setTracingWord(i, checked === true);
+                            }}
+                          />
+                        </td>
+                      )}
+                      <td>
+                        <input
+                          type="text"
+                          value={history.inputWord}
+                          onChange={(event) =>
+                            setInputWord(i, event.target.value)
+                          }
+                        />
+                      </td>
+                      <td>{history.outputWord && ">"}</td>
+                      {showingStages &&
+                        intermediateStageNames &&
+                        intermediateStageNames.map((name) => {
+                          const intermediateWord =
+                            history.intermediates.get(name);
+                          return (
+                            <Fragment key={name}>
+                              <td>{intermediateWord}</td>
+                              <td>{intermediateWord && ">"}</td>
+                            </Fragment>
+                          );
+                        })}
+                      <td>{history.outputWord}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ScrollArea>
+          </div>
           {myHistories.at(-1)?.inputWord && (
             <div className="buttons">
               <button onClick={addInputWord}>Add Word</button>
