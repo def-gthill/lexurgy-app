@@ -109,7 +109,10 @@ export default function ScPublic() {
                       setHistories(inputWords.map(emptyHistory));
                     }}
                   />
-                  <HistoryExporter histories={histories} />
+                  <HistoryExporter
+                    histories={histories}
+                    intermediateStageNames={intermediateStageNames}
+                  />
                 </div>
               </div>
               <div style={{ display: "flex" }}>

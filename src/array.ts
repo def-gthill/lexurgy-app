@@ -11,3 +11,10 @@ export function removeDuplicates<T>(array: T[]): T[] {
 export function range(stop: number): number[] {
   return [...Array(stop).keys()];
 }
+
+export function editLast<T>(array: T[], edit: (last: T) => T) {
+  if (array.length === 0) {
+    return;
+  }
+  array.push(edit(array.pop()!));
+}
