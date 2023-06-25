@@ -1,4 +1,4 @@
-import { ExportButton } from "@/components/ExportButton";
+import ExportButton from "@/components/ExportButton";
 import Header from "@/components/Header";
 import ImportButton from "@/components/ImportButton";
 import LabelledSwitch from "@/components/LabelledSwitch";
@@ -8,6 +8,8 @@ import { entries, hasElements, keys, toMap, values } from "@/map";
 import useDebounced from "@/useDebounced";
 import * as Label from "@radix-ui/react-label";
 import axios from "axios";
+import copy from "copy-to-clipboard";
+import { encode } from "js-base64";
 import Head from "next/head";
 import { useState } from "react";
 import HistoryExporter from "./HistoryExporter";
@@ -127,6 +129,10 @@ export default function ScPublic() {
                   >
                     Apply
                   </button>
+                  <ShareButton
+                    soundChanges={soundChanges}
+                    inputWords={histories.map((history) => history.inputWord)}
+                  />
                 </div>
                 <div
                   style={{
@@ -266,6 +272,24 @@ export default function ScPublic() {
         setError(error.response.data.message);
       }
     }
+  }
+}
+
+function ShareButton({
+  soundChanges,
+  inputWords,
+}: {
+  soundChanges: string;
+  inputWords: string[];
+}) {
+  return <button onClick={share}>Share</button>;
+
+  function share() {
+    const inputWordsEncoded = encode(inputWords.join("\n"), true);
+    const soundChangesEncoded = encode(soundChanges, true);
+    const url = `www.lexurgy.com/sc?changes=${soundChangesEncoded}&input=${inputWordsEncoded}`;
+    copy(url);
+    alert("Link copied to clipboard!");
   }
 }
 

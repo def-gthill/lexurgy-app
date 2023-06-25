@@ -1,6 +1,6 @@
 import { editLast } from "@/array";
 import Checkbox from "@/components/Checkbox";
-import { ExportButton } from "@/components/ExportButton";
+import ExportButton from "@/components/ExportButton";
 import * as Label from "@radix-ui/react-label";
 import { useState } from "react";
 import { WordHistory } from "./WordHistory";

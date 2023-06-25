@@ -1,4 +1,4 @@
-export function ExportButton({
+export default function ExportButton({
   label,
   fileName,
   data,
