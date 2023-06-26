@@ -80,6 +80,7 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
                   setEditedSoundChanges(newSoundChanges);
                   requestUpdatingRuleNames(newSoundChanges);
                 }}
+                height="30rem"
               />
               {error && <div id="error">{error}</div>}
               <div className="buttons">

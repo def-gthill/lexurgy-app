@@ -140,10 +140,26 @@ select {
 
 input,
 textarea,
-select {
+select,
+.cm-editor {
   background-color: var(--background);
   border-radius: 4px;
   border: 1px solid var(--foreground-muted);
+}
+
+.cm-editor .cm-content {
+  caret-color: var(--foreground-muted);
+}
+
+.cm-editor.cm-focused .cm-cursor {
+  border-left-color: var(--foreground-muted);
+}
+
+.cm-editor .cm-gutters {
+  background-color: var(--card-background);
+  color: var(--foreground);
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
 }
 
 label {
