@@ -1,3 +1,4 @@
+import CodeEditor from "@/components/CodeEditor";
 import ExportButton from "@/components/ExportButton";
 import Header from "@/components/Header";
 import ImportButton from "@/components/ImportButton";
@@ -20,26 +21,29 @@ import Scv1Response from "./Scv1Response";
 import { WordHistory, emptyHistory } from "./WordHistory";
 
 export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
-  let initialSoundChanges = "";
-  let initialHistories = [emptyHistory()];
+  let soundChangesFromUrl = "";
+  let historiesFromUrl = [emptyHistory()];
   const router = useRouter();
   if (router.isReady) {
     const changes = router.query.changes;
     const input = router.query.input;
 
     if (typeof input === "string") {
-      initialHistories = decode(input).split("\n").map(emptyHistory);
+      historiesFromUrl = decode(input).split("\n").map(emptyHistory);
     }
     if (typeof changes === "string") {
-      initialSoundChanges = decode(changes);
+      soundChangesFromUrl = decode(changes);
     }
   }
 
-  const [soundChanges, setSoundChanges] = useState(initialSoundChanges);
+  const [initialSoundChanges, setInitialSoundChanges] =
+    useState(soundChangesFromUrl);
+  const [editedSoundChanges, setEditedSoundChanges] =
+    useState(soundChangesFromUrl);
   const [intermediateStageNames, setIntermediateStageNames] = useState<
     string[]
   >([]);
-  const [histories, setHistories] = useState<WordHistory[]>(initialHistories);
+  const [histories, setHistories] = useState<WordHistory[]>(historiesFromUrl);
   const [tracing, setTracing] = useState(false);
   const [ruleNames, setRuleNames] = useState<string[]>([]);
   const [startAtEnabled, setStartAtEnabled] = useState(false);
@@ -70,32 +74,26 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
               >
                 Sound Changes
               </Label.Root>
-              <textarea
-                id="sound-changes"
-                style={{
-                  display: "block",
-                  width: "100%",
-                  resize: "none",
-                  height: "30rem",
-                  whiteSpace: "pre",
-                  wordWrap: "normal",
+              <CodeEditor
+                initialCode={initialSoundChanges}
+                onUpdateCode={(newSoundChanges) => {
+                  setEditedSoundChanges(newSoundChanges);
+                  requestUpdatingRuleNames(newSoundChanges);
                 }}
-                onChange={(event) => {
-                  setSoundChanges(event.target.value);
-                  requestUpdatingRuleNames(event.target.value);
-                }}
-                value={soundChanges}
               />
               {error && <div id="error">{error}</div>}
               <div className="buttons">
                 <ImportButton
                   expectedFileType=".lsc"
                   sendData={(data) => {
-                    setSoundChanges(data);
+                    setInitialSoundChanges(data);
                     requestUpdatingRuleNames(data);
                   }}
                 />
-                <ExportButton fileName="lexurgy.lsc" data={soundChanges} />
+                <ExportButton
+                  fileName="lexurgy.lsc"
+                  data={editedSoundChanges}
+                />
               </div>
             </div>
             <div
@@ -141,7 +139,7 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
                   </button>
                   <ShareButton
                     baseUrl={baseUrl}
-                    soundChanges={soundChanges}
+                    soundChanges={editedSoundChanges}
                     inputWords={histories.map((history) => history.inputWord)}
                   />
                 </div>
@@ -221,7 +219,7 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
 
   async function runSc() {
     const request: Scv1Request = {
-      changes: soundChanges,
+      changes: editedSoundChanges,
       inputWords: histories.map((history) => history.inputWord),
       traceWords: tracing
         ? histories
