@@ -18,7 +18,7 @@ import Scv1Request from "./Scv1Request";
 import Scv1Response from "./Scv1Response";
 import { WordHistory, emptyHistory } from "./WordHistory";
 
-export default function ScPublic() {
+export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
   const [soundChanges, setSoundChanges] = useState("");
   const [intermediateStageNames, setIntermediateStageNames] = useState<
     string[]
@@ -130,6 +130,7 @@ export default function ScPublic() {
                     Apply
                   </button>
                   <ShareButton
+                    baseUrl={baseUrl}
                     soundChanges={soundChanges}
                     inputWords={histories.map((history) => history.inputWord)}
                   />
@@ -276,9 +277,11 @@ export default function ScPublic() {
 }
 
 function ShareButton({
+  baseUrl,
   soundChanges,
   inputWords,
 }: {
+  baseUrl: string | null;
   soundChanges: string;
   inputWords: string[];
 }) {
@@ -287,7 +290,9 @@ function ShareButton({
   function share() {
     const inputWordsEncoded = encode(inputWords.join("\n"), true);
     const soundChangesEncoded = encode(soundChanges, true);
-    const url = `www.lexurgy.com/sc?changes=${soundChangesEncoded}&input=${inputWordsEncoded}`;
+    const url = `${
+      baseUrl ?? "www.lexurgy.com"
+    }/sc?changes=${soundChangesEncoded}&input=${inputWordsEncoded}`;
     copy(url);
     alert("Link copied to clipboard!");
   }
