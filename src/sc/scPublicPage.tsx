@@ -9,8 +9,9 @@ import useDebounced from "@/useDebounced";
 import * as Label from "@radix-ui/react-label";
 import axios from "axios";
 import copy from "copy-to-clipboard";
-import { encode } from "js-base64";
+import { decode, encode } from "js-base64";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import HistoryExporter from "./HistoryExporter";
 import HistoryTable from "./HistoryTable";
@@ -19,18 +20,26 @@ import Scv1Response from "./Scv1Response";
 import { WordHistory, emptyHistory } from "./WordHistory";
 
 export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
-  const [soundChanges, setSoundChanges] = useState("");
+  let initialSoundChanges = "";
+  let initialHistories = [emptyHistory()];
+  const router = useRouter();
+  if (router.isReady) {
+    const changes = router.query.changes;
+    const input = router.query.input;
+
+    if (typeof input === "string") {
+      initialHistories = decode(input).split("\n").map(emptyHistory);
+    }
+    if (typeof changes === "string") {
+      initialSoundChanges = decode(changes);
+    }
+  }
+
+  const [soundChanges, setSoundChanges] = useState(initialSoundChanges);
   const [intermediateStageNames, setIntermediateStageNames] = useState<
     string[]
   >([]);
-  const [histories, setHistories] = useState<WordHistory[]>([
-    {
-      inputWord: "",
-      outputWord: null,
-      intermediates: new Map(),
-      tracing: false,
-    },
-  ]);
+  const [histories, setHistories] = useState<WordHistory[]>(initialHistories);
   const [tracing, setTracing] = useState(false);
   const [ruleNames, setRuleNames] = useState<string[]>([]);
   const [startAtEnabled, setStartAtEnabled] = useState(false);
@@ -40,6 +49,7 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
   const [error, setError] = useState<string | null>(null);
   const [scRunToggle, setScRunToggle] = useState(0);
   const requestUpdatingRuleNames = useDebounced(updateRuleNames, 500);
+
   return (
     <>
       <Head>
