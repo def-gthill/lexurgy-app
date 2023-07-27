@@ -51,6 +51,7 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
   const [stopBeforeEnabled, setStopBeforeEnabled] = useState(false);
   const [stopBefore, setStopBefore] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>("Ready");
   const [scRunToggle, setScRunToggle] = useState(0);
   const requestUpdatingRuleNames = useDebounced(updateRuleNames, 500);
 
@@ -82,7 +83,7 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
                 }}
                 height="30rem"
               />
-              {error && <div id="error">{error}</div>}
+              <div id="status">{error ?? status}</div>
               <div className="buttons">
                 <ImportButton
                   expectedFileType=".lsc"
@@ -219,6 +220,7 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
   }
 
   async function runSc() {
+    setStatus("Running...");
     const request: Scv1Request = {
       changes: editedSoundChanges,
       inputWords: histories.map((history) => history.inputWord),
@@ -281,6 +283,8 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
       if (error.response) {
         setError(toErrorMessage(error.response.data));
       }
+    } finally {
+      setStatus("Ready");
     }
   }
 }
