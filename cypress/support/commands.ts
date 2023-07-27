@@ -61,7 +61,7 @@ declare global {
         expectedWords: [string, string[]][]
       ): Chainable<void>;
       scNoIntermediates(): Chainable<void>;
-      scShowsError(): Chainable<void>;
+      scShowsSyntaxError(): Chainable<void>;
       waitForApiResult(url: string, name: string): Chainable<void>;
     }
   }
@@ -160,10 +160,10 @@ Cypress.Commands.add("goToScPublic", () => {
 
 Cypress.Commands.add("runSc", (inputs: UserSoundChangeInputs) => {
   for (const input of inputs.inputWords) {
-    cy.get("input").last().type(input);
+    cy.get("table input").last().type(input);
     cy.contains("Add Word").click();
   }
-  cy.contains("Sound Changes").type(inputs.changes);
+  cy.scEnterSoundChanges(inputs.changes);
   if (inputs.traceWords) {
     cy.contains("Trace Changes").click();
     for (const traceWord of inputs.traceWords) {
@@ -201,7 +201,7 @@ Cypress.Commands.add("scEnterFreeInputWords", (inputWordText: string) => {
 });
 
 Cypress.Commands.add("scEnterSoundChanges", (soundChanges: string) => {
-  cy.contains("Sound Changes").type(soundChanges);
+  cy.get(".cm-line").type(soundChanges);
 });
 
 Cypress.Commands.add("scInputWordsAre", (expectedWords: string[]) => {
@@ -250,8 +250,8 @@ Cypress.Commands.add("scNoIntermediates", () => {
   );
 });
 
-Cypress.Commands.add("scShowsError", () => {
-  cy.get("#error").should("be.visible");
+Cypress.Commands.add("scShowsSyntaxError", () => {
+  cy.get("#status").invoke("text").should("match", /line/);
 });
 
 Cypress.Commands.add("waitForApiResult", (url: string, name: string) => {

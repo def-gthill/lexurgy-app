@@ -102,7 +102,7 @@ describe("the public sound changer page", () => {
       inputWords: ["aaa"],
       changes: "bad-rule:\na =>",
     });
-    cy.scShowsError();
+    cy.scShowsSyntaxError();
   });
 
   // Errors on individual words
