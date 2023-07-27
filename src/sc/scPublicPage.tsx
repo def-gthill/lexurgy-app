@@ -213,7 +213,7 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
       setRuleNames(response.data.ruleNames);
     } catch (error: any) {
       if (error.response) {
-        setError(error.response.data.message);
+        setError(toErrorMessage(error.response.data));
       }
     }
   }
@@ -279,7 +279,7 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
       }
     } catch (error: any) {
       if (error.response) {
-        setError(error.response.data.message);
+        setError(toErrorMessage(error.response.data));
       }
     }
   }
@@ -312,4 +312,12 @@ function toNiceName(name: string) {
     .split("-")
     .map((word) => word.slice(0, 1).toLocaleUpperCase() + word.slice(1))
     .join(" ");
+}
+
+function toErrorMessage(error: any) {
+  let message = error.message;
+  if (error.lineNumber) {
+    message += ` (line ${error.lineNumber})`;
+  }
+  return message;
 }
