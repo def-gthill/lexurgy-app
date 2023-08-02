@@ -1,6 +1,6 @@
 import styles from "@/styles/Header.module.css";
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import NextLink from "next/link";
 
 export default function Header({
@@ -10,6 +10,7 @@ export default function Header({
   links?: { label: string; url: string }[];
   active?: string;
 }) {
+  const session = useSession();
   return (
     <NavigationMenu.Root>
       <NavigationMenu.List className={styles.NavigationMenuList}>
@@ -44,7 +45,9 @@ export default function Header({
                 signOut();
               }}
             >
-              Sign Out
+              {session.data?.user?.name ??
+                session.data?.user?.email ??
+                "Sign Out"}
             </NavigationMenu.Link>
           </NavigationMenu.Item>
         </div>
