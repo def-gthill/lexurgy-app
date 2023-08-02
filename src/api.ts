@@ -1,5 +1,7 @@
 import { HttpStatusCode } from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "./pages/api/auth/[...nextauth]";
 
 export type RequestQuery = NextApiRequest["query"];
 
@@ -12,18 +14,22 @@ export async function collectionEndpoint<T>(
   req: NextApiRequest,
   res: NextApiResponse<T | T[]>,
   get: (query: RequestQuery) => Promise<T[]>,
-  post: (resource: T) => Promise<T>
+  post: (resource: T, userId: string) => Promise<T>
 ): Promise<void>;
 export async function collectionEndpoint<T>(
   req: NextApiRequest,
   res: NextApiResponse<T | T[]>,
   get: (query: RequestQuery) => Promise<T[]>,
-  post?: (resource: T) => Promise<T>
+  post?: (resource: T, userId: string) => Promise<T>
 ) {
-  if (req.method === "GET") {
+  const session = await getServerSession(req, res, authOptions);
+  const userId = session?.user?.email;
+  if (!userId) {
+    res.status(HttpStatusCode.Unauthorized).json([]);
+  } else if (req.method === "GET") {
     res.status(HttpStatusCode.Ok).json(await get(req.query));
   } else if (post && req.method === "POST") {
-    res.status(HttpStatusCode.Created).json(await post(req.body));
+    res.status(HttpStatusCode.Created).json(await post(req.body, userId));
   } else {
     let allow = "GET";
     if (post) {
