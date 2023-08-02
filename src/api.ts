@@ -2,6 +2,7 @@ import { HttpStatusCode } from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./pages/api/auth/[...nextauth]";
+import { getOrCreateUserByUsername } from "./user/userEndpoint";
 
 export type RequestQuery = NextApiRequest["query"];
 
@@ -23,13 +24,14 @@ export async function collectionEndpoint<T>(
   post?: (resource: T, userId: string) => Promise<T>
 ) {
   const session = await getServerSession(req, res, authOptions);
-  const userId = session?.user?.email;
-  if (!userId) {
+  const username = session?.user?.email;
+  if (!username) {
     res.status(HttpStatusCode.Unauthorized).json([]);
   } else if (req.method === "GET") {
     res.status(HttpStatusCode.Ok).json(await get(req.query));
   } else if (post && req.method === "POST") {
-    res.status(HttpStatusCode.Created).json(await post(req.body, userId));
+    const user = await getOrCreateUserByUsername(username);
+    res.status(HttpStatusCode.Created).json(await post(req.body, user.id));
   } else {
     let allow = "GET";
     if (post) {

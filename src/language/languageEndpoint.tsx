@@ -14,9 +14,13 @@ export async function postLanguage(
   }
   await execute(
     driver,
-    "MERGE (lang:Language {id: $id}) SET lang.name = $name",
+    `MERGE (lang:Language {id: $id}) SET lang.name = $name
+    WITH lang
+    MATCH (user:User {id: $userId})
+    CREATE (user) -[:OWNS]-> (lang)`,
     {
       ...language,
+      userId,
     }
   );
   return language;
