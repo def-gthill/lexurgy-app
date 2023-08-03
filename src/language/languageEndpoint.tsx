@@ -1,3 +1,4 @@
+import { RequestQuery } from "@/api";
 import getDriver, { execute, query } from "@/db";
 import Language from "@/language/Language";
 import crypto from "crypto";
@@ -26,8 +27,15 @@ export async function postLanguage(
   return language;
 }
 
-export async function getLanguages(): Promise<Language[]> {
-  return await query<Language>(driver, "MATCH (lang:Language) RETURN lang;");
+export async function getLanguages(
+  _requestQuery: RequestQuery,
+  userId: string
+): Promise<Language[]> {
+  return await query<Language>(
+    driver,
+    "MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language) RETURN lang;",
+    { userId }
+  );
 }
 
 export async function getLanguage(id: string): Promise<Language[]> {

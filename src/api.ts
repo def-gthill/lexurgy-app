@@ -9,18 +9,18 @@ export type RequestQuery = NextApiRequest["query"];
 export async function collectionEndpoint<T>(
   req: NextApiRequest,
   res: NextApiResponse<T[]>,
-  get: (query: RequestQuery) => Promise<T[]>
+  get: (query: RequestQuery, userId: string) => Promise<T[]>
 ): Promise<void>;
 export async function collectionEndpoint<T>(
   req: NextApiRequest,
   res: NextApiResponse<T | T[]>,
-  get: (query: RequestQuery) => Promise<T[]>,
+  get: (query: RequestQuery, userId: string) => Promise<T[]>,
   post: (resource: T, userId: string) => Promise<T>
 ): Promise<void>;
 export async function collectionEndpoint<T>(
   req: NextApiRequest,
   res: NextApiResponse<T | T[]>,
-  get: (query: RequestQuery) => Promise<T[]>,
+  get: (query: RequestQuery, userId: string) => Promise<T[]>,
   post?: (resource: T, userId: string) => Promise<T>
 ) {
   const session = await getServerSession(req, res, authOptions);
@@ -28,7 +28,8 @@ export async function collectionEndpoint<T>(
   if (!username) {
     res.status(HttpStatusCode.Unauthorized).json([]);
   } else if (req.method === "GET") {
-    res.status(HttpStatusCode.Ok).json(await get(req.query));
+    const user = await getOrCreateUserByUsername(username);
+    res.status(HttpStatusCode.Ok).json(await get(req.query, user.id));
   } else if (post && req.method === "POST") {
     const user = await getOrCreateUserByUsername(username);
     res.status(HttpStatusCode.Created).json(await post(req.body, user.id));
