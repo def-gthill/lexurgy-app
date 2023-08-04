@@ -48,21 +48,27 @@ export async function collectionEndpoint<T>(
 export async function resourceEndpoint<T>(
   req: NextApiRequest,
   res: NextApiResponse<T | string>,
-  get: (id: string) => Promise<T[]>,
-  delete_: (id: string) => Promise<T[]>
+  get: (id: string, userId: string) => Promise<T[]>,
+  delete_: (id: string, userId: string) => Promise<T[]>
 ) {
   const { id } = req.query;
-  if (typeof id !== "string") {
+  const session = await getServerSession(req, res, authOptions);
+  const username = session?.user?.email;
+  if (!username) {
+    res.status(HttpStatusCode.Unauthorized).json("Not signed in");
+  } else if (typeof id !== "string") {
     res.status(HttpStatusCode.BadRequest).json('Parameter "id" not set');
   } else if (req.method === "GET") {
-    const result = await get(id);
+    const user = await getOrCreateUserByUsername(username);
+    const result = await get(id, user.id);
     if (result.length === 0) {
       res.status(HttpStatusCode.NotFound).json("Not found");
     } else {
       res.status(HttpStatusCode.Ok).json(result[0]);
     }
   } else if (req.method === "DELETE") {
-    const result = await delete_(id);
+    const user = await getOrCreateUserByUsername(username);
+    const result = await delete_(id, user.id);
     if (result.length === 0) {
       res.status(HttpStatusCode.Ok).json("Not found");
     } else {

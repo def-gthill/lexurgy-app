@@ -38,20 +38,26 @@ export async function getLanguages(
   );
 }
 
-export async function getLanguage(id: string): Promise<Language[]> {
+export async function getLanguage(
+  id: string,
+  userId: string
+): Promise<Language[]> {
   return await query<Language>(
     driver,
-    "MATCH (lang:Language {id: $id}) RETURN lang;",
-    { id }
+    "MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language {id: $id}) RETURN lang;",
+    { id, userId }
   );
 }
 
-export async function deleteLanguage(id: string): Promise<Language[]> {
+export async function deleteLanguage(
+  id: string,
+  userId: string
+): Promise<Language[]> {
   return await query<Language>(
     driver,
-    `MATCH (lang:Language {id: $id})
+    `MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language {id: $id})
     OPTIONAL MATCH (lang) <-[:IS_IN]- (n)
     DETACH DELETE lang, n RETURN lang`,
-    { id }
+    { id, userId }
   );
 }
