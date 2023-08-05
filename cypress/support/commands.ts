@@ -36,11 +36,14 @@ declare global {
       resetDb(): Chainable<void>;
       prepareExamplish(): Chainable<void>;
       prepareExamplishLexicon(): Chainable<void>;
+      goToHome(): Chainable<void>;
+      login(user: string): Chainable<void>;
       tabTitleIs(expected: string): Chainable<void>;
       pageTitleIs(expected: string): Chainable<void>;
       clickNavigationLink(name: string): Chainable<void>;
       createLanguage(name: string): Chainable<void>;
       goToLanguage(name: string): Chainable<void>;
+      navigateToLanguage(name: string): Chainable<void>;
       createTranslation(translation: UserTranslation): Chainable<void>;
       getTranslations(language: string): Chainable<Translation[]>;
       postTranslation(translation: Translation): Chainable<void>;
@@ -85,6 +88,19 @@ Cypress.Commands.add("prepareExamplishLexicon", () => {
   cy.exec("npm run db:seed:examplish:lexicon");
 });
 
+Cypress.Commands.add("goToHome", () => {
+  cy.visit("/");
+});
+
+Cypress.Commands.add("login", (user: string) => {
+  cy.session(user, () => {
+    cy.goToHome();
+    cy.contains("Email").type(Cypress.env(`${user}UserEmail`));
+    cy.contains("Sign in with Email").click();
+    cy.contains("Lexurgy");
+  });
+});
+
 Cypress.Commands.add("tabTitleIs", (expected: string) => {
   cy.title().should("equal", expected);
 });
@@ -98,7 +114,6 @@ Cypress.Commands.add("clickNavigationLink", (name: string) => {
 });
 
 Cypress.Commands.add("createLanguage", (name: string) => {
-  cy.visit("/");
   cy.contains("New Language").click();
   cy.get("#name").type(name);
   cy.contains("Save").click();
@@ -106,7 +121,11 @@ Cypress.Commands.add("createLanguage", (name: string) => {
 });
 
 Cypress.Commands.add("goToLanguage", (name: string) => {
-  cy.visit("/");
+  const id = languages.get(name);
+  cy.visit(`/language/${id}`);
+});
+
+Cypress.Commands.add("navigateToLanguage", (name: string) => {
   cy.contains(name).click();
 });
 

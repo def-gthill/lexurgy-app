@@ -3,8 +3,10 @@ describe("a language page", () => {
 
   beforeEach(() => {
     cy.resetDb();
+    cy.login("default");
+    cy.goToHome();
     cy.createLanguage("Examplish");
-    cy.goToLanguage("Examplish");
+    cy.navigateToLanguage("Examplish");
   });
 
   it("displays the language name", () => {
