@@ -9,7 +9,6 @@ export async function postLanguage(
   language: Language,
   userId: string
 ): Promise<Language> {
-  console.log(`User ${userId} is t3h conl4ng1nat0r`);
   if (language.id === undefined) {
     language.id = crypto.randomUUID();
   }

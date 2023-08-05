@@ -117,7 +117,6 @@ Cypress.Commands.add("createLanguage", (name: string) => {
   cy.contains("New Language").click();
   cy.get("#name").type(name);
   cy.contains("Save").click();
-  cy.contains(name).click();
 });
 
 Cypress.Commands.add("goToLanguage", (name: string) => {

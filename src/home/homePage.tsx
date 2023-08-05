@@ -10,6 +10,7 @@ import Head from "next/head";
 import { useState } from "react";
 
 export default function Home() {
+  const [editorToggle, setEditorToggle] = useState(false);
   const languageCollection =
     usePersistentCollection<Language>("/api/languages");
 
@@ -25,12 +26,16 @@ export default function Home() {
           <h1>My Workspace</h1>
           <h2>Languages</h2>
           <HiddenEditor
+            key={editorToggle.toString()}
             showButtonLabel="New Language"
             component={(value, onChange) => (
               <LanguageInfoEditor language={value} onChange={onChange} />
             )}
             initialValue={{ name: "" }}
-            onSave={languageCollection.save}
+            onSave={(value) => {
+              languageCollection.save(value);
+              setEditorToggle(!editorToggle);
+            }}
           />
           {languages.map((language) => (
             <LanguageInfoView

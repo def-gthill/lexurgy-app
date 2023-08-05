@@ -2,6 +2,7 @@ describe("the glitch link", () => {
   beforeEach(() => {
     cy.resetDb();
     cy.prepareExamplish();
+    cy.login("default");
   });
 
   it("doesn't show the glitch indicator in a pristine language", () => {
