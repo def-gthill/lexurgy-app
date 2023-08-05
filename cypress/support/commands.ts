@@ -1,8 +1,11 @@
 /// <reference types="cypress" />
 
+import SyntaxNode from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
+import ApiTranslation from "./ApiTranslation";
+import UserConstruction from "./UserConstruction";
 import { UserSoundChangeInputs } from "./UserSoundChangeInputs";
-import UserTranslation from "./UserTranslation";
+import UserTranslation, { UserStructure } from "./UserTranslation";
 
 // ***********************************************
 // This example commands.ts shows you how to
@@ -42,10 +45,16 @@ declare global {
       pageTitleIs(expected: string): Chainable<void>;
       clickNavigationLink(name: string): Chainable<void>;
       createLanguage(name: string): Chainable<void>;
+      createLanguageWithApi(name: string): Chainable<void>;
       goToLanguage(name: string): Chainable<void>;
       navigateToLanguage(name: string): Chainable<void>;
+      createConstructionWithApi(
+        construction: UserConstruction
+      ): Chainable<void>;
       createTranslation(translation: UserTranslation): Chainable<void>;
+      createTranslationWithApi(translation: ApiTranslation): Chainable<void>;
       getTranslations(language: string): Chainable<Translation[]>;
+      getTranslation(translation: string): Chainable<Translation>;
       postTranslation(translation: Translation): Chainable<void>;
       goToLexicon(name: string): Chainable<void>;
       changeRomanization(
@@ -72,15 +81,26 @@ declare global {
 
 const examplishUuid = "b1365a98-00d1-4633-8e04-9c48259dd698";
 
-// const languages = new Map([["Examplish", examplishUuid]]);
-const languages = new Map();
+class AliasMap {
+  private aliasMap = new Map();
+
+  getId(name: string): string {
+    if (!this.aliasMap.has(name)) {
+      this.aliasMap.set(name, crypto.randomUUID());
+    }
+    return this.aliasMap.get(name);
+  }
+}
+
+const languages = new AliasMap();
+const constructions = new AliasMap();
+const translations = new AliasMap();
 
 Cypress.Commands.add("resetDb", () => {
   cy.exec("npm run db:reset");
 });
 
 Cypress.Commands.add("prepareExamplish", () => {
-  languages.set("Examplish", examplishUuid);
   cy.exec("npm run db:seed:examplish");
 });
 
@@ -119,14 +139,41 @@ Cypress.Commands.add("createLanguage", (name: string) => {
   cy.contains("Save").click();
 });
 
+Cypress.Commands.add("createLanguageWithApi", (name: string) => {
+  cy.request({
+    url: "/api/languages",
+    method: "POST",
+    body: {
+      id: languages.getId(name),
+      name,
+    },
+  });
+});
+
 Cypress.Commands.add("goToLanguage", (name: string) => {
-  const id = languages.get(name);
+  const id = languages.getId(name);
   cy.visit(`/language/${id}`);
 });
 
 Cypress.Commands.add("navigateToLanguage", (name: string) => {
   cy.contains(name).click();
 });
+
+Cypress.Commands.add(
+  "createConstructionWithApi",
+  (construction: UserConstruction) => {
+    cy.request({
+      url: "/api/constructions",
+      method: "POST",
+      body: {
+        id: constructions.getId(construction.name),
+        languageId: languages.getId(construction.languageName),
+        name: construction.name,
+        children: construction.children,
+      },
+    });
+  }
+);
 
 Cypress.Commands.add("createTranslation", (translation: UserTranslation) => {
   cy.contains("Add Translation").click();
@@ -140,10 +187,51 @@ Cypress.Commands.add("createTranslation", (translation: UserTranslation) => {
   cy.contains("Save").click();
 });
 
+Cypress.Commands.add(
+  "createTranslationWithApi",
+  (translation: ApiTranslation) => {
+    cy.request({
+      url: "/api/translations",
+      method: "POST",
+      body: {
+        id: translations.getId(translation.translation),
+        languageId: languages.getId(translation.languageName),
+        romanized: translation.romanized,
+        structure: userStructureToSyntaxNode(translation.structure),
+        translation: translation.translation,
+      },
+    });
+
+    function userStructureToSyntaxNode(
+      userStructure: UserStructure
+    ): SyntaxNode {
+      return {
+        nodeTypeId: constructions.getId(userStructure.construction),
+        children: userStructure.children.map(([name, child]) => {
+          if (typeof child === "string") {
+            return [name, { romanized: child }];
+          } else {
+            return [name, userStructureToSyntaxNode(child)];
+          }
+        }),
+      };
+    }
+  }
+);
+
 Cypress.Commands.add("getTranslations", (language: string) => {
   return cy
     .request({
-      url: `/api/translations?language=${languages.get(language)}`,
+      url: `/api/translations?language=${languages.getId(language)}`,
+      method: "GET",
+    })
+    .its("body");
+});
+
+Cypress.Commands.add("getTranslation", (translation: string) => {
+  return cy
+    .request({
+      url: `/api/translations/${translations.getId(translation)}`,
       method: "GET",
     })
     .its("body");
@@ -158,7 +246,7 @@ Cypress.Commands.add("postTranslation", (translation: Translation) => {
 });
 
 Cypress.Commands.add("goToLexicon", (name: string) => {
-  const id = languages.get(name);
+  const id = languages.getId(name);
   cy.visit(`/language/${id}/lexicon`);
 });
 
