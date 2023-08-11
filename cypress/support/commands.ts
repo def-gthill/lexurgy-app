@@ -1,8 +1,10 @@
 /// <reference types="cypress" />
 
+import Glitch from "@/models/Glitch";
 import SyntaxNode from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
 import ApiConstruction from "./ApiConstruction";
+import ApiLexeme from "./ApiLexeme";
 import ApiTranslation from "./ApiTranslation";
 import UserConstruction from "./UserConstruction";
 import { UserLexeme } from "./UserLexeme";
@@ -51,6 +53,7 @@ declare global {
       goToLanguage(name: string): Chainable<void>;
       navigateToLanguage(name: string): Chainable<void>;
       createLexeme(lexeme: UserLexeme): Chainable<void>;
+      createLexemeWithApi(lexeme: ApiLexeme): Chainable<void>;
       createConstruction(construction: UserConstruction): Chainable<void>;
       createConstructionWithApi(construction: ApiConstruction): Chainable<void>;
       createTranslation(translation: UserTranslation): Chainable<void>;
@@ -58,11 +61,13 @@ declare global {
       getTranslations(language: string): Chainable<Translation[]>;
       getTranslation(translation: string): Chainable<Translation>;
       postTranslation(translation: Translation): Chainable<void>;
+      checkTranslation(translation: string): Chainable<void>;
       goToLexicon(name: string): Chainable<void>;
       changeRomanization(
         lexeme: string,
         newRomanization: string
       ): Chainable<void>;
+      getGlitches(language: string): Chainable<Glitch[]>;
       goToScPublic(): Chainable<void>;
       runSc(inputs: UserSoundChangeInputs): Chainable<void>;
       startSc(): Chainable<void>;
@@ -80,8 +85,6 @@ declare global {
   }
 }
 
-const examplishUuid = "b1365a98-00d1-4633-8e04-9c48259dd698";
-
 class AliasMap {
   private aliasMap = new Map();
 
@@ -94,6 +97,7 @@ class AliasMap {
 }
 
 const languages = new AliasMap();
+const lexemes = new AliasMap();
 const constructions = new AliasMap();
 const translations = new AliasMap();
 
@@ -166,6 +170,20 @@ Cypress.Commands.add("createLexeme", (lexeme: UserLexeme) => {
   cy.get("#pos").type(lexeme.pos ?? "contentive");
   cy.get("#definition").type(lexeme.definitions?.at(0) ?? "TBD");
   cy.contains("Save").click();
+});
+
+Cypress.Commands.add("createLexemeWithApi", (lexeme: ApiLexeme) => {
+  cy.request({
+    url: "/api/lexemes",
+    method: "POST",
+    body: {
+      id: lexemes.getId(lexeme.romanized),
+      languageId: languages.getId(lexeme.languageName),
+      romanized: lexeme.romanized,
+      pos: lexeme.pos ?? "contentive",
+      definitions: lexeme.definitions ?? ["TBD"],
+    },
+  });
 });
 
 Cypress.Commands.add("createConstruction", (construction: UserConstruction) => {
@@ -266,6 +284,13 @@ Cypress.Commands.add("postTranslation", (translation: Translation) => {
   });
 });
 
+Cypress.Commands.add("checkTranslation", (translation: string) => {
+  cy.request({
+    url: `/api/translations/${translations.getId(translation)}/check`,
+    method: "POST",
+  });
+});
+
 Cypress.Commands.add("goToLexicon", (name: string) => {
   const id = languages.getId(name);
   cy.visit(`/language/${id}/lexicon`);
@@ -279,6 +304,15 @@ Cypress.Commands.add(
     cy.contains("Save").click();
   }
 );
+
+Cypress.Commands.add("getGlitches", (language: string) => {
+  return cy
+    .request({
+      url: `/api/glitches?language=${languages.getId(language)}`,
+      method: "GET",
+    })
+    .its("body");
+});
 
 Cypress.Commands.add("goToScPublic", () => {
   cy.visit("/sc");
