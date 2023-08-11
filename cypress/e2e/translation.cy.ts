@@ -2,7 +2,20 @@ describe("the translation editor", () => {
   const examplishUuid = "b1365a98-00d1-4633-8e04-9c48259dd698";
 
   beforeEach(() => {
-    cy.exec("npm run db:reset && npm run db:seed:examplish");
+    cy.resetDb();
+    cy.login("default");
+    cy.goToHome();
+    cy.createLanguage("Examplish");
+    cy.navigateToLanguage("Examplish");
+    cy.clickNavigationLink("Syntax");
+    cy.createConstruction({
+      name: "Intransitive Clause",
+      children: ["Subject", "Verb"],
+    });
+    cy.createConstruction({
+      name: "Noun Phrase",
+      children: ["Det", "Noun", "Modifier"],
+    });
   });
 
   function createTranslation() {
@@ -19,7 +32,7 @@ describe("the translation editor", () => {
   }
 
   it("lets the user create a one-node syntax tree", () => {
-    cy.visit(`/language/${examplishUuid}`);
+    cy.goToLanguage("Examplish");
     createTranslation();
     cy.contains("Sha dor.");
     cy.contains("Show Structure").click();
@@ -31,7 +44,7 @@ describe("the translation editor", () => {
   });
 
   it("lets the user create a multi-node syntax tree", () => {
-    cy.visit(`/language/${examplishUuid}`);
+    cy.goToLanguage("Examplish");
     cy.contains("Add Translation").click();
     cy.get("#construction").select("Intransitive Clause");
     cy.contains("Create").click();
@@ -61,19 +74,35 @@ describe("the translation editor", () => {
     cy.contains("Det");
   });
 
+  function createLexicon() {
+    cy.clickNavigationLink("Lexicon");
+    cy.createLexeme({
+      romanized: "sha",
+      pos: "noun",
+      definitions: ["cat"],
+    });
+    cy.createLexeme({
+      romanized: "dor",
+      pos: "verb",
+      definitions: ["sleep"],
+    });
+    cy.clickNavigationLink("Main");
+  }
+
   it("lets the user create a syntax tree with lexicon links", () => {
-    cy.prepareExamplishLexicon();
     cy.goToLanguage("Examplish");
+    createLexicon();
     createTranslation();
-    cy.changeRomanization("Examplish", "cat", "fyel");
+    cy.clickNavigationLink("Lexicon");
+    cy.changeRomanization("cat", "fyel");
     cy.contains("fyel");
     cy.goToLanguage("Examplish");
     cy.contains("Fyel dor.");
   });
 
   it("links multiple copies of the same word", () => {
-    cy.prepareExamplishLexicon();
     cy.goToLanguage("Examplish");
+    createLexicon();
     cy.createTranslation({
       structure: {
         construction: "Intransitive Clause",
@@ -84,17 +113,17 @@ describe("the translation editor", () => {
       },
       translation: "The cat is catting.",
     });
-    cy.visit(`/language/${examplishUuid}/lexicon`);
+    cy.clickNavigationLink("Lexicon");
     cy.contains("cat").parents(".card").contains("Edit").click();
     cy.get("#romanized").clear().type("fyel");
     cy.contains("Save").click();
     cy.contains("fyel");
-    cy.visit(`/language/${examplishUuid}`);
+    cy.clickNavigationLink("Main");
     cy.contains("Fyel fyel.");
   });
 
   it("lets the user edit an existing translation", () => {
-    cy.visit(`/language/${examplishUuid}`);
+    cy.goToLanguage("Examplish");
     createTranslation();
     cy.contains("Sha dor.");
     cy.contains("Edit").click();
@@ -109,7 +138,7 @@ describe("the translation editor", () => {
   });
 
   it("lets the user delete a translation", () => {
-    cy.visit(`/language/${examplishUuid}`);
+    cy.goToLanguage("Examplish");
     createTranslation();
     cy.contains("Sha dor.");
     cy.contains("Delete").click();

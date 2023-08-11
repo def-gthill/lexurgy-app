@@ -60,7 +60,6 @@ declare global {
       postTranslation(translation: Translation): Chainable<void>;
       goToLexicon(name: string): Chainable<void>;
       changeRomanization(
-        language: string,
         lexeme: string,
         newRomanization: string
       ): Chainable<void>;
@@ -274,8 +273,7 @@ Cypress.Commands.add("goToLexicon", (name: string) => {
 
 Cypress.Commands.add(
   "changeRomanization",
-  (language: string, lexeme: string, newRomanization: string) => {
-    cy.goToLexicon(language);
+  (lexeme: string, newRomanization: string) => {
     cy.contains(lexeme).parents(".card").contains("Edit").click();
     cy.get("#romanized").clear().type(newRomanization);
     cy.contains("Save").click();
