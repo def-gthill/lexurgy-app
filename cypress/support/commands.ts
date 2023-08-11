@@ -41,8 +41,6 @@ declare global {
   namespace Cypress {
     interface Chainable {
       resetDb(): Chainable<void>;
-      prepareExamplish(): Chainable<void>;
-      prepareExamplishLexicon(): Chainable<void>;
       goToHome(): Chainable<void>;
       login(user: string): Chainable<void>;
       tabTitleIs(expected: string): Chainable<void>;
@@ -60,9 +58,7 @@ declare global {
       createTranslationWithApi(translation: ApiTranslation): Chainable<void>;
       getTranslations(language: string): Chainable<Translation[]>;
       getTranslation(translation: string): Chainable<Translation>;
-      postTranslation(translation: Translation): Chainable<void>;
       checkTranslation(translation: string): Chainable<void>;
-      goToLexicon(name: string): Chainable<void>;
       changeRomanization(
         lexeme: string,
         newRomanization: string
@@ -103,14 +99,6 @@ const translations = new AliasMap();
 
 Cypress.Commands.add("resetDb", () => {
   cy.exec("npm run db:reset");
-});
-
-Cypress.Commands.add("prepareExamplish", () => {
-  cy.exec("npm run db:seed:examplish");
-});
-
-Cypress.Commands.add("prepareExamplishLexicon", () => {
-  cy.exec("npm run db:seed:examplish:lexicon");
 });
 
 Cypress.Commands.add("goToHome", () => {
@@ -276,24 +264,11 @@ Cypress.Commands.add("getTranslation", (translation: string) => {
     .its("body");
 });
 
-Cypress.Commands.add("postTranslation", (translation: Translation) => {
-  cy.request({
-    url: "/api/translations",
-    method: "POST",
-    body: translation,
-  });
-});
-
 Cypress.Commands.add("checkTranslation", (translation: string) => {
   cy.request({
     url: `/api/translations/${translations.getId(translation)}/check`,
     method: "POST",
   });
-});
-
-Cypress.Commands.add("goToLexicon", (name: string) => {
-  const id = languages.getId(name);
-  cy.visit(`/language/${id}/lexicon`);
 });
 
 Cypress.Commands.add(
