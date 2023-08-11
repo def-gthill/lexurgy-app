@@ -1,6 +1,4 @@
 describe("a lexicon page", () => {
-  const examplishUuid = "b1365a98-00d1-4633-8e04-9c48259dd698";
-
   beforeEach(() => {
     cy.resetDb();
     cy.login("default");
