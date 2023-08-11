@@ -38,17 +38,26 @@ export default function Header({
             </NavigationMenu.Link>
           </NavigationMenu.Item>
           <NavigationMenu.Item>
-            <NavigationMenu.Link
-              className={styles.NavigationMenuLink}
-              href="#"
-              onSelect={() => {
-                signOut();
-              }}
-            >
-              {session.data?.user?.name ??
-                session.data?.user?.email ??
-                "Sign Out"}
-            </NavigationMenu.Link>
+            {session.data?.user ? (
+              <NavigationMenu.Link
+                className={styles.NavigationMenuLink}
+                href="#"
+                onSelect={() => {
+                  signOut();
+                }}
+              >
+                {session.data.user.name ??
+                  session.data.user.email ??
+                  "Sign Out"}
+              </NavigationMenu.Link>
+            ) : (
+              <NavigationMenu.Link
+                className={styles.NavigationMenuLink}
+                href="/api/auth/signin?callbackUrl=%2Fsc"
+              >
+                {"Sign In"}
+              </NavigationMenu.Link>
+            )}
           </NavigationMenu.Item>
         </div>
       </NavigationMenu.List>
