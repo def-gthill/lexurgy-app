@@ -2,9 +2,31 @@
 describe("the resolution of Translation Missing Lexeme glitches", () => {
   beforeEach(() => {
     cy.resetDb();
-    cy.prepareExamplish();
-    cy.prepareExamplishLexicon();
-    cy.goToLanguage("Examplish");
+    cy.login("default");
+    cy.goToHome();
+    cy.createLanguage("Examplish");
+    cy.navigateToLanguage("Examplish");
+    cy.clickNavigationLink("Syntax");
+    cy.createConstruction({
+      name: "Intransitive Clause",
+      children: ["Subject", "Verb"],
+    });
+    cy.createConstruction({
+      name: "Noun Phrase",
+      children: ["Det", "Noun", "Modifier"],
+    });
+    cy.clickNavigationLink("Lexicon");
+    cy.createLexeme({
+      romanized: "sha",
+      pos: "noun",
+      definitions: ["cat"],
+    });
+    cy.createLexeme({
+      romanized: "dor",
+      pos: "verb",
+      definitions: ["sleep"],
+    });
+    cy.clickNavigationLink("Main");
     cy.createTranslation({
       structure: {
         construction: "Intransitive Clause",
@@ -36,7 +58,7 @@ describe("the resolution of Translation Missing Lexeme glitches", () => {
     cy.contains("non-existent lexeme").should("not.exist");
     cy.contains("Lexicon").click();
     cy.contains("rabbit");
-    cy.changeRomanization("Examplish", "rabbit", "kone");
+    cy.changeRomanization("rabbit", "kone");
     cy.goToLanguage("Examplish");
     cy.contains("Kone dor.");
     cy.get(".card").should("have.length", 1);
