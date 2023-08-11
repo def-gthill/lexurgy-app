@@ -5,6 +5,7 @@ import Language from "@/language/Language";
 import LanguagePage from "@/language/LanguagePage";
 import Lexeme from "@/models/Lexeme";
 import usePersistentCollection from "@/usePersistentCollection";
+import useStateResetter from "@/useStateResetter";
 import Head from "next/head";
 import { useRouter } from "next/router";
 
@@ -12,6 +13,7 @@ export default function LexiconPage() {
   const router = useRouter();
   const id = router.query.id as string;
 
+  const [resetterKey, reset] = useStateResetter();
   const lexicon = usePersistentCollection<Lexeme>(
     "/api/lexemes",
     `/api/lexemes?language=${id}`
@@ -37,6 +39,7 @@ export default function LexiconPage() {
           <main>
             <h1>{language.name} Lexicon</h1>
             <HiddenEditor
+              key={resetterKey}
               showButtonLabel="Add Entry"
               component={(value, onChange) => (
                 <LexiconEntryEditor
@@ -51,7 +54,10 @@ export default function LexiconPage() {
                 pos: "",
                 definitions: [""],
               }}
-              onSave={lexicon.save}
+              onSave={(value: Lexeme) => {
+                lexicon.save(value);
+                reset();
+              }}
             />
             <LexiconView
               language={language}

@@ -2,8 +2,10 @@
 
 import SyntaxNode from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
+import ApiConstruction from "./ApiConstruction";
 import ApiTranslation from "./ApiTranslation";
 import UserConstruction from "./UserConstruction";
+import { UserLexeme } from "./UserLexeme";
 import { UserSoundChangeInputs } from "./UserSoundChangeInputs";
 import UserTranslation, { UserStructure } from "./UserTranslation";
 
@@ -48,9 +50,9 @@ declare global {
       createLanguageWithApi(name: string): Chainable<void>;
       goToLanguage(name: string): Chainable<void>;
       navigateToLanguage(name: string): Chainable<void>;
-      createConstructionWithApi(
-        construction: UserConstruction
-      ): Chainable<void>;
+      createLexeme(lexeme: UserLexeme): Chainable<void>;
+      createConstruction(construction: UserConstruction): Chainable<void>;
+      createConstructionWithApi(construction: ApiConstruction): Chainable<void>;
       createTranslation(translation: UserTranslation): Chainable<void>;
       createTranslationWithApi(translation: ApiTranslation): Chainable<void>;
       getTranslations(language: string): Chainable<Translation[]>;
@@ -151,17 +153,37 @@ Cypress.Commands.add("createLanguageWithApi", (name: string) => {
 });
 
 Cypress.Commands.add("goToLanguage", (name: string) => {
-  const id = languages.getId(name);
-  cy.visit(`/language/${id}`);
+  cy.visit("/");
+  cy.navigateToLanguage(name);
 });
 
 Cypress.Commands.add("navigateToLanguage", (name: string) => {
   cy.contains(name).click();
 });
 
+Cypress.Commands.add("createLexeme", (lexeme: UserLexeme) => {
+  cy.contains("Add Entry").click();
+  cy.get("#romanized").type(lexeme.romanized);
+  cy.get("#pos").type(lexeme.pos ?? "contentive");
+  cy.get("#definition").type(lexeme.definitions?.at(0) ?? "TBD");
+  cy.contains("Save").click();
+});
+
+Cypress.Commands.add("createConstruction", (construction: UserConstruction) => {
+  cy.contains("Add Construction").click();
+  cy.get("#name").type(construction.name);
+  construction.children.forEach((child, i) => {
+    if (i > 0) {
+      cy.contains("Add Slot").click();
+    }
+    cy.get(`#slot${i + 1}`).type(child);
+  });
+  cy.contains("Save").click();
+});
+
 Cypress.Commands.add(
   "createConstructionWithApi",
-  (construction: UserConstruction) => {
+  (construction: ApiConstruction) => {
     cy.request({
       url: "/api/constructions",
       method: "POST",

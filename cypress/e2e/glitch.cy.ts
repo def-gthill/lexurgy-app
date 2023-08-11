@@ -1,8 +1,19 @@
 describe("the glitch link", () => {
   beforeEach(() => {
     cy.resetDb();
-    cy.prepareExamplish();
     cy.login("default");
+    cy.goToHome();
+    cy.createLanguage("Examplish");
+    cy.navigateToLanguage("Examplish");
+    cy.clickNavigationLink("Syntax");
+    cy.createConstruction({
+      name: "Intransitive Clause",
+      children: ["Subject", "Verb"],
+    });
+    cy.createConstruction({
+      name: "Noun Phrase",
+      children: ["Det", "Noun", "Modifier"],
+    });
   });
 
   it("doesn't show the glitch indicator in a pristine language", () => {
@@ -32,8 +43,15 @@ describe("the glitch link", () => {
   });
 
   it("doesn't show the glitch indicator if the user creates a translation with real words", () => {
-    cy.prepareExamplishLexicon();
     cy.goToLanguage("Examplish");
+    cy.clickNavigationLink("Lexicon");
+    cy.createLexeme({
+      romanized: "sha",
+    });
+    cy.createLexeme({
+      romanized: "dor",
+    });
+    cy.clickNavigationLink("Main");
     cy.createTranslation({
       structure: {
         construction: "Intransitive Clause",
