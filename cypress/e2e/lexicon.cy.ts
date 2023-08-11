@@ -2,25 +2,33 @@ describe("a lexicon page", () => {
   const examplishUuid = "b1365a98-00d1-4633-8e04-9c48259dd698";
 
   beforeEach(() => {
-    cy.exec("npm run db:reset && npm run db:seed:examplish");
+    cy.resetDb();
+    cy.login("default");
+    cy.goToHome();
+    cy.createLanguage("Examplish");
+    cy.navigateToLanguage("Examplish");
+    cy.clickNavigationLink("Lexicon");
   });
 
   it("displays the language name and page type", () => {
-    cy.visit(`/language/${examplishUuid}/lexicon`);
-    cy.title().should("equal", "Lexurgy - Examplish Lexicon");
-    cy.contains("Examplish Lexicon").should("be.visible");
+    cy.tabTitleIs("Lexurgy - Examplish Lexicon");
+    cy.pageTitleIs("Examplish Lexicon");
   });
 
   it("lets the user create a lexicon entry", () => {
-    cy.visit(`/language/${examplishUuid}/lexicon`);
     cy.contains("Add Entry").click();
-    cy.get("#romanized").type("sha");
-    cy.get("#pos").type("noun");
-    cy.get("#definition").type("cat");
-    cy.contains("Save").click();
+    cy.createLexeme({
+      romanized: "sha",
+      pos: "noun",
+      definitions: ["cat"],
+    });
     cy.contains("sha");
+    cy.contains("noun");
+    cy.contains("cat");
     cy.reload();
     cy.contains("sha");
+    cy.contains("noun");
+    cy.contains("cat");
   });
 });
 
