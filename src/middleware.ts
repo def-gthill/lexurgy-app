@@ -3,7 +3,9 @@ import { withAuth } from "next-auth/middleware";
 export default withAuth({
   callbacks: {
     authorized({ req, token }) {
-      if (["/sc", "/api/services"].includes(req.nextUrl.pathname)) {
+      if (
+        ["/sc", "/api/services", "/api/daily"].includes(req.nextUrl.pathname)
+      ) {
         return true;
       }
       if (!token?.email) {
