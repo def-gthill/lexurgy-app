@@ -1,8 +1,8 @@
+import Glitch from "@/glitch/Glitch";
+import Lexeme from "@/lexicon/Lexeme";
+import Translation from "@/translation/Translation";
 import axios from "axios";
 import { useSWRConfig } from "swr";
-import Glitch from "./glitch/Glitch";
-import Lexeme from "./lexicon/Lexeme";
-import Translation from "./models/Translation";
 
 export default function useGlitchResolver(languageId: string): GlitchResolver {
   const { mutate } = useSWRConfig();
