@@ -1,4 +1,4 @@
-import HiddenEditor from "./HiddenEditor";
+import HiddenEditor from "@/components/HiddenEditor";
 
 describe("HiddenEditor", () => {
   function StringEditor({

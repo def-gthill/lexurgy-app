@@ -1,4 +1,4 @@
-import { update } from "./map";
+import { update } from "@/map";
 
 describe("The update function", () => {
   it("can add an entry to an empty map", () => {
