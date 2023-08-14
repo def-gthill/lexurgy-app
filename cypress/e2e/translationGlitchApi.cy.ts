@@ -1,5 +1,5 @@
 import Glitch from "@/glitch/Glitch";
-import Translation from "@/models/Translation";
+import Translation from "@/translation/Translation";
 import ApiTranslation from "../support/ApiTranslation";
 
 describe("the translation glitch endpoint", () => {

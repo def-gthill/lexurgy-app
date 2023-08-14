@@ -1,6 +1,6 @@
 import Language from "@/language/Language";
 import Lexeme from "@/lexicon/Lexeme";
-import LexiconView from "../../src/lexicon/LexiconView";
+import LexiconView from "@/lexicon/LexiconView";
 
 describe("LexiconView", () => {
   const language: Language = {
