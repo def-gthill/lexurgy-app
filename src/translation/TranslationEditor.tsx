@@ -1,11 +1,11 @@
-import { structureToRomanized } from "@/models/SyntaxNode";
-import Translation from "@/models/Translation";
+import Fields, { Field } from "@/components/Fields";
 import Construction from "@/syntax/Construction";
+import { structureToRomanized } from "@/translation/SyntaxNode";
+import SyntaxTreeEditor from "@/translation/SyntaxTreeEditor";
+import SyntaxTreeView from "@/translation/SyntaxTreeView";
+import Translation from "@/translation/Translation";
 import * as Label from "@radix-ui/react-label";
 import { useState } from "react";
-import Fields, { Field } from "./Fields";
-import SyntaxTreeEditor from "./SyntaxTreeEditor";
-import SyntaxTreeView from "./SyntaxTreeView";
 
 export default function TranslationEditor({
   constructions,

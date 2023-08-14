@@ -1,14 +1,14 @@
 import { resourceEndpoint } from "@/api";
 import getDriver, { query } from "@/db";
 import FlatGlitch, { FlatDependent } from "@/models/FlatGlitch";
-import { inflate as inflateTranslation } from "@/models/FlatTranslation";
 import Glitch, { Dependent } from "@/models/Glitch";
 import { mapSaved } from "@/models/Saved";
-import { NextApiRequest, NextApiResponse } from "next";
+import { inflate as inflateTranslation } from "@/translation/FlatTranslation";
 import {
   repair as repairTranslation,
   translationQuery,
-} from "../translations/[id]";
+} from "@/translation/translationEndpoint";
+import { NextApiRequest, NextApiResponse } from "next";
 
 const driver = getDriver();
 

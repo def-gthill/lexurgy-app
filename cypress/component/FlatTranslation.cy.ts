@@ -3,8 +3,8 @@ import {
   FlatStructure,
   flattenStructure,
   inflateStructure,
-} from "./FlatTranslation";
-import SyntaxNode from "./SyntaxNode";
+} from "@/translation/FlatTranslation";
+import SyntaxNode from "@/translation/SyntaxNode";
 
 describe("flattenStructure", () => {
   it("flattens a node with no children into an empty structure", () => {

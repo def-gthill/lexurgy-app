@@ -1,6 +1,6 @@
-import SyntaxNode, { childrenInOrder } from "@/models/SyntaxNode";
-import Word from "@/models/Word";
-import styles from "@/styles/SyntaxTreeView.module.css";
+import SyntaxNode, { childrenInOrder } from "@/translation/SyntaxNode";
+import styles from "@/translation/SyntaxTreeView.module.css";
+import Word from "@/translation/Word";
 
 export default function SyntaxTreeView({ root }: { root: SyntaxNode }) {
   return (

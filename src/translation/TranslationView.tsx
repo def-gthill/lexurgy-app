@@ -1,9 +1,9 @@
-import Translation from "@/models/Translation";
+import Editor from "@/components/Editor";
 import Construction from "@/syntax/Construction";
+import SyntaxTreeView from "@/translation/SyntaxTreeView";
+import Translation from "@/translation/Translation";
+import TranslationEditor from "@/translation/TranslationEditor";
 import { useState } from "react";
-import Editor from "./Editor";
-import SyntaxTreeView from "./SyntaxTreeView";
-import TranslationEditor from "./TranslationEditor";
 
 export default function TranslationView({
   constructions,

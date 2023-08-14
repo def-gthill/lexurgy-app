@@ -1,6 +1,6 @@
-import SyntaxNode from "@/models/SyntaxNode";
 import Construction from "@/syntax/Construction";
-import SyntaxTreeEditor from "./SyntaxTreeEditor";
+import SyntaxNode from "@/translation/SyntaxNode";
+import SyntaxTreeEditor from "@/translation/SyntaxTreeEditor";
 
 describe("SyntaxTreeEditor", () => {
   const clauseId = "8361bff7-57b8-461f-bb1a-c6109d070205";

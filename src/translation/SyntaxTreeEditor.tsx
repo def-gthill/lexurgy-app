@@ -1,9 +1,9 @@
 import { update } from "@/map";
-import SyntaxNode from "@/models/SyntaxNode";
-import Word from "@/models/Word";
 import Construction from "@/syntax/Construction";
+import SyntaxNode from "@/translation/SyntaxNode";
+import SyntaxTreeView from "@/translation/SyntaxTreeView";
+import Word from "@/translation/Word";
 import { useState } from "react";
-import SyntaxTreeView from "./SyntaxTreeView";
 
 export default function SyntaxTreeEditor({
   constructions,

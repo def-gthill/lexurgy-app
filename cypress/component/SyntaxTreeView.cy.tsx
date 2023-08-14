@@ -1,5 +1,5 @@
-import SyntaxNode from "@/models/SyntaxNode";
-import SyntaxTreeView from "./SyntaxTreeView";
+import SyntaxNode from "@/translation/SyntaxNode";
+import SyntaxTreeView from "@/translation/SyntaxTreeView";
 
 describe("SyntaxTreeView", () => {
   it("displays a one-node syntax tree", () => {

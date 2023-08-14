@@ -1,6 +1,6 @@
-import Translation from "@/models/Translation";
 import Construction from "@/syntax/Construction";
-import TranslationView from "./TranslationView";
+import Translation from "@/translation/Translation";
+import TranslationView from "@/translation/TranslationView";
 
 describe("TranslationView", () => {
   const intransitiveClause: Construction = {

@@ -1,5 +1,5 @@
-import SyntaxNode from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
+import SyntaxNode from "@/translation/SyntaxNode";
 import ApiTranslation from "../support/ApiTranslation";
 
 describe("the translation endpoint", () => {
