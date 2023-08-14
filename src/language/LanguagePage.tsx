@@ -1,9 +1,9 @@
+import Header from "@/components/Header";
+import Glitch from "@/glitch/Glitch";
 import Language from "@/language/Language";
-import Glitch from "@/models/Glitch";
 import { Saved } from "@/models/Saved";
 import useReadOnlyPersistentCollection from "@/useReadOnlyPersistentCollection";
 import useLanguageInfo from "../language/useLanguageInfo";
-import Header from "@/components/Header";
 import LanguageHeader, { LanguageLink } from "./LanguageHeader";
 
 export default function LanguagePage({

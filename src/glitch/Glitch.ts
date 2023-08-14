@@ -1,5 +1,5 @@
-import { Saved } from "./Saved";
-import Translation from "./Translation";
+import { Saved } from "@/models/Saved";
+import Translation from "@/translation/Translation";
 
 export default interface Glitch {
   id: string;

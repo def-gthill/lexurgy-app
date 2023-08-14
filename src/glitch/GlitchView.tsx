@@ -1,7 +1,7 @@
+import Glitch from "@/glitch/Glitch";
+import TranslationMissingLexemeView from "@/glitch/TranslationMissingLexemeView";
 import Language from "@/language/Language";
-import Glitch from "@/models/Glitch";
 import { GlitchResolver } from "@/useGlitchResolver";
-import TranslationMissingLexemeView from "./TranslationMissingLexemeView";
 
 export default function GlitchView({
   language,

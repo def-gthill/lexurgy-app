@@ -1,4 +1,4 @@
-import Glitch from "@/models/Glitch";
+import Glitch from "@/glitch/Glitch";
 import Translation from "@/models/Translation";
 import ApiTranslation from "../support/ApiTranslation";
 

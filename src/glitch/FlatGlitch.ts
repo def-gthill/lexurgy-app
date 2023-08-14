@@ -1,6 +1,6 @@
-import { FlatTranslation } from "./FlatTranslation";
-import { UndefinedLexeme } from "./Glitch";
-import { Saved } from "./Saved";
+import { UndefinedLexeme } from "@/glitch/Glitch";
+import { Saved } from "@/models/Saved";
+import { FlatTranslation } from "@/translation/FlatTranslation";
 
 export default interface FlatGlitch {
   id: string;

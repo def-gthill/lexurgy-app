@@ -1,10 +1,10 @@
+import Glitch from "@/glitch/Glitch";
+import GlitchView from "@/glitch/GlitchView";
+import TranslationMissingLexemeView from "@/glitch/TranslationMissingLexemeView";
 import Language from "@/language/Language";
 import Lexeme from "@/lexicon/Lexeme";
-import Glitch from "@/models/Glitch";
 import { Saved } from "@/models/Saved";
-import Translation from "@/models/Translation";
-import GlitchView from "./GlitchView";
-import TranslationMissingLexemeView from "./TranslationMissingLexemeView";
+import Translation from "@/translation/Translation";
 
 describe("TranslationMissingLexemeView", () => {
   const language: Language = {

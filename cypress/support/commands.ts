@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import Glitch from "@/models/Glitch";
+import Glitch from "@/glitch/Glitch";
 import Translation from "@/models/Translation";
 import SyntaxNode from "@/translation/SyntaxNode";
 import ApiConstruction from "./ApiConstruction";
