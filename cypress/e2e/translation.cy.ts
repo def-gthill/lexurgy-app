@@ -118,7 +118,7 @@ describe("the translation editor", () => {
     cy.get("#romanized").clear().type("fyel");
     cy.contains("Save").click();
     cy.contains("fyel");
-    cy.clickNavigationLink("Main");
+    cy.goToLanguage("Examplish");
     cy.contains("Fyel fyel.");
   });
 
