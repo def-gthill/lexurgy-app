@@ -1,5 +1,5 @@
-import Construction from "@/models/Construction";
-import styles from "@/styles/ConstructionView.module.css";
+import Construction from "@/syntax/Construction";
+import styles from "@/syntax/ConstructionView.module.css";
 
 export default function ConstructionView({
   construction,

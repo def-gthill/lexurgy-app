@@ -1,6 +1,6 @@
 import { set } from "@/array";
-import Construction from "@/models/Construction";
-import Fields, { Field } from "./Fields";
+import Construction from "@/syntax/Construction";
+import Fields, { Field } from "../components/Fields";
 
 export default function ConstructionEditor({
   construction,

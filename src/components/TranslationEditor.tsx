@@ -1,6 +1,6 @@
-import Construction from "@/models/Construction";
 import { structureToRomanized } from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
+import Construction from "@/syntax/Construction";
 import * as Label from "@radix-ui/react-label";
 import { useState } from "react";
 import Fields, { Field } from "./Fields";

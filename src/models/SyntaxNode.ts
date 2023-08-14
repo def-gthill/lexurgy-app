@@ -1,4 +1,4 @@
-import Construction from "./Construction";
+import Construction from "../syntax/Construction";
 import Word from "./Word";
 
 export default interface SyntaxNode {

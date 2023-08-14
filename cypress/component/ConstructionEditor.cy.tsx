@@ -1,6 +1,6 @@
-import Construction from "@/models/Construction";
-import ConstructionEditor from "./ConstructionEditor";
-import Editor from "./Editor";
+import Construction from "@/syntax/Construction";
+import Editor from "../../src/components/Editor";
+import ConstructionEditor from "../../src/syntax/ConstructionEditor";
 
 describe("ConstructionEditor", () => {
   it("lets the user create a construction", () => {

@@ -1,7 +1,7 @@
 import { update } from "@/map";
-import Construction from "@/models/Construction";
 import SyntaxNode from "@/models/SyntaxNode";
 import Word from "@/models/Word";
+import Construction from "@/syntax/Construction";
 import { useState } from "react";
 import SyntaxTreeView from "./SyntaxTreeView";
 

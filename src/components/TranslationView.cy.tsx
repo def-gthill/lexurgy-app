@@ -1,5 +1,5 @@
-import Construction from "@/models/Construction";
 import Translation from "@/models/Translation";
+import Construction from "@/syntax/Construction";
 import TranslationView from "./TranslationView";
 
 describe("TranslationView", () => {

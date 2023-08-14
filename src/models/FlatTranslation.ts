@@ -1,4 +1,4 @@
-import Construction from "./Construction";
+import Construction from "../syntax/Construction";
 import SyntaxNode from "./SyntaxNode";
 import Translation from "./Translation";
 import Word from "./Word";

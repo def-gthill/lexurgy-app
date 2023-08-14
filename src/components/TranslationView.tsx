@@ -1,5 +1,5 @@
-import Construction from "@/models/Construction";
 import Translation from "@/models/Translation";
+import Construction from "@/syntax/Construction";
 import { useState } from "react";
 import Editor from "./Editor";
 import SyntaxTreeView from "./SyntaxTreeView";

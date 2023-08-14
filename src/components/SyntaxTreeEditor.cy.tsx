@@ -1,5 +1,5 @@
-import Construction from "@/models/Construction";
 import SyntaxNode from "@/models/SyntaxNode";
+import Construction from "@/syntax/Construction";
 import SyntaxTreeEditor from "./SyntaxTreeEditor";
 
 describe("SyntaxTreeEditor", () => {
