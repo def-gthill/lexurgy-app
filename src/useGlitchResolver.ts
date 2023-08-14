@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useSWRConfig } from "swr";
+import Lexeme from "./lexicon/Lexeme";
 import Glitch from "./models/Glitch";
-import Lexeme from "./models/Lexeme";
 import Translation from "./models/Translation";
 
 export default function useGlitchResolver(languageId: string): GlitchResolver {

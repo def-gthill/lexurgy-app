@@ -1,6 +1,6 @@
 import Language from "@/language/Language";
+import Lexeme from "@/lexicon/Lexeme";
 import Glitch from "@/models/Glitch";
-import Lexeme from "@/models/Lexeme";
 import { Saved } from "@/models/Saved";
 import Translation from "@/models/Translation";
 import GlitchView from "./GlitchView";

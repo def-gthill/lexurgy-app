@@ -1,8 +1,8 @@
+import Editor from "@/components/Editor";
 import Language from "@/language/Language";
-import Lexeme from "@/models/Lexeme";
+import Lexeme from "@/lexicon/Lexeme";
 import styles from "@/styles/LexiconView.module.css";
 import { useState } from "react";
-import Editor from "./Editor";
 import LexiconEntryEditor from "./LexiconEntryEditor";
 
 export default function LexiconView({

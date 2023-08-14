@@ -1,8 +1,8 @@
 import { RequestQuery, collectionEndpoint } from "@/api";
 import { removeDuplicates } from "@/array";
 import getDriver, { execute, query } from "@/db";
+import Lexeme from "@/lexicon/Lexeme";
 import { FlatTranslation, flatten, inflate } from "@/models/FlatTranslation";
-import Lexeme from "@/models/Lexeme";
 import SyntaxNode, { structureToRomanized } from "@/models/SyntaxNode";
 import Translation from "@/models/Translation";
 import * as crypto from "crypto";

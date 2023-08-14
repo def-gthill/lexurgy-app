@@ -1,9 +1,9 @@
 import Language from "@/language/Language";
+import Lexeme from "@/lexicon/Lexeme";
 import { DependentTranslation } from "@/models/Glitch";
-import Lexeme from "@/models/Lexeme";
 import { useState } from "react";
+import LexiconEntryEditor from "../../lexicon/LexiconEntryEditor";
 import Editor from "../Editor";
-import LexiconEntryEditor from "../LexiconEntryEditor";
 
 export default function TranslationMissingLexemeView({
   language,

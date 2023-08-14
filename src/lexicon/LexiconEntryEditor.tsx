@@ -1,6 +1,6 @@
 import Language from "@/language/Language";
-import Lexeme from "@/models/Lexeme";
-import Fields, { Field } from "./Fields";
+import Lexeme from "@/lexicon/Lexeme";
+import Fields, { Field } from "../components/Fields";
 
 export default function LexiconEntryEditor({
   language,
