@@ -2,7 +2,6 @@ import { RequestQuery } from "@/api";
 import getDriver, { query } from "@/db";
 import FlatGlitch, { FlatDependent } from "@/glitch/FlatGlitch";
 import Glitch, { Dependent } from "@/glitch/Glitch";
-import { mapSaved } from "@/models/Saved";
 import { inflate as inflateTranslation } from "@/translation/FlatTranslation";
 import {
   repair as repairTranslation,
@@ -83,9 +82,10 @@ function inflateDependent(dependent: FlatDependent): Dependent {
     case "Translation":
       return {
         ...dependent,
-        value: mapSaved(dependent.value, (value) =>
-          repairTranslation(inflateTranslation(value))
-        ),
+        value: {
+          id: dependent.value.id,
+          ...repairTranslation(inflateTranslation(dependent.value)),
+        },
       };
     default:
       return dependent;

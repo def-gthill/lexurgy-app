@@ -1,3 +1,4 @@
+import { RequiredKeys } from "@/models/RequiredKeys";
 import SyntaxNode from "./SyntaxNode";
 
 export default interface Translation {
@@ -7,3 +8,5 @@ export default interface Translation {
   structure?: SyntaxNode;
   translation: string;
 }
+
+export type SavedTranslation = RequiredKeys<Translation, "id" | "languageId">;

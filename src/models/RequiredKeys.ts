@@ -1,2 +1,2 @@
-export type RequiredKeys<T, K extends keyof T> = Exclude<T, K> &
+export type RequiredKeys<T, K extends keyof T> = Omit<T, K> &
   Required<Pick<T, K>>;

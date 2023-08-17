@@ -3,14 +3,12 @@ import GlitchView from "@/glitch/GlitchView";
 import TranslationMissingLexemeView from "@/glitch/TranslationMissingLexemeView";
 import Language from "@/language/Language";
 import Lexeme from "@/lexicon/Lexeme";
-import { Saved } from "@/models/Saved";
-import Translation from "@/translation/Translation";
 
 describe("TranslationMissingLexemeView", () => {
   const language: Language = {
     name: "Examplish",
   };
-  const translation: Saved<Translation> = {
+  const translation = {
     id: "foobarbaz",
     romanized: "Sha dor.",
     translation: "The cat is sleeping.",

@@ -1,4 +1,4 @@
-import { Saved } from "@/models/Saved";
+import { RequiredKeys } from "@/models/RequiredKeys";
 import Translation from "@/translation/Translation";
 
 export default interface Glitch {
@@ -10,7 +10,7 @@ export default interface Glitch {
 
 export interface DependentTranslation {
   type: "Translation";
-  value: Saved<Translation>;
+  value: RequiredKeys<Translation, "id">;
   invalidPartPath: [string | number][];
 }
 

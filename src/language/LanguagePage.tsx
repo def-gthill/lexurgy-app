@@ -1,7 +1,6 @@
 import Header from "@/components/Header";
 import Glitch from "@/glitch/Glitch";
-import Language from "@/language/Language";
-import { Saved } from "@/models/Saved";
+import { SavedLanguage } from "@/language/Language";
 import useReadOnlyPersistentCollection from "@/useReadOnlyPersistentCollection";
 import useLanguageInfo from "../language/useLanguageInfo";
 import LanguageHeader, { LanguageLink } from "./LanguageHeader";
@@ -10,14 +9,14 @@ export default function LanguagePage({
   content,
   activeLink,
 }: {
-  content: (language: Language) => JSX.Element;
+  content: (language: SavedLanguage) => JSX.Element;
   activeLink: LanguageLink;
 }) {
   const { language, error } = useLanguageInfo();
-  if (language !== undefined && language.id !== undefined) {
+  if (language !== undefined) {
     return (
       <LanguagePageWithGlitches
-        language={language as Saved<Language>}
+        language={language}
         content={content}
         activeLink={activeLink}
       />
@@ -48,8 +47,8 @@ function LanguagePageWithGlitches({
   content,
   activeLink,
 }: {
-  language: Saved<Language>;
-  content: (language: Language) => JSX.Element;
+  language: SavedLanguage;
+  content: (language: SavedLanguage) => JSX.Element;
   activeLink: LanguageLink;
 }) {
   const glitchCollection = useReadOnlyPersistentCollection<Glitch>(

@@ -1,27 +1,29 @@
+import { RequiredKeys } from "@/models/RequiredKeys";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { getOrCreateUserByUsername } from "@/user/userEndpoint";
 import { HttpStatusCode } from "axios";
+import crypto from "crypto";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "./pages/api/auth/[...nextauth]";
-import { getOrCreateUserByUsername } from "./user/userEndpoint";
 
 export type RequestQuery = NextApiRequest["query"];
 
-export async function collectionEndpoint<T>(
+export async function collectionEndpoint<T, S>(
   req: NextApiRequest,
-  res: NextApiResponse<T[]>,
-  get: (query: RequestQuery, userId: string) => Promise<T[]>
+  res: NextApiResponse<S[]>,
+  get: (query: RequestQuery, userId: string) => Promise<S[]>
 ): Promise<void>;
-export async function collectionEndpoint<T>(
+export async function collectionEndpoint<T, S>(
   req: NextApiRequest,
-  res: NextApiResponse<T | T[]>,
-  get: (query: RequestQuery, userId: string) => Promise<T[]>,
-  post: (resource: T, userId: string) => Promise<T>
+  res: NextApiResponse<S | S[]>,
+  get: (query: RequestQuery, userId: string) => Promise<S[]>,
+  post: (resource: T, userId: string) => Promise<S>
 ): Promise<void>;
-export async function collectionEndpoint<T>(
+export async function collectionEndpoint<T, S>(
   req: NextApiRequest,
-  res: NextApiResponse<T | T[]>,
-  get: (query: RequestQuery, userId: string) => Promise<T[]>,
-  post?: (resource: T, userId: string) => Promise<T>
+  res: NextApiResponse<S | S[]>,
+  get: (query: RequestQuery, userId: string) => Promise<S[]>,
+  post?: (resource: T, userId: string) => Promise<S>
 ) {
   const session = await getServerSession(req, res, authOptions);
   const username = session?.user?.email;
@@ -80,4 +82,10 @@ export async function resourceEndpoint<T>(
       .setHeader("allow", "GET, DELETE")
       .json("");
   }
+}
+
+export function addId<T extends { id?: string }>(
+  object: T
+): RequiredKeys<T, "id"> {
+  return { id: object.id ?? crypto.randomUUID(), ...object };
 }

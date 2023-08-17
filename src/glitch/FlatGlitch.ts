@@ -1,5 +1,4 @@
 import { UndefinedLexeme } from "@/glitch/Glitch";
-import { Saved } from "@/models/Saved";
 import { FlatTranslation } from "@/translation/FlatTranslation";
 
 export default interface FlatGlitch {
@@ -11,7 +10,7 @@ export default interface FlatGlitch {
 
 export interface FlatDependentTranslation {
   type: "Translation";
-  value: Saved<FlatTranslation>;
+  value: FlatTranslation & { id: string };
   invalidPartPath: [string | number][];
 }
 
