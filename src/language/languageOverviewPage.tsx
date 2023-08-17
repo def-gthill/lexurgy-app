@@ -14,15 +14,15 @@ import { useSWRConfig } from "swr";
 export default function LanguageOverview() {
   const router = useRouter();
   const id = router.query.id as string;
-  const translationCollection = usePersistentCollection<Translation>(
-    "/api/translations",
-    `/api/translations?language=${id}`
-  );
+  const translationCollection = usePersistentCollection<
+    Translation,
+    Translation
+  >("/api/translations", `/api/translations?language=${id}`);
   const translations = translationCollection.getOrEmpty();
-  const constructionCollection = usePersistentCollection<Construction>(
-    "/api/constructions",
-    `/api/constructions?language=${id}`
-  );
+  const constructionCollection = usePersistentCollection<
+    Construction,
+    Construction
+  >("/api/constructions", `/api/constructions?language=${id}`);
   const constructions = constructionCollection.getOrEmpty();
   const { mutate } = useSWRConfig();
 

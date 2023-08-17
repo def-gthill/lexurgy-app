@@ -14,10 +14,10 @@ export default function SyntaxPage() {
   const id = router.query.id as string;
 
   const [resetterKey, reset] = useStateResetter();
-  const constructionCollection = usePersistentCollection<Construction>(
-    "/api/constructions",
-    `/api/constructions?language=${id}`
-  );
+  const constructionCollection = usePersistentCollection<
+    Construction,
+    Construction
+  >("/api/constructions", `/api/constructions?language=${id}`);
   const constructions = constructionCollection.getOrEmpty();
 
   return (

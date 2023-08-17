@@ -1,6 +1,8 @@
 import ExportButton from "@/components/ExportButton";
+import { toPrettyJson } from "@/json";
+import Lexeme from "@/lexicon/Lexeme";
+import { dropKeys } from "@/object";
 import copy from "copy-to-clipboard";
-import Lexeme from "./Lexeme";
 
 export default function LexiconEntryExporter({
   lexeme,
@@ -9,15 +11,7 @@ export default function LexiconEntryExporter({
   lexeme: Lexeme;
   onDone: () => void;
 }) {
-  const stringified = JSON.stringify(
-    {
-      romanized: lexeme.romanized,
-      pos: lexeme.pos,
-      definitions: lexeme.definitions,
-    },
-    undefined,
-    2
-  );
+  const stringified = toPrettyJson(dropKeys(lexeme, ["id", "languageId"]));
   return (
     <li className="card">
       <textarea

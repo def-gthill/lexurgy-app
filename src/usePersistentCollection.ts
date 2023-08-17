@@ -3,17 +3,17 @@ import useSWR, { useSWRConfig } from "swr";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
-export default function usePersistentCollection<T>(
+export default function usePersistentCollection<T, S>(
   postUrl: string,
   getUrl?: string
-): PersistentCollection<T> {
+): PersistentCollection<T, S> {
   getUrl = getUrl || postUrl;
 
-  const { data, error } = useSWR<T[], Error>(getUrl, fetcher);
+  const { data, error } = useSWR<S[], Error>(getUrl, fetcher);
   const { mutate } = useSWRConfig();
 
   return {
-    getOrEmpty(): T[] {
+    getOrEmpty(): S[] {
       return data || [];
     },
 
@@ -24,7 +24,7 @@ export default function usePersistentCollection<T>(
     }: {
       onLoading: () => R;
       onError: (error: Error) => R;
-      onReady: (data: T[]) => R;
+      onReady: (data: S[]) => R;
     }): R {
       if (error !== undefined) {
         return onError(error);
@@ -35,8 +35,8 @@ export default function usePersistentCollection<T>(
       }
     },
 
-    async save(value: T): Promise<T> {
-      const postedValue = (await axios.post<T>(postUrl, value)).data;
+    async save(value: T): Promise<S> {
+      const postedValue = (await axios.post<S>(postUrl, value)).data;
       mutate(getUrl);
       return postedValue;
     },
@@ -49,8 +49,8 @@ export default function usePersistentCollection<T>(
   };
 }
 
-export interface PersistentCollection<T> {
-  getOrEmpty(): T[];
+export interface PersistentCollection<T, S> {
+  getOrEmpty(): S[];
 
   fold<R>({
     onLoading,
@@ -59,10 +59,10 @@ export interface PersistentCollection<T> {
   }: {
     onLoading: () => R;
     onError: (error: Error) => R;
-    onReady: (data: T[]) => R;
+    onReady: (data: S[]) => R;
   }): R;
 
-  save(value: T): Promise<T>;
+  save(value: T): Promise<S>;
 
   delete(id: string): Promise<void>;
 }

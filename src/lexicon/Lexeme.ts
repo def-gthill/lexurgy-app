@@ -1,3 +1,5 @@
+import { RequiredKeys } from "@/models/RequiredKeys";
+
 export default interface Lexeme {
   id?: string;
   languageId?: string;
@@ -5,3 +7,5 @@ export default interface Lexeme {
   pos: string;
   definitions: string[];
 }
+
+export type SavedLexeme = RequiredKeys<Lexeme, "id" | "languageId">;

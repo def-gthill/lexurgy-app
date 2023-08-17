@@ -11,8 +11,9 @@ import { useState } from "react";
 
 export default function Home() {
   const [editorToggle, setEditorToggle] = useState(false);
-  const languageCollection =
-    usePersistentCollection<Language>("/api/languages");
+  const languageCollection = usePersistentCollection<Language, Language>(
+    "/api/languages"
+  );
 
   const content = languageCollection.fold({
     onLoading: () => <div>Loading workspace...</div>,

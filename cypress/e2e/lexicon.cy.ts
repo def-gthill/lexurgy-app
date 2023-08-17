@@ -28,7 +28,7 @@ describe("a lexicon page", () => {
     cy.contains("cat");
   });
 
-  it.only("lets the user export a lexicon entry", () => {
+  it("lets the user export a lexicon entry", () => {
     const lexeme = {
       romanized: "sha",
       pos: "noun",

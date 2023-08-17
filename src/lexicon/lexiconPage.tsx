@@ -1,7 +1,7 @@
 import HiddenEditor from "@/components/HiddenEditor";
 import Language from "@/language/Language";
 import LanguagePage from "@/language/LanguagePage";
-import Lexeme from "@/lexicon/Lexeme";
+import Lexeme, { SavedLexeme } from "@/lexicon/Lexeme";
 import LexiconEntryEditor from "@/lexicon/LexiconEntryEditor";
 import LexiconView from "@/lexicon/LexiconView";
 import usePersistentCollection from "@/usePersistentCollection";
@@ -14,7 +14,7 @@ export default function LexiconPage() {
   const id = router.query.id as string;
 
   const [resetterKey, reset] = useStateResetter();
-  const lexicon = usePersistentCollection<Lexeme>(
+  const lexicon = usePersistentCollection<Lexeme, SavedLexeme>(
     "/api/lexemes",
     `/api/lexemes?language=${id}`
   );
