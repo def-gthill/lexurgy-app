@@ -46,12 +46,14 @@ declare global {
       tabTitleIs(expected: string): Chainable<void>;
       pageTitleIs(expected: string): Chainable<void>;
       clickNavigationLink(name: string): Chainable<void>;
+      previewShowsJsonOf(value: any): Chainable<void>;
       createLanguage(name: string): Chainable<void>;
       createLanguageWithApi(name: string): Chainable<void>;
       goToLanguage(name: string): Chainable<void>;
       navigateToLanguage(name: string): Chainable<void>;
       createLexeme(lexeme: UserLexeme): Chainable<void>;
       createLexemeWithApi(lexeme: ApiLexeme): Chainable<void>;
+      exportLexeme(romanized: string): Chainable<void>;
       createConstruction(construction: UserConstruction): Chainable<void>;
       createConstructionWithApi(construction: ApiConstruction): Chainable<void>;
       createTranslation(translation: UserTranslation): Chainable<void>;
@@ -126,6 +128,12 @@ Cypress.Commands.add("clickNavigationLink", (name: string) => {
   cy.contains(name).click();
 });
 
+Cypress.Commands.add("previewShowsJsonOf", (value: any) => {
+  cy.get("#preview").then((element) =>
+    expect(JSON.parse(element.text())).to.deep.equal(value)
+  );
+});
+
 Cypress.Commands.add("createLanguage", (name: string) => {
   cy.contains("New Language").click();
   cy.get("#name").type(name);
@@ -172,6 +180,10 @@ Cypress.Commands.add("createLexemeWithApi", (lexeme: ApiLexeme) => {
       definitions: lexeme.definitions ?? ["TBD"],
     },
   });
+});
+
+Cypress.Commands.add("exportLexeme", (romanized: string) => {
+  cy.contains(romanized).parents(".card").contains("Export").click();
 });
 
 Cypress.Commands.add("createConstruction", (construction: UserConstruction) => {

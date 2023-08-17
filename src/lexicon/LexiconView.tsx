@@ -1,9 +1,10 @@
 import Editor from "@/components/Editor";
 import Language from "@/language/Language";
 import Lexeme from "@/lexicon/Lexeme";
+import LexiconEntryEditor from "@/lexicon/LexiconEntryEditor";
+import LexiconEntryExporter from "@/lexicon/LexiconEntryExporter";
 import styles from "@/styles/LexiconView.module.css";
 import { useState } from "react";
-import LexiconEntryEditor from "./LexiconEntryEditor";
 
 export default function LexiconView({
   language,
@@ -38,6 +39,7 @@ function LexiconEntryView({
   onUpdate?: (newEntry: Lexeme) => void;
 }) {
   const [editing, setEditing] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const content = (
     <>
       <div>
@@ -52,8 +54,8 @@ function LexiconEntryView({
       </ol>
     </>
   );
-  if (onUpdate) {
-    return editing ? (
+  if (onUpdate && editing) {
+    return (
       <Editor
         component={(value, onChange) => (
           <LexiconEntryEditor
@@ -68,14 +70,20 @@ function LexiconEntryView({
           onUpdate({ ...value, id: entry.id });
         }}
       />
-    ) : (
+    );
+  } else if (exporting) {
+    return (
+      <LexiconEntryExporter lexeme={entry} onDone={() => setExporting(false)} />
+    );
+  } else {
+    return (
       <li className="card" style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flexGrow: 1 }}>{content}</div>
         <div className="buttons">
-          <button onClick={() => setEditing(true)}>Edit</button>
+          {onUpdate && <button onClick={() => setEditing(true)}>Edit</button>}
+          <button onClick={() => setExporting(true)}>Export</button>
         </div>
       </li>
     );
   }
-  return <li className="card">{content}</li>;
 }

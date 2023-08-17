@@ -14,7 +14,6 @@ describe("a lexicon page", () => {
   });
 
   it("lets the user create a lexicon entry", () => {
-    cy.contains("Add Entry").click();
     cy.createLexeme({
       romanized: "sha",
       pos: "noun",
@@ -27,6 +26,21 @@ describe("a lexicon page", () => {
     cy.contains("sha");
     cy.contains("noun");
     cy.contains("cat");
+  });
+
+  it.only("lets the user export a lexicon entry", () => {
+    const lexeme = {
+      romanized: "sha",
+      pos: "noun",
+      definitions: ["cat"],
+    };
+    cy.createLexeme(lexeme);
+    cy.exportLexeme("sha");
+    cy.previewShowsJsonOf(lexeme);
+    cy.contains("Copy");
+    cy.contains("Download");
+    cy.contains("Done").click();
+    cy.contains("Export");
   });
 });
 
