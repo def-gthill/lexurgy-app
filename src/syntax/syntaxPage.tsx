@@ -5,7 +5,6 @@ import Construction from "@/syntax/Construction";
 import ConstructionEditor from "@/syntax/ConstructionEditor";
 import ConstructionView from "@/syntax/ConstructionView";
 import usePersistentCollection from "@/usePersistentCollection";
-import useStateResetter from "@/useStateResetter";
 import Head from "next/head";
 import { useRouter } from "next/router";
 
@@ -13,7 +12,6 @@ export default function SyntaxPage() {
   const router = useRouter();
   const id = router.query.id as string;
 
-  const [resetterKey, reset] = useStateResetter();
   const constructionCollection = usePersistentCollection<
     Construction,
     Construction
@@ -35,7 +33,6 @@ export default function SyntaxPage() {
           <main>
             <h1>{language.name} Syntax</h1>
             <HiddenEditor
-              key={resetterKey}
               showButtonLabel="Add Construction"
               component={(value, onChange) => (
                 <ConstructionEditor construction={value} onChange={onChange} />
@@ -47,7 +44,6 @@ export default function SyntaxPage() {
               }}
               onSave={(value: Construction) => {
                 constructionCollection.save(value);
-                reset();
               }}
             />
             {constructions.map((construction) => (

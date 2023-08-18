@@ -24,6 +24,7 @@ export default function HiddenEditor<T>({
           onClick={() => {
             onSave(value);
             setShowing(false);
+            setValue(initialValue);
           }}
         >
           Save

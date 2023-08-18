@@ -43,7 +43,7 @@ describe("a lexicon page", () => {
     cy.contains("Export");
   });
 
-  it.only("lets the user import a lexicon entry", () => {
+  it("lets the user import a lexicon entry", () => {
     const lexeme = {
       romanized: "sha",
       pos: "noun",
