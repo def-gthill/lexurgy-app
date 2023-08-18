@@ -4,15 +4,14 @@ describe("the translation editor", () => {
   beforeEach(() => {
     cy.resetDb();
     cy.login("default");
-    cy.goToHome();
-    cy.createLanguage("Examplish");
-    cy.navigateToLanguage("Examplish");
-    cy.clickNavigationLink("Syntax");
-    cy.createConstruction({
+    cy.createLanguageWithApi("Examplish");
+    cy.createConstructionWithApi({
+      languageName: "Examplish",
       name: "Intransitive Clause",
       children: ["Subject", "Verb"],
     });
-    cy.createConstruction({
+    cy.createConstructionWithApi({
+      languageName: "Examplish",
       name: "Noun Phrase",
       children: ["Det", "Noun", "Modifier"],
     });
@@ -75,25 +74,26 @@ describe("the translation editor", () => {
   });
 
   function createLexicon() {
-    cy.clickNavigationLink("Lexicon");
-    cy.createLexeme({
+    cy.createLexemeWithApi({
+      languageName: "Examplish",
       romanized: "sha",
       pos: "noun",
       definitions: ["cat"],
     });
-    cy.createLexeme({
+    cy.createLexemeWithApi({
+      languageName: "Examplish",
       romanized: "dor",
       pos: "verb",
       definitions: ["sleep"],
     });
-    cy.clickNavigationLink("Main");
   }
 
   it("lets the user create a syntax tree with lexicon links", () => {
-    cy.goToLanguage("Examplish");
     createLexicon();
+    cy.goToLanguage("Examplish");
     createTranslation();
     cy.clickNavigationLink("Lexicon");
+    cy.contains("Examplish Lexicon");
     cy.changeRomanization("cat", "fyel");
     cy.contains("fyel");
     cy.goToLanguage("Examplish");
@@ -101,8 +101,8 @@ describe("the translation editor", () => {
   });
 
   it("links multiple copies of the same word", () => {
-    cy.goToLanguage("Examplish");
     createLexicon();
+    cy.goToLanguage("Examplish");
     cy.createTranslation({
       structure: {
         construction: "Intransitive Clause",
@@ -114,6 +114,7 @@ describe("the translation editor", () => {
       translation: "The cat is catting.",
     });
     cy.clickNavigationLink("Lexicon");
+    cy.contains("Examplish Lexicon");
     cy.contains("cat").parents(".card").contains("Edit").click();
     cy.get("#romanized").clear().type("fyel");
     cy.contains("Save").click();
