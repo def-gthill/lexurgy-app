@@ -19,7 +19,7 @@ export function validateUserLexeme(object: any): Lexeme | string {
     pos: Joi.string(),
     definitions: Joi.array().items(Joi.string()),
   });
-  const { error, value } = schema.validate(object);
+  const { error, value } = schema.validate(object, { presence: "required" });
   if (error) {
     return error.message;
   } else {
