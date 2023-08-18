@@ -1,20 +1,22 @@
 import HiddenEditor from "@/components/HiddenEditor";
-import Language from "@/language/Language";
+import { SavedLanguage } from "@/language/Language";
 import LanguagePage from "@/language/LanguagePage";
-import Lexeme, { SavedLexeme } from "@/lexicon/Lexeme";
+import Lexeme, { LexemeWithLanguageId, SavedLexeme } from "@/lexicon/Lexeme";
 import LexiconEntryEditor from "@/lexicon/LexiconEntryEditor";
 import LexiconView from "@/lexicon/LexiconView";
 import usePersistentCollection from "@/usePersistentCollection";
 import useStateResetter from "@/useStateResetter";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import LexiconEntryImporter from "./LexiconEntryImporter";
 
 export default function LexiconPage() {
   const router = useRouter();
   const id = router.query.id as string;
 
   const [resetterKey, reset] = useStateResetter();
-  const lexicon = usePersistentCollection<Lexeme, SavedLexeme>(
+  const [importResetterKey, resetImport] = useStateResetter();
+  const lexicon = usePersistentCollection<LexemeWithLanguageId, SavedLexeme>(
     "/api/lexemes",
     `/api/lexemes?language=${id}`
   );
@@ -27,7 +29,7 @@ export default function LexiconPage() {
   return (
     <LanguagePage
       activeLink="Lexicon"
-      content={(language: Language) => (
+      content={(language: SavedLanguage) => (
         <>
           <Head>
             <title>Lexurgy - {language.name} Lexicon</title>
@@ -49,20 +51,28 @@ export default function LexiconPage() {
                 />
               )}
               initialValue={{
-                languageId: language.id,
                 romanized: "",
                 pos: "",
                 definitions: [""],
               }}
               onSave={(value: Lexeme) => {
-                lexicon.save(value);
+                lexicon.save({ languageId: language.id, ...value });
                 reset();
+              }}
+            />
+            <LexiconEntryImporter
+              key={importResetterKey}
+              onSave={(value: Lexeme) => {
+                lexicon.save({ languageId: language.id, ...value });
+                resetImport();
               }}
             />
             <LexiconView
               language={language}
               lexicon={lexemes}
-              onUpdate={lexicon.save}
+              onUpdate={(value: Lexeme) =>
+                lexicon.save({ languageId: language.id, ...value })
+              }
             />
           </main>
         </>

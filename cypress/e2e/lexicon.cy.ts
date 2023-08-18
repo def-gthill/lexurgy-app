@@ -42,6 +42,22 @@ describe("a lexicon page", () => {
     cy.contains("Done").click();
     cy.contains("Export");
   });
+
+  it.only("lets the user import a lexicon entry", () => {
+    const lexeme = {
+      romanized: "sha",
+      pos: "noun",
+      definitions: ["cat"],
+    };
+    cy.importLexeme(lexeme);
+    cy.contains("sha");
+    cy.contains("noun");
+    cy.contains("cat");
+    cy.reload();
+    cy.contains("sha");
+    cy.contains("noun");
+    cy.contains("cat");
+  });
 });
 
 export {};

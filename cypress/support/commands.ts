@@ -53,6 +53,7 @@ declare global {
       navigateToLanguage(name: string): Chainable<void>;
       createLexeme(lexeme: UserLexeme): Chainable<void>;
       createLexemeWithApi(lexeme: ApiLexeme): Chainable<void>;
+      importLexeme(lexeme: UserLexeme): Chainable<void>;
       exportLexeme(romanized: string): Chainable<void>;
       createConstruction(construction: UserConstruction): Chainable<void>;
       createConstructionWithApi(construction: ApiConstruction): Chainable<void>;
@@ -180,6 +181,14 @@ Cypress.Commands.add("createLexemeWithApi", (lexeme: ApiLexeme) => {
       definitions: lexeme.definitions ?? ["TBD"],
     },
   });
+});
+
+Cypress.Commands.add("importLexeme", (lexeme: UserLexeme) => {
+  cy.contains("Import Entry").click();
+  cy.get("#editor").type(JSON.stringify(lexeme), {
+    parseSpecialCharSequences: false,
+  });
+  cy.contains("Save").click();
 });
 
 Cypress.Commands.add("exportLexeme", (romanized: string) => {

@@ -4,6 +4,7 @@ import LexiconView from "@/lexicon/LexiconView";
 
 describe("LexiconView", () => {
   const language: Language = {
+    id: "foobarbaz",
     name: "Examplish",
   };
   const lexicon: Lexeme[] = [
