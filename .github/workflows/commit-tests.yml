@@ -16,3 +16,5 @@ jobs:
           path: lexurgy
       - name: Start server
         uses: isbang/compose-action@v1.5.1
+        with:
+          compose-file: lexurgy-app/docker-compose.yml
