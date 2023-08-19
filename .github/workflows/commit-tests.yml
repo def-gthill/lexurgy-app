@@ -4,6 +4,16 @@ jobs:
   cypress:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: isbang/compose-action@v1.5.1
+      - name: Checkout app repo
+        uses: actions/checkout@v3
+        with:
+          path: lexurgy-app
+      - name: Checkout services repo
+        uses: actions/checkout@v3
+        with:
+          repository: def-gthill/lexurgy
+          ref: api
+          path: lexurgy
+      - name: Start server
+        uses: isbang/compose-action@v1.5.1
         with: ./docker-compose.yml

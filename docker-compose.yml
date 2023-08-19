@@ -8,7 +8,7 @@ services:
       - $HOME/neo4j/data:/data
   lexurgy-services:
     build:
-      context: ../lexurgy-services
+      context: ../lexurgy/api
     ports:
       - 8080:8080
     environment:
