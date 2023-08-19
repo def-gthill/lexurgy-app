@@ -14,8 +14,8 @@ jobs:
           repository: def-gthill/lexurgy
           ref: api
           path: lexurgy
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
+      # - name: Set up Gradle
+      #   uses: gradle/gradle-build-action@v2
       - name: Build server
         run: ./lexurgy/gradlew :api:stage
       - name: Start server
