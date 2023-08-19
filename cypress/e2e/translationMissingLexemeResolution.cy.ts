@@ -3,30 +3,30 @@ describe("the resolution of Translation Missing Lexeme glitches", () => {
   beforeEach(() => {
     cy.resetDb();
     cy.login("default");
-    cy.goToHome();
-    cy.createLanguage("Examplish");
-    cy.navigateToLanguage("Examplish");
-    cy.clickNavigationLink("Syntax");
-    cy.createConstruction({
+    cy.createLanguageWithApi("Examplish");
+    cy.createConstructionWithApi({
+      languageName: "Examplish",
       name: "Intransitive Clause",
       children: ["Subject", "Verb"],
     });
-    cy.createConstruction({
+    cy.createConstructionWithApi({
+      languageName: "Examplish",
       name: "Noun Phrase",
       children: ["Det", "Noun", "Modifier"],
     });
-    cy.clickNavigationLink("Lexicon");
-    cy.createLexeme({
+    cy.createLexemeWithApi({
+      languageName: "Examplish",
       romanized: "sha",
       pos: "noun",
       definitions: ["cat"],
     });
-    cy.createLexeme({
+    cy.createLexemeWithApi({
+      languageName: "Examplish",
       romanized: "dor",
       pos: "verb",
       definitions: ["sleep"],
     });
-    cy.clickNavigationLink("Main");
+    cy.goToLanguage("Examplish");
     cy.createTranslation({
       structure: {
         construction: "Intransitive Clause",

@@ -2,9 +2,8 @@ describe("a language page", () => {
   beforeEach(() => {
     cy.resetDb();
     cy.login("default");
-    cy.goToHome();
-    cy.createLanguage("Examplish");
-    cy.navigateToLanguage("Examplish");
+    cy.createLanguageWithApi("Examplish");
+    cy.goToLanguage("Examplish");
   });
 
   it("displays the language name", () => {

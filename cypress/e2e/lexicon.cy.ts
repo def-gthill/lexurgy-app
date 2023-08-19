@@ -2,8 +2,8 @@ describe("a lexicon page", () => {
   beforeEach(() => {
     cy.resetDb();
     cy.login("default");
+    cy.createLanguageWithApi("Examplish");
     cy.goToHome();
-    cy.createLanguage("Examplish");
     cy.navigateToLanguage("Examplish");
     cy.clickNavigationLink("Lexicon");
   });
