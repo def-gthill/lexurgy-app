@@ -17,7 +17,8 @@ jobs:
       # - name: Set up Gradle
       #   uses: gradle/gradle-build-action@v2
       - name: Build server
-        run: ./lexurgy/gradlew :api:stage
+        run: ./gradlew :api:stage
+        working-directory: ./lexurgy
       - name: Start server
         uses: isbang/compose-action@v1.5.1
         with:
