@@ -1,0 +1,9 @@
+name: Commit Tests
+on: push
+jobs:
+  cypress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: isbang/compose-action@v1.5.1
+        with: ./docker-compose.yml
