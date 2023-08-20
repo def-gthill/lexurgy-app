@@ -35,7 +35,6 @@ jobs:
       - name: Run Cypress
         uses: cypress-io/github-action@v5
         with:
-          build: npm run build
-          start: npm run start
+          start: npm run dev
           wait-on: "http://localhost:7474, http://localhost:8080"
           working-directory: lexurgy-app
