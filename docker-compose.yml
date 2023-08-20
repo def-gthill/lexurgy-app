@@ -6,6 +6,8 @@ services:
       - 7687:7687
     volumes:
       - $HOME/neo4j/data:/data
+    environment:
+      - NEO4J_AUTH=none
   lexurgy-services:
     build:
       context: ../lexurgy/api

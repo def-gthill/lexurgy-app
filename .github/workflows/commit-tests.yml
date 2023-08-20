@@ -1,7 +1,7 @@
 name: Commit Tests
 on: push
 jobs:
-  cypress:
+  cypress-end-to-end:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout app repo
@@ -14,8 +14,17 @@ jobs:
           repository: def-gthill/lexurgy
           ref: api
           path: lexurgy
-      # - name: Set up Gradle
-      #   uses: gradle/gradle-build-action@v2
+      - name: Create environment file
+        run: |
+          echo "NODE_ENV=development" >> lexurgy-app/.env.local
+          echo "NEXTAUTH_URL=http://localhost:3000" >> lexurgy-app/.env.local
+          echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> lexurgy-app/.env.local
+          echo "NEXTAUTH_ADMIN_EMAIL=${{ secrets.NEXTAUTH_ADMIN_EMAIL }}" >> lexurgy-app/.env.local
+          echo "NEXTAUTH_TEST_USER_EMAILS=${{ secrets.NEXTAUTH_TEST_USER_EMAILS }}" >> lexurgy-app/.env.local
+          echo "NEO4J_URL=bolt://0.0.0.0:7687" >> lexurgy-app/.env.local
+          echo "NEO4J_USERNAME=neo4j" >> lexurgy-app/.env.local
+          echo "LEXURGY_SERVICES_URL=http://localhost:8080" >> lexurgy-app/.env.local
+          echo "LEXURGY_SERVICES_API_KEY=exampleApiKey" >> lexurgy-app/.env.local
       - name: Build server
         run: ./gradlew :api:stage
         working-directory: ./lexurgy
@@ -23,3 +32,10 @@ jobs:
         uses: isbang/compose-action@v1.5.1
         with:
           compose-file: lexurgy-app/docker-compose.yml
+      - name: Run Cypress
+        uses: cypress-io/github-action@v5
+        with:
+          build: npm run build
+          start: npm run start
+          wait-on: "http://localhost:7474, http://localhost:8080"
+          working-directory: lexurgy-app

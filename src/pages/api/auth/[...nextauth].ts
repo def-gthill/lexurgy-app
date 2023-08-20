@@ -3,12 +3,16 @@ import { Provider } from "next-auth/providers";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
-const providers: Provider[] = [
-  GoogleProvider({
-    clientId: process.env.GOOGLE_ID || "",
-    clientSecret: process.env.GOOGLE_SECRET || "",
-  }),
-];
+const providers: Provider[] = [];
+
+if (process.env.GOOGLE_ID && process.env.GOOGLE_SECRET) {
+  providers.push(
+    GoogleProvider({
+      clientId: process.env.GOOGLE_ID,
+      clientSecret: process.env.GOOGLE_SECRET,
+    })
+  );
+}
 
 if (process.env.NODE_ENV === "development") {
   // In development mode, you can claim to be whoever you want!
