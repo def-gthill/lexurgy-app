@@ -38,3 +38,6 @@ jobs:
           start: npm run dev
           wait-on: "http://localhost:7474, http://localhost:8080"
           working-directory: lexurgy-app
+        env:
+          CYPRESS_defaultUserEmail: ${{ secrets.NEXTAUTH_ADMIN_EMAIL }}
+          CYPRESS_secondUserEmail: ${{ secrets.NEXTAUTH_TEST_USER_EMAILS }}
