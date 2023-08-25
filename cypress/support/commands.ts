@@ -7,6 +7,7 @@ import ApiConstruction from "./ApiConstruction";
 import ApiLexeme from "./ApiLexeme";
 import ApiTranslation from "./ApiTranslation";
 import UserConstruction from "./UserConstruction";
+import { UserInflectInputs } from "./UserInflectInputs";
 import { UserLexeme } from "./UserLexeme";
 import { UserSoundChangeInputs } from "./UserSoundChangeInputs";
 import UserTranslation, { UserStructure } from "./UserTranslation";
@@ -79,6 +80,9 @@ declare global {
       ): Chainable<void>;
       scNoIntermediates(): Chainable<void>;
       scShowsSyntaxError(): Chainable<void>;
+      goToInflectPublic(): Chainable<void>;
+      runInflect(inputs: UserInflectInputs): Chainable<void>;
+      inflectedFormsAre(forms: string[]): Chainable<void>;
       waitForApiResult(url: string, name: string): Chainable<void>;
     }
   }
@@ -408,6 +412,25 @@ Cypress.Commands.add("scNoIntermediates", () => {
 
 Cypress.Commands.add("scShowsSyntaxError", () => {
   cy.get("#status").invoke("text").should("match", /line/);
+});
+
+Cypress.Commands.add("goToInflectPublic", () => {
+  cy.visit("/inflect");
+});
+
+Cypress.Commands.add("runInflect", (inputs: UserInflectInputs) => {
+  for (const stemAndCategories of inputs.stemsAndCategories) {
+    cy.get("table input").last().type(stemAndCategories);
+    cy.contains("Add Form").click();
+  }
+  cy.get("#rules").type(inputs.rules);
+  cy.contains("Apply").click();
+});
+
+Cypress.Commands.add("inflectedFormsAre", (forms: string[]) => {
+  for (const form of forms) {
+    cy.contains(form);
+  }
 });
 
 Cypress.Commands.add("waitForApiResult", (url: string, name: string) => {

@@ -3,22 +3,22 @@ import ExportButton from "@/components/ExportButton";
 import Header from "@/components/Header";
 import ImportButton from "@/components/ImportButton";
 import LabelledSwitch from "@/components/LabelledSwitch";
+import PageInfo from "@/components/PageInfo";
 import Select from "@/components/Select";
 import SplitPane from "@/components/SplitPane";
 import { entries, hasElements, keys, toMap, values } from "@/map";
+import HistoryExporter from "@/sc/HistoryExporter";
+import HistoryTable from "@/sc/HistoryTable";
+import Scv1Request from "@/sc/Scv1Request";
+import Scv1Response from "@/sc/Scv1Response";
+import { WordHistory, emptyHistory } from "@/sc/WordHistory";
 import useDebounced from "@/useDebounced";
 import * as Label from "@radix-ui/react-label";
 import axios from "axios";
 import copy from "copy-to-clipboard";
 import { decode, encode } from "js-base64";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import HistoryExporter from "./HistoryExporter";
-import HistoryTable from "./HistoryTable";
-import Scv1Request from "./Scv1Request";
-import Scv1Response from "./Scv1Response";
-import { WordHistory, emptyHistory } from "./WordHistory";
 
 export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
   let soundChangesFromUrl = "";
@@ -51,19 +51,16 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
   const [stopBeforeEnabled, setStopBeforeEnabled] = useState(false);
   const [stopBefore, setStopBefore] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<string>("Ready");
+  const [status, setStatus] = useState("Ready");
   const [scRunToggle, setScRunToggle] = useState(0);
   const requestUpdatingRuleNames = useDebounced(updateRuleNames, 500);
 
   return (
     <>
-      <Head>
-        <title>Lexurgy Sound Changer</title>
-        <meta
-          name="description"
-          content={`"A high-powered sound change applier"`}
-        />
-      </Head>
+      <PageInfo
+        title="Lexurgy Sound Changer"
+        description="A high-powered sound change applier"
+      />
       <Header />
       <main>
         <div className="card">

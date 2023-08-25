@@ -138,15 +138,7 @@ export default function HistoryTable({
   );
 
   function addInputWord() {
-    mySetHistories([
-      ...myHistories,
-      {
-        inputWord: "",
-        outputWord: null,
-        intermediates: new Map(),
-        tracing: false,
-      },
-    ]);
+    mySetHistories([...myHistories, emptyHistory()]);
   }
 
   function setInputWord(i: number, word: string) {
