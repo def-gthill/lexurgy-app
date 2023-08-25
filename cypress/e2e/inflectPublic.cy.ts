@@ -8,3 +8,5 @@ describe("The public inflection page", () => {
     cy.inflectedFormsAre(["foo"]);
   });
 });
+
+export {};
