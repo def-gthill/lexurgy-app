@@ -217,7 +217,7 @@ export default function InflectPublic() {
       );
     } catch (error: any) {
       if (error.response) {
-        setError(error.response.data);
+        setError(error.response.data.message);
       }
     } finally {
       setStatus("Ready");
