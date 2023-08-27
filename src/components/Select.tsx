@@ -7,7 +7,7 @@ export default function Select<T>({
   onChange,
   onOpen,
 }: {
-  id: string;
+  id?: string;
   options: Option<T>[];
   disabled?: boolean;
   onChange: (option: T) => void;

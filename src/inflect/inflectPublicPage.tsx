@@ -1,17 +1,22 @@
 import { set } from "@/array";
 import Header from "@/components/Header";
 import PageInfo from "@/components/PageInfo";
+import Select from "@/components/Select";
 import SplitPane from "@/components/SplitPane";
-import InflectRequest from "@/inflect/InflectRequest";
+import { emptyDimension } from "@/inflect/Dimension";
+import InflectRequest, { InflectRequestRules } from "@/inflect/InflectRequest";
 import InflectResponse from "@/inflect/InflectResponse";
-import { emptyMorph } from "@/inflect/Morph";
-import * as Label from "@radix-ui/react-label";
+import { InflectRules } from "@/inflect/InflectRules";
+import InflectRulesEditor from "@/inflect/InflectRulesEditor";
+import { Morph, emptyMorph } from "@/inflect/Morph";
 import axios from "axios";
+import _ from "lodash";
 import { useState } from "react";
 
 export default function InflectPublic() {
-  const [rules, setRules] = useState("");
-  const [morphs, setMorphs] = useState([emptyMorph()]);
+  const [dimensions, setDimensions] = useState([emptyDimension()]);
+  const [rules, setRules] = useState<InflectRules>("");
+  const [morphs, setMorphs] = useState([newMorph()]);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState("Ready");
   return (
@@ -25,24 +30,63 @@ export default function InflectPublic() {
         <div className="card">
           <SplitPane>
             <div>
-              <Label.Root htmlFor="rules" style={{ fontWeight: "bold" }}>
-                Inflection Rules
-              </Label.Root>
-              <input
-                id="rules"
-                type="text"
-                style={{ display: "block" }}
-                value={rules}
-                onChange={(event) => setRules(event.target.value)}
-              />
+              <table id="dimensions">
+                <thead>
+                  <tr>
+                    <th>Dimension</th>
+                    <th>Category</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dimensions.map(({ name, categories }, i) => (
+                    <tr key={i}>
+                      <td>
+                        <input
+                          type="text"
+                          size={10}
+                          value={name}
+                          onChange={(event) =>
+                            setDimension(i, event.target.value)
+                          }
+                        />
+                      </td>
+                      {name &&
+                        categories.map((category, j) => (
+                          <td key={j}>
+                            <input
+                              type="text"
+                              size={10}
+                              value={category}
+                              onChange={(event) =>
+                                setCategory(i, j, event.target.value)
+                              }
+                            />
+                          </td>
+                        ))}
+                      {!!categories.at(-1) && (
+                        <td>
+                          <button onClick={() => addCategory(i)}>Add</button>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div id="rules" className="editor">
+                <h4>Inflection Rules</h4>
+                <InflectRulesEditor rules={rules} saveRules={setRules} />
+              </div>
               <div id="status">{error ?? status}</div>
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <div>
+              <div id="morphs">
                 <table>
                   <thead>
                     <tr>
                       <th>Stem</th>
+                      {dimensions.map(({ name }, i) => (
+                        <th key={i}>{toNiceName(name)}</th>
+                      ))}
                       <th>Inflected Form</th>
                     </tr>
                   </thead>
@@ -56,6 +100,19 @@ export default function InflectPublic() {
                             onChange={(event) => setStem(i, event.target.value)}
                           />
                         </td>
+                        {dimensions.map(({ name, categories }, j) => (
+                          <td key={j}>
+                            <Select
+                              options={categories.map((category) => ({
+                                name: toNiceName(category),
+                                value: category,
+                              }))}
+                              onChange={(value) =>
+                                setMorphCategory(i, name, value)
+                              }
+                            />
+                          </td>
+                        ))}
                         <td>{morph.inflectedForm}</td>
                       </tr>
                     ))}
@@ -84,26 +141,64 @@ export default function InflectPublic() {
     </>
   );
 
+  function newMorph(): Morph {
+    return {
+      ...emptyMorph(),
+      categories: dimensions.map((dimension) => dimension.categories[0]),
+    };
+  }
+
   function addForm() {
-    setMorphs([...morphs, emptyMorph()]);
+    setMorphs([...morphs, newMorph()]);
   }
 
   function setStem(i: number, stem: string) {
     setMorphs(set(morphs, i, { ...morphs[i], stem }));
   }
 
+  function setMorphCategory(i: number, dimension: string, category: string) {
+    setMorphs(set(morphs, i, { ...morphs[i], categories: [category] }));
+  }
+
+  function setDimension(i: number, dimension: string) {
+    setDimensions(set(dimensions, i, { ...dimensions[i], name: dimension }));
+  }
+
+  function addCategory(i: number) {
+    setDimensions(
+      set(dimensions, i, {
+        ...dimensions[i],
+        categories: [...dimensions[i].categories, ""],
+      })
+    );
+  }
+
+  function setCategory(i: number, j: number, category: string) {
+    setDimensions(
+      set(dimensions, i, {
+        ...dimensions[i],
+        categories: set(dimensions[i].categories, j, category),
+      })
+    );
+  }
+
+  function toNiceName(name: string) {
+    return name
+      .split("-")
+      .map((word) => word.slice(0, 1).toLocaleUpperCase() + word.slice(1))
+      .join(" ");
+  }
+
   async function runInflect() {
     setStatus("Running...");
+    console.log(morphs[0].categories);
     const request: InflectRequest = {
-      rules: {
-        type: "form",
-        form: rules,
-      },
+      rules: toRequestRules(rules),
       stemsAndCategories: morphs
         .filter((morph) => morph.stem)
         .map((morph) => ({
           stem: morph.stem,
-          categories: [],
+          categories: morph.categories,
         })),
     };
     try {
@@ -126,6 +221,20 @@ export default function InflectPublic() {
       }
     } finally {
       setStatus("Ready");
+    }
+  }
+
+  function toRequestRules(rules: InflectRules): InflectRequestRules {
+    if (typeof rules === "string") {
+      return {
+        type: "form",
+        form: rules,
+      };
+    } else {
+      return {
+        type: "split",
+        branches: _.mapValues(rules, toRequestRules),
+      };
     }
   }
 }

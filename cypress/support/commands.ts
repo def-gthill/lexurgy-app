@@ -7,7 +7,7 @@ import ApiConstruction from "./ApiConstruction";
 import ApiLexeme from "./ApiLexeme";
 import ApiTranslation from "./ApiTranslation";
 import UserConstruction from "./UserConstruction";
-import { UserInflectInputs } from "./UserInflectInputs";
+import UserInflectInputs, { UserCategoryTree } from "./UserInflectInputs";
 import { UserLexeme } from "./UserLexeme";
 import { UserSoundChangeInputs } from "./UserSoundChangeInputs";
 import UserTranslation, { UserStructure } from "./UserTranslation";
@@ -419,18 +419,60 @@ Cypress.Commands.add("goToInflectPublic", () => {
 });
 
 Cypress.Commands.add("runInflect", (inputs: UserInflectInputs) => {
+  for (const [dimension, categories] of Object.entries(inputs.dimensions)) {
+    cy.get("#dimensions input").last().type(dimension);
+    for (const category of categories) {
+      cy.get("#dimensions input").last().type(category);
+      cy.get("#dimensions button").click();
+    }
+  }
   for (const stemAndCategories of inputs.stemsAndCategories) {
-    cy.get("table input").last().type(stemAndCategories);
+    let stem, categories: string[];
+    if (typeof stemAndCategories === "string") {
+      stem = stemAndCategories;
+      categories = [];
+    } else {
+      stem = stemAndCategories.stem;
+      categories = stemAndCategories.categories;
+    }
+    cy.get("table input").last().type(stem);
+    for (const category of categories) {
+      cy.get("table select").last().select(category);
+    }
     cy.contains("Add Form").click();
   }
-  cy.get("#rules").type(inputs.rules);
+  enterInflectRules(inputs.rules);
   cy.contains("Apply").click();
 });
 
-Cypress.Commands.add("inflectedFormsAre", (forms: string[]) => {
-  for (const form of forms) {
-    cy.contains(form);
+function enterInflectRules(
+  rules: string | UserCategoryTree,
+  parentSelector: string = "#rules"
+) {
+  if (typeof rules === "string") {
+    cy.get(`${parentSelector} input`).type(rules);
+  } else {
+    cy.contains("Branch").click();
+    for (const [category, branch] of Object.entries(rules)) {
+      cy.get(`${parentSelector} tbody > :last-child > :first-child input`).type(
+        category
+      );
+      enterInflectRules(
+        branch,
+        `${parentSelector} tbody > :last-child > :last-child`
+      );
+      cy.contains("Add Branch").click();
+    }
   }
+}
+
+Cypress.Commands.add("inflectedFormsAre", (forms: string[]) => {
+  cy.contains(forms[0]);
+  forms.forEach((form, i) => {
+    cy.get(`#morphs tbody > :nth-child(${i + 1}) > :last`).then((element) =>
+      expect(element.text()).to.equal(form)
+    );
+  });
 });
 
 Cypress.Commands.add("waitForApiResult", (url: string, name: string) => {
