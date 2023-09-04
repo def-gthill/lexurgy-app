@@ -103,10 +103,13 @@ export default function InflectPublic() {
                         {dimensions.map(({ name, categories }, j) => (
                           <td key={j}>
                             <Select
-                              options={categories.map((category) => ({
-                                name: toNiceName(category),
-                                value: category,
-                              }))}
+                              options={[
+                                { name: "None", value: "" },
+                                ...categories.map((category) => ({
+                                  name: toNiceName(category),
+                                  value: category,
+                                })),
+                              ]}
                               onChange={(value) =>
                                 setMorphCategory(i, name, value)
                               }
@@ -142,10 +145,11 @@ export default function InflectPublic() {
   );
 
   function newMorph(): Morph {
-    return {
-      ...emptyMorph(),
-      categories: dimensions.map((dimension) => dimension.categories[0]),
-    };
+    // return {
+    //   ...emptyMorph(),
+    //   categories: dimensions.map((dimension) => dimension.categories[0]),
+    // };
+    return emptyMorph();
   }
 
   function addForm() {
