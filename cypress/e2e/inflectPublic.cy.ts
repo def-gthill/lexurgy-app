@@ -25,7 +25,7 @@ describe("The public inflection page", () => {
     cy.inflectedFormsAre(["fid", "foo"]);
   });
 
-  it.skip("lets the user reference the stem", () => {
+  it("lets the user reference the stem", () => {
     cy.goToInflectPublic();
     cy.runInflect({
       dimensions: { type: ["stem", "fixed"] },

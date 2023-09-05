@@ -4,12 +4,11 @@ import PageInfo from "@/components/PageInfo";
 import Select from "@/components/Select";
 import SplitPane from "@/components/SplitPane";
 import { emptyDimension } from "@/inflect/Dimension";
-import InflectRequest, { InflectRequestRules } from "@/inflect/InflectRequest";
+import InflectRequest, { fromRules } from "@/inflect/InflectRequest";
 import InflectResponse from "@/inflect/InflectResponse";
 import { InflectRules } from "@/inflect/InflectRules";
 import InflectRulesEditor from "@/inflect/InflectRulesEditor";
 import { Morph, emptyMorph } from "@/inflect/Morph";
-import { mapValues, toObject } from "@/map";
 import axios from "axios";
 import { useState } from "react";
 
@@ -145,10 +144,6 @@ export default function InflectPublic() {
   );
 
   function newMorph(): Morph {
-    // return {
-    //   ...emptyMorph(),
-    //   categories: dimensions.map((dimension) => dimension.categories[0]),
-    // };
     return emptyMorph();
   }
 
@@ -197,7 +192,7 @@ export default function InflectPublic() {
     setStatus("Running...");
     console.log(morphs[0].categories);
     const request: InflectRequest = {
-      rules: toRequestRules(rules),
+      rules: fromRules(rules),
       stemsAndCategories: morphs
         .filter((morph) => morph.stem)
         .map((morph) => ({
@@ -225,20 +220,6 @@ export default function InflectPublic() {
       }
     } finally {
       setStatus("Ready");
-    }
-  }
-
-  function toRequestRules(rules: InflectRules): InflectRequestRules {
-    if (typeof rules === "string") {
-      return {
-        type: "form",
-        form: rules,
-      };
-    } else {
-      return {
-        type: "split",
-        branches: toObject(mapValues(rules.branches, toRequestRules)),
-      };
     }
   }
 }
