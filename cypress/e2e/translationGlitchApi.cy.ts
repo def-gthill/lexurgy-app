@@ -1,27 +1,8 @@
 import Glitch from "@/glitch/Glitch";
-import Translation from "@/translation/Translation";
 import ApiTranslation from "../support/ApiTranslation";
 
 describe("the translation glitch endpoint", () => {
-  const examplishUuid = "b1365a98-00d1-4633-8e04-9c48259dd698";
-  const translationId = "4efb8162-4b63-474b-8b1d-c22bd5782ad2";
-  const clauseUuid = "8361bff7-57b8-461f-bb1a-c6109d070205";
-
-  const translation: Translation = {
-    id: translationId,
-    languageId: examplishUuid,
-    romanized: "Sha dor.",
-    structure: {
-      nodeTypeId: clauseUuid,
-      children: [
-        ["Subject", { romanized: "sha" }],
-        ["Verb", { romanized: "dor" }],
-      ],
-    },
-    translation: "The cat is sleeping.",
-  };
-
-  const translation_NEW: ApiTranslation = {
+  const translation: ApiTranslation = {
     languageName: "Examplish",
     romanized: "Sha dor.",
     structure: {
@@ -51,7 +32,7 @@ describe("the translation glitch endpoint", () => {
   });
 
   it("creates glitch objects for words that can't be linked", () => {
-    cy.createTranslationWithApi(translation_NEW);
+    cy.createTranslationWithApi(translation);
 
     cy.checkTranslation("The cat is sleeping.");
 
@@ -82,7 +63,7 @@ describe("the translation glitch endpoint", () => {
       romanized: "dor",
     });
 
-    cy.createTranslationWithApi(translation_NEW);
+    cy.createTranslationWithApi(translation);
 
     cy.checkTranslation("The cat is sleeping.");
 
