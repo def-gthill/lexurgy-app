@@ -1,4 +1,5 @@
 import { InflectRules } from "@/inflect/InflectRules";
+import { rekey, update } from "@/map";
 
 export default function InflectRulesEditor({
   rules,
@@ -16,7 +17,9 @@ export default function InflectRulesEditor({
           onChange={(event) => saveRules(event.target.value)}
         />
         <div className="buttons">
-          <button onClick={() => saveRules({ "": "" })}>Branch</button>
+          <button onClick={() => saveRules({ branches: new Map([["", ""]]) })}>
+            Branch
+          </button>
         </div>
       </div>
     );
@@ -31,7 +34,7 @@ export default function InflectRulesEditor({
             </tr>
           </thead>
           <tbody>
-            {Object.entries(rules).map(([category, branch], i) => (
+            {[...rules.branches].map(([category, branch], i) => (
               <tr key={i}>
                 <td>
                   <input
@@ -60,22 +63,21 @@ export default function InflectRulesEditor({
 
   function renameCategory(category: string, newName: string) {
     if (typeof rules === "object") {
-      const newRules = { ...rules };
-      newRules[newName] = newRules[category];
-      delete newRules[category];
-      saveRules(newRules);
+      saveRules({ branches: rekey(rules.branches, category, newName) });
     }
   }
 
   function setBranch(category: string, branch: InflectRules) {
     if (typeof rules === "object") {
-      saveRules({ ...rules, [category]: branch });
+      saveRules({
+        branches: update(rules.branches, [category, branch]),
+      });
     }
   }
 
   function addBranch() {
     if (typeof rules === "object") {
-      saveRules({ ...rules, "": "" });
+      saveRules({ branches: update(rules.branches, ["", ""]) });
     }
   }
 }

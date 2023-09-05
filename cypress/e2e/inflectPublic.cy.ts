@@ -24,6 +24,22 @@ describe("The public inflection page", () => {
     });
     cy.inflectedFormsAre(["fid", "foo"]);
   });
+
+  it.skip("lets the user reference the stem", () => {
+    cy.goToInflectPublic();
+    cy.runInflect({
+      dimensions: { type: ["stem", "fixed"] },
+      rules: {
+        stem: { type: "stem" },
+        fixed: "fixed",
+      },
+      stemsAndCategories: [
+        { stem: "foo", categories: ["Fixed"] },
+        { stem: "foo", categories: ["Stem"] },
+      ],
+    });
+    cy.inflectedFormsAre(["fixed", "foo"]);
+  });
 });
 
 export {};

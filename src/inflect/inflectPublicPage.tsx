@@ -9,8 +9,8 @@ import InflectResponse from "@/inflect/InflectResponse";
 import { InflectRules } from "@/inflect/InflectRules";
 import InflectRulesEditor from "@/inflect/InflectRulesEditor";
 import { Morph, emptyMorph } from "@/inflect/Morph";
+import { mapValues, toObject } from "@/map";
 import axios from "axios";
-import _ from "lodash";
 import { useState } from "react";
 
 export default function InflectPublic() {
@@ -237,7 +237,7 @@ export default function InflectPublic() {
     } else {
       return {
         type: "split",
-        branches: _.mapValues(rules, toRequestRules),
+        branches: toObject(mapValues(rules.branches, toRequestRules)),
       };
     }
   }

@@ -451,6 +451,8 @@ function enterInflectRules(
 ) {
   if (typeof rules === "string") {
     cy.get(`${parentSelector} input`).type(rules);
+  } else if ("type" in rules) {
+    cy.contains("Formula").click();
   } else {
     cy.contains("Branch").click();
     for (const [category, branch] of Object.entries(rules)) {

@@ -18,3 +18,10 @@ export function editLast<T>(array: T[], edit: (last: T) => T) {
   }
   array.push(edit(array.pop()!));
 }
+
+export function updateAssociationArray<K, V>(
+  array: [K, V][],
+  newEntry: [K, V]
+): [K, V][] {
+  return [...new Map([...array, newEntry])];
+}

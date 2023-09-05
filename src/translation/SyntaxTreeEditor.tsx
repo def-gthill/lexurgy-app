@@ -1,4 +1,4 @@
-import { update } from "@/map";
+import { updateAssociationArray } from "@/array";
 import Construction from "@/syntax/Construction";
 import SyntaxNode from "@/translation/SyntaxNode";
 import SyntaxTreeView from "@/translation/SyntaxTreeView";
@@ -40,7 +40,10 @@ export default function SyntaxTreeEditor({
                 child={child}
                 onChange={(newValue) =>
                   setActiveChildren(
-                    update(activeChildren, [childName, newValue])
+                    updateAssociationArray(activeChildren, [
+                      childName,
+                      newValue,
+                    ])
                   )
                 }
               />
