@@ -5,7 +5,20 @@ import { mapValues } from "lodash";
 export interface Schema<T> {
   name: string;
   empty(): T;
-  editor(value: T, onChange: (value: T) => void, key?: string): JSX.Element;
+  editor(
+    value: T,
+    onChange: (value: T) => void,
+    options?: Options
+  ): JSX.Element;
+}
+
+export interface Options {
+  isRoot?: boolean;
+  key?: string;
+}
+
+function fillDefaults(options: Options): Required<Options> {
+  return { isRoot: true, key: "schema", ...options };
 }
 
 export class StringSchema implements Schema<string> {
@@ -22,8 +35,10 @@ export class StringSchema implements Schema<string> {
   editor(
     value: string,
     onChange: (value: string) => void,
-    key: string = "top"
+    options: Options = {}
   ): JSX.Element {
+    const myOptions = fillDefaults(options);
+    const key = myOptions.key;
     return (
       <div key={key}>
         <Label.Root htmlFor={key}>{this.name}</Label.Root>
@@ -57,8 +72,11 @@ export class ObjectSchema<T> implements Schema<T> {
   editor(
     value: T,
     onChange: (value: T) => void,
-    key: string = "top"
+    options: Options = {}
   ): JSX.Element {
+    const myOptions = fillDefaults(options);
+    const key = myOptions.key;
+
     function propertyEditor<Property extends string & keyof T>([
       property,
       schema,
@@ -70,12 +88,15 @@ export class ObjectSchema<T> implements Schema<T> {
             ...value,
             [property]: propertyValue,
           }),
-        property
+        {
+          isRoot: false,
+          key: `${key}__${property}`,
+        }
       );
     }
 
     return (
-      <div key={key}>
+      <div id={key} key={key}>
         <h4>{this.name}</h4>
         {Object.entries(this.properties).map(
           propertyEditor as (args: [string, unknown]) => JSX.Element
@@ -101,16 +122,22 @@ export class ArraySchema<T> implements Schema<T[]> {
   editor(
     value: T[],
     onChange: (value: T[]) => void,
-    key: string = "top"
+    options: Options = {}
   ): JSX.Element {
+    const myOptions = fillDefaults(options);
+    const key = myOptions.key;
+
     return (
-      <div key={key}>
+      <div id={key} key={key}>
         <h4>{this.name}</h4>
         {value.map((element, i) =>
           this.elements.editor(
             element,
             (element) => onChange(set(value, i, element)),
-            i.toString()
+            {
+              isRoot: false,
+              key: `${key}__${i}`,
+            }
           )
         )}
         <div className="buttons">
