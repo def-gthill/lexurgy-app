@@ -12,7 +12,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: def-gthill/lexurgy
-          ref: inflect-setup
           path: lexurgy
       - name: Create environment file
         run: |
