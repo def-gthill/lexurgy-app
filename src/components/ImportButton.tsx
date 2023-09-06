@@ -13,16 +13,13 @@ export default function ImportButton({
   return (
     <>
       <input
-        className="button"
         type="file"
         accept={`text/*,.txt,${expectedFileType}`}
         ref={hiddenLoadButtonRef}
         style={{ display: "none" }}
         onInput={readFile}
       />
-      <button className="button" onClick={promptForFile}>
-        {label ?? "Import"}
-      </button>
+      <button onClick={promptForFile}>{label ?? "Import"}</button>
     </>
   );
 

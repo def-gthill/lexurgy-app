@@ -9,11 +9,7 @@ export default function ExportButton({
   data: string;
   onSuccess?: () => void;
 }) {
-  return (
-    <button className="button" onClick={writeFile}>
-      {label ?? "Export"}
-    </button>
-  );
+  return <button onClick={writeFile}>{label ?? "Export"}</button>;
 
   function writeFile() {
     const a = document.createElement("a");
