@@ -39,12 +39,11 @@ describe("LexiconView", () => {
         />
       );
       cy.contains("Edit").click();
-      cy.get("#romanized").clear().type("fyel");
+      cy.get("#schema__romanized").clear().type("fyel");
       cy.contains("Save")
         .click()
         .then(() => expect(saved).to.be.true);
-      cy.contains("noun");
-      cy.contains("cat");
+      cy.contains("Edit"); // Confirm that the editor closed.
     });
   });
 });

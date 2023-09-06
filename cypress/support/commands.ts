@@ -168,9 +168,9 @@ Cypress.Commands.add("navigateToLanguage", (name: string) => {
 
 Cypress.Commands.add("createLexeme", (lexeme: UserLexeme) => {
   cy.contains("Add Entry").click();
-  cy.get("#romanized").type(lexeme.romanized);
-  cy.get("#pos").type(lexeme.pos ?? "contentive");
-  cy.get("#definition").type(lexeme.definitions?.at(0) ?? "TBD");
+  cy.get("#schema__romanized").type(lexeme.romanized);
+  cy.get("#schema__pos").type(lexeme.pos ?? "contentive");
+  cy.get("#schema__definitions__0").type(lexeme.definitions?.at(0) ?? "TBD");
   cy.contains("Save").click();
 });
 
