@@ -1,3 +1,5 @@
+import { InflectRules } from "@/inflect/InflectRules";
+
 describe("The public inflection page", () => {
   it("lets the user create a single hard-coded form", () => {
     cy.goToInflectPublic();
@@ -14,8 +16,10 @@ describe("The public inflection page", () => {
     cy.runInflect({
       dimensions: { tense: ["present", "past"] },
       rules: {
-        present: "foo",
-        past: "fid",
+        branches: new Map([
+          ["present", "foo"],
+          ["past", "fid"],
+        ]),
       },
       stemsAndCategories: [
         { stem: "bar", categories: ["Past"] },
@@ -30,8 +34,10 @@ describe("The public inflection page", () => {
     cy.runInflect({
       dimensions: { type: ["stem", "fixed"] },
       rules: {
-        stem: { type: "stem" },
-        fixed: "fixed",
+        branches: new Map<string, InflectRules>([
+          ["stem", { formula: { type: "stem" } }],
+          ["fixed", "fixed"],
+        ]),
       },
       stemsAndCategories: [
         { stem: "foo", categories: ["Fixed"] },
@@ -39,6 +45,24 @@ describe("The public inflection page", () => {
       ],
     });
     cy.inflectedFormsAre(["fixed", "foo"]);
+  });
+
+  it("lets the user define concatenation rules", () => {
+    cy.goToInflectPublic();
+    cy.runInflect({
+      dimensions: {},
+      rules: {
+        formula: {
+          type: "concat",
+          parts: [
+            { formula: { type: "form", form: "pre" } },
+            { formula: { type: "stem" } },
+          ],
+        },
+      },
+      stemsAndCategories: [{ stem: "bar", categories: [] }],
+    });
+    cy.inflectedFormsAre(["prebar"]);
   });
 });
 

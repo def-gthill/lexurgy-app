@@ -1,12 +1,16 @@
+import { InflectRules } from "@/inflect/InflectRules";
+
 export default interface UserInflectInputs {
   dimensions: { [key: string]: string[] };
-  rules: string | UserCategoryTree;
+  rules: InflectRules;
   stemsAndCategories: (string | StemAndCategory)[];
 }
 
-export interface UserCategoryTree {
-  [key: string]: string | UserCategoryTree;
-}
+// export type UserInflectRules = string | UserCategoryTree | Formula;
+
+// export interface UserCategoryTree {
+//   [key: string]: UserInflectRules;
+// }
 
 export interface StemAndCategory {
   stem: string;

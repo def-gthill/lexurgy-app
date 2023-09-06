@@ -1,4 +1,10 @@
-import { Formula, InflectRules, isTree } from "@/inflect/InflectRules";
+import {
+  Fixed,
+  Formula,
+  InflectRules,
+  Stem,
+  isTree,
+} from "@/inflect/InflectRules";
 import { mapValues, toObject } from "@/map";
 
 export default interface InflectRequest {
@@ -7,20 +13,30 @@ export default interface InflectRequest {
 }
 
 export type InflectRequestRules =
-  | InflectRequestForm
-  | InflectRequestFormula
-  | InflectRequestSplit;
+  | RequestForm
+  | RequestFormulaForm
+  | RequestSplit;
 
-export interface InflectRequestForm {
+export interface RequestForm {
   type: "form";
   form: string;
 }
 
-export type InflectRequestFormula = { type: "formula" } & Formula;
-
-export interface InflectRequestSplit {
+export interface RequestSplit {
   type: "split";
   branches: Record<string, InflectRequestRules>;
+}
+
+export interface RequestFormulaForm {
+  type: "formula";
+  formula: RequestFormula;
+}
+
+export type RequestFormula = Stem | Fixed | RequestConcat;
+
+export interface RequestConcat {
+  type: "concat";
+  parts: RequestFormula[];
 }
 
 export function fromRules(rules: InflectRules): InflectRequestRules {
@@ -37,7 +53,15 @@ export function fromRules(rules: InflectRules): InflectRequestRules {
   } else {
     return {
       type: "formula",
-      ...rules,
+      formula: fromFormula(rules),
     };
+  }
+}
+
+function fromFormula(formula: Formula): RequestFormula {
+  if (formula.formula.type === "concat") {
+    return { type: "concat", parts: formula.formula.parts.map(fromFormula) };
+  } else {
+    return formula.formula;
   }
 }

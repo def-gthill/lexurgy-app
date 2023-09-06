@@ -1,13 +1,14 @@
 /// <reference types="cypress" />
 
 import Glitch from "@/glitch/Glitch";
+import { Formula, InflectRules } from "@/inflect/InflectRules";
 import SyntaxNode from "@/translation/SyntaxNode";
 import Translation from "@/translation/Translation";
 import ApiConstruction from "./ApiConstruction";
 import ApiLexeme from "./ApiLexeme";
 import ApiTranslation from "./ApiTranslation";
 import UserConstruction from "./UserConstruction";
-import UserInflectInputs, { UserCategoryTree } from "./UserInflectInputs";
+import UserInflectInputs from "./UserInflectInputs";
 import { UserLexeme } from "./UserLexeme";
 import { UserSoundChangeInputs } from "./UserSoundChangeInputs";
 import UserTranslation, { UserStructure } from "./UserTranslation";
@@ -446,19 +447,17 @@ Cypress.Commands.add("runInflect", (inputs: UserInflectInputs) => {
 });
 
 function enterInflectRules(
-  rules: string | UserCategoryTree,
+  rules: InflectRules,
   parentSelector: string = "#rules"
 ) {
   if (typeof rules === "string") {
     cy.get(`${parentSelector} input`).type(rules);
-  } else if ("type" in rules) {
+  } else if ("formula" in rules) {
     cy.contains("Formula").click();
-    if (rules.type === "stem") {
-      cy.get(`${parentSelector} #formula-type`).select("Stem");
-    }
+    enterFormula(rules.formula, `${parentSelector} > .editor`);
   } else {
     cy.contains("Branch").click();
-    for (const [category, branch] of Object.entries(rules)) {
+    for (const [category, branch] of rules.branches) {
       cy.get(`${parentSelector} tbody > :last-child > :first-child input`).type(
         category
       );
@@ -468,6 +467,23 @@ function enterInflectRules(
       );
       cy.contains("Add Branch").click();
     }
+  }
+}
+
+function enterFormula(formula: Formula["formula"], parentSelector: string) {
+  if (formula.type === "stem") {
+    cy.get(`${parentSelector} #formula-type`).select("Stem");
+  } else if (formula.type === "form") {
+    cy.get(`${parentSelector} #formula-type`).select("Fixed Form");
+    cy.get(`${parentSelector} input`).type(formula.form);
+  } else if (formula.type === "concat") {
+    cy.get(`${parentSelector} #formula-type`).select("Concatenation");
+    formula.parts.forEach((part, i) => {
+      if (i > 0) {
+        cy.contains("Add Part").click();
+      }
+      enterFormula(part.formula, `${parentSelector} > .editor > .editor:last`);
+    });
   }
 }
 

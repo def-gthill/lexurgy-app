@@ -1,10 +1,5 @@
-import Select from "@/components/Select";
-import {
-  Formula,
-  FormulaType,
-  InflectRules,
-  isTree,
-} from "@/inflect/InflectRules";
+import FormulaEditor from "@/inflect/FormulaEditor";
+import { InflectRules, isTree } from "@/inflect/InflectRules";
 import { rekey, update } from "@/map";
 
 export default function InflectRulesEditor({
@@ -71,18 +66,7 @@ export default function InflectRulesEditor({
       </div>
     );
   } else {
-    return (
-      <div className="editor">
-        <Select
-          id="formula-type"
-          options={[
-            { name: "Fixed Form", value: "form" },
-            { name: "Stem", value: "stem" },
-          ]}
-          onChange={setFormulaType}
-        />
-      </div>
-    );
+    return <FormulaEditor formula={rules} saveFormula={saveRules} />;
   }
 
   function renameCategory(category: string, newName: string) {
@@ -102,21 +86,6 @@ export default function InflectRulesEditor({
   function addBranch() {
     if (isTree(rules)) {
       saveRules({ branches: update(rules.branches, ["", ""]) });
-    }
-  }
-
-  function setFormulaType(type: FormulaType) {
-    saveRules(emptyFormula(type));
-  }
-
-  function emptyFormula(type: FormulaType): Formula {
-    switch (type) {
-      case "stem":
-        return { formula: { type: "stem" } };
-      case "form":
-        return { formula: { type: "form", form: "" } };
-      case "concat":
-        return { formula: { type: "concat", parts: [emptyFormula("form")] } };
     }
   }
 }
