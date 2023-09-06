@@ -1,5 +1,6 @@
+import SchematicEditor from "@/components/SchematicEditor";
 import Language from "@/language/Language";
-import Lexeme from "@/lexicon/Lexeme";
+import Lexeme, { lexemeSchema } from "@/lexicon/Lexeme";
 import Fields, { Field } from "../components/Fields";
 
 export default function LexiconEntryEditor({
@@ -32,5 +33,23 @@ export default function LexiconEntryEditor({
         onChange={(value) => onChange({ ...lexeme, definitions: [value] })}
       />
     </Fields>
+  );
+}
+
+function LexiconEntryEditor_NEW({
+  language,
+  lexeme,
+  onChange,
+}: {
+  language: Language;
+  lexeme: Lexeme;
+  onChange: (entry: Lexeme) => void;
+}) {
+  return (
+    <SchematicEditor
+      schema={lexemeSchema(language.name)}
+      value={lexeme}
+      onChange={onChange}
+    />
   );
 }
