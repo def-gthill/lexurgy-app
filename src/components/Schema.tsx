@@ -46,6 +46,7 @@ export class StringSchema implements Schema<string> {
           <input
             type="text"
             id={key}
+            style={{ maxWidth: 200 }}
             value={value as string}
             onChange={(event) => onChange(event.target.value)}
           />
@@ -55,6 +56,7 @@ export class StringSchema implements Schema<string> {
       return (
         <input
           type="text"
+          key={key}
           id={key}
           style={{ maxWidth: 200 }}
           value={value as string}
@@ -89,6 +91,22 @@ export class ObjectSchema<T> implements Schema<T> {
     const myOptions = fillDefaults(options);
     const key = myOptions.key;
 
+    return (
+      <div id={key} key={key}>
+        {myOptions.isRoot && <h4>{this.name}</h4>}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "max-content max-content",
+          }}
+        >
+          {Object.entries(this.properties).map(
+            propertyEditor as (args: [string, unknown]) => JSX.Element
+          )}
+        </div>
+      </div>
+    );
+
     function propertyEditor<Property extends string & keyof T>([
       property,
       schema,
@@ -112,22 +130,6 @@ export class ObjectSchema<T> implements Schema<T> {
         </>
       );
     }
-
-    return (
-      <div id={key} key={key}>
-        <h4>{this.name}</h4>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "max-content max-content",
-          }}
-        >
-          {Object.entries(this.properties).map(
-            propertyEditor as (args: [string, unknown]) => JSX.Element
-          )}
-        </div>
-      </div>
-    );
   }
 }
 
@@ -154,7 +156,7 @@ export class ArraySchema<T> implements Schema<T[]> {
 
     return (
       <div id={key} key={key}>
-        <h4>{this.name}</h4>
+        {myOptions.isRoot && <h4>{this.name}</h4>}
         <div style={{ display: "flex", flexDirection: "column" }}>
           {value.map((element, i) =>
             this.elements.editor(
