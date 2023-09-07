@@ -1,3 +1,4 @@
+import EditorPane from "@/components/EditorPane";
 import FormulaEditor from "@/inflect/FormulaEditor";
 import { InflectRules, isTree } from "@/inflect/InflectRules";
 import { rekey, update } from "@/map";
@@ -11,7 +12,7 @@ export default function InflectRulesEditor({
 }) {
   if (typeof rules === "string") {
     return (
-      <div id="rules" className="editor">
+      <EditorPane id="rules">
         <input
           type="text"
           value={rules}
@@ -27,11 +28,11 @@ export default function InflectRulesEditor({
             Formula
           </button>
         </div>
-      </div>
+      </EditorPane>
     );
   } else if (isTree(rules)) {
     return (
-      <div className="editor">
+      <EditorPane>
         <table>
           <thead>
             <tr>
@@ -63,7 +64,7 @@ export default function InflectRulesEditor({
         <div className="buttons">
           <button onClick={addBranch}>Add Branch</button>
         </div>
-      </div>
+      </EditorPane>
     );
   } else {
     return <FormulaEditor formula={rules} saveFormula={saveRules} />;

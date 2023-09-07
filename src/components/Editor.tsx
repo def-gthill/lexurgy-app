@@ -1,3 +1,4 @@
+import EditorPane from "@/components/EditorPane";
 import { useState } from "react";
 
 export default function Editor<T>({
@@ -11,11 +12,11 @@ export default function Editor<T>({
 }) {
   const [value, setValue] = useState(initialValue);
   return (
-    <div className="editor">
+    <EditorPane>
       {component(value, setValue)}
       <div className="buttons">
         <button onClick={() => onSave(value)}>Save</button>
       </div>
-    </div>
+    </EditorPane>
   );
 }

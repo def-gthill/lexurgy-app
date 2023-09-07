@@ -19,8 +19,9 @@ function SyntaxNodeView({
   level: number;
   name?: string;
 }) {
+  const modLevel = ((level - 1) % 4) + 1;
   return (
-    <div className={`${styles.branch} ${styles[`branch${level}`]}`}>
+    <div className={`${styles.branch} ${styles[`branch${modLevel}`]}`}>
       {name && <div className={styles.nodeType}>{name}</div>}
       {node.construction && (
         <div className={styles.nodeType}>{node.construction.name}</div>

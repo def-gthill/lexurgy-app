@@ -1,4 +1,5 @@
 import { updateAssociationArray } from "@/array";
+import EditorPane from "@/components/EditorPane";
 import Construction from "@/syntax/Construction";
 import SyntaxNode from "@/translation/SyntaxNode";
 import SyntaxTreeView from "@/translation/SyntaxTreeView";
@@ -25,7 +26,7 @@ export default function SyntaxTreeEditor({
 
   if (activeConstruction) {
     return (
-      <div className="editor">
+      <EditorPane>
         <div style={{ display: "flex", flexDirection: "row" }}>
           {activeConstruction.children.map((childName) => {
             let child = getChildNode(activeChildren, childName);
@@ -67,11 +68,11 @@ export default function SyntaxTreeEditor({
             Done
           </button>
         </div>
-      </div>
+      </EditorPane>
     );
   } else {
     return (
-      <div className="editor">
+      <EditorPane>
         <label htmlFor="construction">Construction</label>
         <select
           id="construction"
@@ -84,7 +85,7 @@ export default function SyntaxTreeEditor({
         <div className="buttons">
           <button onClick={createConstruction}>Create</button>
         </div>
-      </div>
+      </EditorPane>
     );
   }
 
@@ -134,9 +135,8 @@ function ChildEditor({
   const [editingSubtree, setEditingSubtree] = useState(true);
   if ("romanized" in child) {
     return (
-      <div
+      <EditorPane
         key={childName}
-        className="editor"
         style={{ display: "flex", flexDirection: "column" }}
       >
         <label htmlFor={childName}>{childName}</label>
@@ -151,7 +151,7 @@ function ChildEditor({
         <div className="buttons">
           <button onClick={() => onChange({ children: [] })}>Expand</button>
         </div>
-      </div>
+      </EditorPane>
     );
   } else if (editingSubtree) {
     return (

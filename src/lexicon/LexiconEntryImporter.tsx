@@ -1,3 +1,4 @@
+import EditorPane from "@/components/EditorPane";
 import { useState } from "react";
 import Lexeme, { validateUserLexeme } from "./Lexeme";
 
@@ -11,7 +12,7 @@ export default function LexiconEntryImporter({
   const [error, setError] = useState<string | null>(null);
 
   return showing ? (
-    <div className="editor">
+    <EditorPane>
       <h4 style={{ marginTop: 0 }}>Import Entry</h4>
       <textarea
         id="editor"
@@ -43,7 +44,7 @@ export default function LexiconEntryImporter({
           Cancel
         </button>
       </div>
-    </div>
+    </EditorPane>
   ) : (
     <div style={{ margin: "4px 0" }}>
       <button onClick={() => setShowing(true)}>Import Entry</button>

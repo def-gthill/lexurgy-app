@@ -1,4 +1,5 @@
 import { set } from "@/array";
+import EditorPane from "@/components/EditorPane";
 import Select from "@/components/Select";
 import { Formula, FormulaType } from "@/inflect/InflectRules";
 
@@ -10,7 +11,7 @@ export default function FormulaEditor({
   saveFormula: (formula: Formula) => void;
 }) {
   return (
-    <div className="editor">
+    <EditorPane>
       <Select
         id="formula-type"
         options={[
@@ -21,7 +22,7 @@ export default function FormulaEditor({
         onChange={setFormulaType}
       />
       {editorFor(formula)}
-    </div>
+    </EditorPane>
   );
 
   function setFormulaType(type: FormulaType) {
@@ -58,7 +59,7 @@ export default function FormulaEditor({
       case "concat": {
         const parts = formula.formula.parts;
         return (
-          <div className="editor">
+          <EditorPane>
             {parts.map((part, i) => (
               <FormulaEditor
                 key={i}
@@ -84,7 +85,7 @@ export default function FormulaEditor({
                 Add Part
               </button>
             </div>
-          </div>
+          </EditorPane>
         );
       }
     }

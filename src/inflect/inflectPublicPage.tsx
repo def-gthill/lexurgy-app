@@ -1,4 +1,5 @@
 import { set } from "@/array";
+import EditorPane from "@/components/EditorPane";
 import Header from "@/components/Header";
 import PageInfo from "@/components/PageInfo";
 import Select from "@/components/Select";
@@ -71,10 +72,10 @@ export default function InflectPublic() {
                   ))}
                 </tbody>
               </table>
-              <div id="rules" className="editor">
+              <EditorPane id="rules">
                 <h4>Inflection Rules</h4>
                 <InflectRulesEditor rules={rules} saveRules={setRules} />
-              </div>
+              </EditorPane>
               <div id="status">{error ?? status}</div>
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>

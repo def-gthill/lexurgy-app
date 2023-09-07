@@ -3,8 +3,10 @@
   --foreground: hsl(0, 0%, 0%);
   --foreground-muted: hsl(0, 0%, 20%);
   --card-background: hsl(0, 0%, 80%);
-  --editor-background: hsl(50, 25%, 80%);
-  --editor2-background: hsl(75, 25%, 75%);
+  --editor1-background: hsl(50, 25%, 80%);
+  --editor2-background: hsl(140, 25%, 75%);
+  --editor3-background: hsl(230, 25%, 75%);
+  --editor4-background: hsl(320, 25%, 75%);
   --foreground-always-dark: hsl(0, 0%, 0%);
   --foreground-always-light: hsl(0, 0%, 100%);
 
@@ -45,8 +47,10 @@
     --foreground: hsl(0, 0%, 100%);
     --foreground-muted: hsl(0, 0%, 80%);
     --card-background: hsl(0, 0%, 20%);
-    --editor-background: hsl(50, 25%, 20%);
-    --editor2-background: hsl(75, 25%, 25%);
+    --editor1-background: hsl(50, 25%, 20%);
+    --editor2-background: hsl(140, 25%, 25%);
+    --editor3-background: hsl(230, 25%, 25%);
+    --editor4-background: hsl(320, 25%, 25%);
   }
 }
 
@@ -102,12 +106,20 @@ a {
   background-color: var(--card-background);
 }
 
-.editor {
-  background-color: var(--editor-background);
+.editor1 {
+  background-color: var(--editor1-background);
 }
 
-.editor .editor {
+.editor2 {
   background-color: var(--editor2-background);
+}
+
+.editor3 {
+  background-color: var(--editor3-background);
+}
+
+.editor4 {
+  background-color: var(--editor4-background);
 }
 
 p,

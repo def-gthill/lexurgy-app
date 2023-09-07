@@ -1,3 +1,4 @@
+import EditorPane from "@/components/EditorPane";
 import { useState } from "react";
 
 export default function HiddenEditor<T>({
@@ -16,7 +17,7 @@ export default function HiddenEditor<T>({
   const [showing, setShowing] = useState(startsShowing);
   const [value, setValue] = useState(initialValue);
   return showing ? (
-    <div className="editor">
+    <EditorPane>
       <h4 style={{ marginTop: 0 }}>{showButtonLabel}</h4>
       {component(value, setValue)}
       <div className="buttons">
@@ -37,7 +38,7 @@ export default function HiddenEditor<T>({
           Cancel
         </button>
       </div>
-    </div>
+    </EditorPane>
   ) : (
     <div style={{ margin: "4px 0" }}>
       <button onClick={() => setShowing(true)}>{showButtonLabel}</button>
