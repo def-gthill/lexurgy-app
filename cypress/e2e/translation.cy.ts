@@ -115,9 +115,7 @@ describe("the translation editor", () => {
     });
     cy.clickNavigationLink("Lexicon");
     cy.contains("Examplish Lexicon");
-    cy.contains("cat").parents(".card").contains("Edit").click();
-    cy.get("#romanized").clear().type("fyel");
-    cy.contains("Save").click();
+    cy.changeRomanization("cat", "fyel");
     cy.contains("fyel");
     cy.goToLanguage("Examplish");
     cy.contains("Fyel fyel.");

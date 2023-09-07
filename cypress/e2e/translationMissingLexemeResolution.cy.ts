@@ -51,8 +51,8 @@ describe("the resolution of Translation Missing Lexeme glitches", () => {
 
   it("lets the user add the missing lexicon entry", () => {
     cy.contains("Add Lexeme").click();
-    cy.get("#pos").type("noun");
-    cy.get("#definition").type("rabbit");
+    cy.enterLexemePartOfSpeech("noun");
+    cy.enterLexemeDefinitions(["rabbit"]);
     cy.contains("Save").click();
     cy.waitForApiResult("/api/glitches*", "getGlitches");
     cy.contains("non-existent lexeme").should("not.exist");

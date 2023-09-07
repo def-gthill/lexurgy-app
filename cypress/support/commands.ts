@@ -54,6 +54,9 @@ declare global {
       goToLanguage(name: string): Chainable<void>;
       navigateToLanguage(name: string): Chainable<void>;
       createLexeme(lexeme: UserLexeme): Chainable<void>;
+      enterLexemeRomanization(romanized: string): Chainable<void>;
+      enterLexemePartOfSpeech(pos: string): Chainable<void>;
+      enterLexemeDefinitions(definitions: string[]): Chainable<void>;
       createLexemeWithApi(lexeme: ApiLexeme): Chainable<void>;
       importLexeme(lexeme: UserLexeme): Chainable<void>;
       exportLexeme(romanized: string): Chainable<void>;
@@ -168,10 +171,27 @@ Cypress.Commands.add("navigateToLanguage", (name: string) => {
 
 Cypress.Commands.add("createLexeme", (lexeme: UserLexeme) => {
   cy.contains("Add Entry").click();
-  cy.get("#schema__romanized").type(lexeme.romanized);
-  cy.get("#schema__pos").type(lexeme.pos ?? "contentive");
-  cy.get("#schema__definitions__0").type(lexeme.definitions?.at(0) ?? "TBD");
+  cy.enterLexemeRomanization(lexeme.romanized);
+  cy.enterLexemePartOfSpeech(lexeme.pos ?? "contentive");
+  cy.enterLexemeDefinitions(lexeme.definitions ?? ["TBD"]);
   cy.contains("Save").click();
+});
+
+Cypress.Commands.add("enterLexemeRomanization", (romanized: string) => {
+  cy.get("#schema__romanized").type(romanized);
+});
+
+Cypress.Commands.add("enterLexemePartOfSpeech", (pos: string) => {
+  cy.get("#schema__pos").type(pos);
+});
+
+Cypress.Commands.add("enterLexemeDefinitions", (definitions: string[]) => {
+  definitions.forEach((definition, i) => {
+    if (i > 0) {
+      cy.contains("Add Definition").click();
+    }
+    cy.get(`#schema__definitions__${i}`).type(definition);
+  });
 });
 
 Cypress.Commands.add("createLexemeWithApi", (lexeme: ApiLexeme) => {
@@ -301,7 +321,7 @@ Cypress.Commands.add(
   "changeRomanization",
   (lexeme: string, newRomanization: string) => {
     cy.contains(lexeme).parents(".card").contains("Edit").click();
-    cy.get("#romanized").clear().type(newRomanization);
+    cy.get("#schema__romanized").clear().type(newRomanization);
     cy.contains("Save").click();
   }
 );
