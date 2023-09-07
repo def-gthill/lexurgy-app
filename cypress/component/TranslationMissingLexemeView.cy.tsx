@@ -80,8 +80,8 @@ describe("TranslationMissingLexemeView", () => {
       />
     );
     cy.contains("Add Lexeme").click();
-    cy.get("#pos").type("noun");
-    cy.get("#definition").type("cat");
+    cy.enterLexemePartOfSpeech("noun");
+    cy.enterLexemeDefinitions(["cat"]);
     cy.contains("Save")
       .click()
       .then(() => expect(added).to.be.true);
