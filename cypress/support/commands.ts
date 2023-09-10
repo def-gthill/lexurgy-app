@@ -466,43 +466,35 @@ Cypress.Commands.add("runInflect", (inputs: UserInflectInputs) => {
   cy.contains("Apply").click();
 });
 
-function enterInflectRules(
-  rules: InflectRules,
-  parentSelector: string = "#rules"
-) {
+function enterInflectRules(rules: InflectRules, parentId: string = "rules") {
   if (typeof rules === "string") {
-    cy.get(`${parentSelector} input`).type(rules);
+    cy.get(`#${parentId}__option`).type(rules);
   } else if ("formula" in rules) {
-    cy.contains("Formula").click();
-    enterFormula(rules.formula, `${parentSelector} > .editor`);
+    cy.get(`#${parentId} > select`).select("Formula");
+    enterFormula(rules.formula, `${parentId}__option__formula`);
   } else {
-    cy.contains("Branch").click();
-    for (const [category, branch] of rules.branches) {
-      cy.get(`${parentSelector} tbody > :last-child > :first-child input`).type(
-        category
-      );
-      enterInflectRules(
-        branch,
-        `${parentSelector} tbody > :last-child > :last-child`
-      );
+    cy.get(`#${parentId} > select`).select("Branch");
+    [...rules.branches.entries()].forEach(([category, branch], i) => {
+      cy.get(`#${parentId}__option__branches__${i}__key`).type(category);
+      enterInflectRules(branch, `${parentId}__option__branches__${i}__value`);
       cy.contains("Add Branch").click();
-    }
+    });
   }
 }
 
-function enterFormula(formula: Formula["formula"], parentSelector: string) {
+function enterFormula(formula: Formula["formula"], parentId: string) {
   if (formula.type === "stem") {
-    cy.get(`${parentSelector} #formula-type`).select("Stem");
+    cy.get(`#${parentId} > select`).select("Stem");
   } else if (formula.type === "form") {
-    cy.get(`${parentSelector} #formula-type`).select("Fixed Form");
-    cy.get(`${parentSelector} input`).type(formula.form);
+    cy.get(`#${parentId} > select`).select("Fixed Form");
+    cy.get(`#${parentId}__option__form`).type(formula.form);
   } else if (formula.type === "concat") {
-    cy.get(`${parentSelector} #formula-type`).select("Concatenation");
+    cy.get(`#${parentId} > select`).select("Concatenation");
     formula.parts.forEach((part, i) => {
       if (i > 0) {
         cy.contains("Add Part").click();
       }
-      enterFormula(part.formula, `${parentSelector} > .editor > .editor:last`);
+      enterFormula(part.formula, `${parentId}__option__parts__${i}__formula`);
     });
   }
 }

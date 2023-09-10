@@ -26,16 +26,16 @@ export function update<K, V>(map: Map<K, V>, newEntry: [K, V]): Map<K, V> {
   return new Map([...map, newEntry]);
 }
 
-export function rekey<K, V>(map: Map<K, V>, key: K, newKey: K): Map<K, V> {
-  if (!map.has(key)) {
-    throw new Error(`Key not found: ${key}`);
+export function rekey<K, V>(map: Map<K, V>, oldKey: K, newKey: K): Map<K, V> {
+  if (!map.has(oldKey)) {
+    throw new Error(`Key not found: ${oldKey}`);
   }
-  if (key === newKey) {
+  if (oldKey === newKey) {
     return map;
   }
-  const newMap = new Map(entries(map));
-  newMap.set(newKey, newMap.get(key)!);
-  newMap.delete(key);
+  const newMap = new Map(
+    entries(map).map(([key, value]) => [key === oldKey ? newKey : key, value])
+  );
   return newMap;
 }
 

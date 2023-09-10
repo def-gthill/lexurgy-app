@@ -24,7 +24,6 @@ export default function LexiconEntryImporter({
       <div className="buttons">
         <button
           onClick={() => {
-            console.log(editorText);
             const entry = parseEntry(editorText);
             if (typeof entry === "string") {
               setError(entry);

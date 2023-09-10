@@ -44,14 +44,15 @@ export const inflectRulesSchema: Schema.Schema<InflectRules> = Schema.defineRef(
       branches: Schema.map(
         "Branches",
         Schema.string("Category"),
-        Schema.useRef("Rules", rulesRef)
+        Schema.useRef("Rules", rulesRef),
+        { entryName: "Branch" }
       ),
     }),
     Schema.defineRef(
       Schema.object("Formula", {
         formula: Schema.taggedUnion<Stem | Fixed | Concat>("Formula", {
           stem: Schema.object("Stem", {}),
-          fixed: Schema.object("Fixed Form", { form: Schema.string("Form") }),
+          form: Schema.object("Fixed Form", { form: Schema.string("Form") }),
           concat: Schema.object("Concatenation", {
             parts: Schema.array("Parts", Schema.useRef("Part", formulaRef)),
           }),

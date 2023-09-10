@@ -39,6 +39,25 @@ describe("SchematicEditor", () => {
     });
   });
 
+  it("lets the user edit an object's only property", () => {
+    testSchematicEditor({
+      schema: Schema.object("Some Object", {
+        foo: Schema.string("Foohood"),
+      }),
+      command: () => {
+        cy.get("input").type("oof");
+      },
+      expected: { foo: "oof" },
+    });
+  });
+
+  it("accepts an object editor with no properties, even though there's nothing to edit", () => {
+    testSchematicEditor({
+      schema: Schema.object("Empty", {}),
+      expected: {},
+    });
+  });
+
   it("lets the user edit a map", () => {
     testSchematicEditor({
       schema: Schema.map(
@@ -57,6 +76,20 @@ describe("SchematicEditor", () => {
         ["foo", "oof"],
         ["bar", "rab"],
       ]),
+    });
+  });
+
+  it("allows customizing the name of map entries", () => {
+    testSchematicEditor({
+      schema: Schema.map(
+        "Some Map",
+        Schema.string("Key"),
+        Schema.string("Value"),
+        { entryName: "Entry" }
+      ),
+      command: () => {
+        cy.contains("Add Entry");
+      },
     });
   });
 
@@ -170,9 +203,9 @@ describe("SchematicEditor", () => {
       ),
       command: () => {
         cy.get("select").select("Object");
-        cy.get("#schema__payload").type("foo");
+        cy.get("#schema__option__payload").type("foo");
         cy.get("select").last().select("Object");
-        cy.get("#schema__nested__payload").last().type("bar");
+        cy.get("#schema__option__nested__option__payload").last().type("bar");
         cy.get("input").last().type("baz");
       },
       expected: { payload: "foo", nested: { payload: "bar", nested: "baz" } },
@@ -192,7 +225,7 @@ describe("SchematicEditor", () => {
   }: {
     schema: Schema.Schema<T>;
     initialValue?: T;
-    command: () => void;
+    command?: () => void;
     expected?: T;
   }) {
     const onSave = cy.stub().as("callback");
@@ -205,7 +238,9 @@ describe("SchematicEditor", () => {
         onSave={onSave}
       />
     );
-    command();
+    if (command) {
+      command();
+    }
     if (expected !== undefined) {
       cy.contains("Save")
         .click()

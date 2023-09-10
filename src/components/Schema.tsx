@@ -75,6 +75,10 @@ export class StringSchema implements Schema<string> {
   }
 }
 
+export function string(name: string): StringSchema {
+  return new StringSchema(name);
+}
+
 export class ObjectSchema<T> implements Schema<T> {
   name: string;
   properties: { [Property in keyof T]: Schema<T[Property]> };
@@ -122,23 +126,32 @@ export class ObjectSchema<T> implements Schema<T> {
     const myOptions = fillDefaults(options);
     const key = myOptions.key;
 
+    const entries = Object.entries(this.properties);
     return (
       <div id={key} key={key}>
         {myOptions.isRoot && <h4>{this.name}</h4>}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "max-content max-content",
-          }}
-        >
-          {Object.entries(this.properties).map(
-            propertyEditor as (args: [string, unknown]) => JSX.Element
-          )}
-        </div>
+        {entries.length === 0 ? (
+          <div />
+        ) : entries.length === 1 ? (
+          propertyEditor(
+            entries[0] as [string & keyof T, Schema<T[string & keyof T]>]
+          )
+        ) : (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "max-content max-content",
+            }}
+          >
+            {entries.map(
+              labelledPropertyEditor as (args: [string, unknown]) => JSX.Element
+            )}
+          </div>
+        )}
       </div>
     );
 
-    function propertyEditor<Property extends string & keyof T>([
+    function labelledPropertyEditor<Property extends string & keyof T>([
       property,
       schema,
     ]: [Property, Schema<T[Property]>]): JSX.Element {
@@ -146,22 +159,37 @@ export class ObjectSchema<T> implements Schema<T> {
       return (
         <>
           <Label.Root htmlFor={childKey}>{schema.name}</Label.Root>
-          {schema.editor(
-            value[property],
-            (propertyValue) =>
-              onChange({
-                ...value,
-                [property]: propertyValue,
-              }),
-            {
-              isRoot: false,
-              key: childKey,
-            }
-          )}
+          {propertyEditor([property, schema])}
         </>
       );
     }
+
+    function propertyEditor<Property extends string & keyof T>([
+      property,
+      schema,
+    ]: [Property, Schema<T[Property]>]): JSX.Element {
+      const childKey = `${key}__${property}`;
+      return schema.editor(
+        value[property],
+        (propertyValue) =>
+          onChange({
+            ...value,
+            [property]: propertyValue,
+          }),
+        {
+          isRoot: false,
+          key: childKey,
+        }
+      );
+    }
   }
+}
+
+export function object<T>(
+  name: string,
+  properties: { [Property in keyof T]: Schema<T[Property]> }
+): ObjectSchema<T> {
+  return new ObjectSchema(name, properties);
 }
 
 export class ArraySchema<T> implements Schema<T[]> {
@@ -222,15 +250,26 @@ export class ArraySchema<T> implements Schema<T[]> {
   }
 }
 
+export function array<T>(name: string, elements: Schema<T>): ArraySchema<T> {
+  return new ArraySchema(name, elements);
+}
+
 export class MapSchema<K, V> implements Schema<Map<K, V>> {
   name: string;
   keys: Schema<K>;
   values: Schema<V>;
+  settings: MapSchemaSettings;
 
-  constructor(name: string, keys: Schema<K>, values: Schema<V>) {
+  constructor(
+    name: string,
+    keys: Schema<K>,
+    values: Schema<V>,
+    settings: MapSchemaSettings
+  ) {
     this.name = name;
     this.keys = keys;
     this.values = values;
+    this.settings = settings;
   }
 
   empty(): Map<K, V> {
@@ -295,13 +334,26 @@ export class MapSchema<K, V> implements Schema<Map<K, V>> {
                 onChange(update(map, [this.keys.empty(), this.values.empty()]))
               }
             >
-              Add {this.values.name}
+              Add {this.settings.entryName ?? this.values.name}
             </button>
           </div>
         </div>
       </div>
     );
   }
+}
+
+export function map<K, V>(
+  name: string,
+  keys: Schema<K>,
+  values: Schema<V>,
+  settings?: MapSchemaSettings
+): MapSchema<K, V> {
+  return new MapSchema(name, keys, values, settings ?? {});
+}
+
+export interface MapSchemaSettings {
+  entryName?: string;
 }
 
 export class UnionSchema<T> implements Schema<T> {
@@ -329,13 +381,15 @@ export class UnionSchema<T> implements Schema<T> {
   editor(
     value: T,
     onChange: (value: T) => void,
-    options?: Options | undefined
+    options: Options = {}
   ): JSX.Element {
+    const myOptions = fillDefaults(options);
+    const key = myOptions.key;
     const optionIndex = this.options.findIndex((option) =>
       option.accepts(value)
     );
     return (
-      <div>
+      <div id={key} key={key}>
         <Select
           options={this.options.map((option, i) => ({
             name: option.name,
@@ -345,12 +399,16 @@ export class UnionSchema<T> implements Schema<T> {
           onChange={(value) => onChange(this.options[value].empty())}
         />
         {this.options[optionIndex].editor(value, onChange, {
-          ...options,
           isRoot: false,
+          key: `${key}__option`,
         })}
       </div>
     );
   }
+}
+
+export function union<T>(name: string, options: Schema<T>[]): UnionSchema<T> {
+  return new UnionSchema(name, options);
 }
 
 export class TaggedUnionSchema<T extends { type: string }>
@@ -394,9 +452,11 @@ export class TaggedUnionSchema<T extends { type: string }>
     onChange: (value: T) => void,
     options: Options = {}
   ): JSX.Element {
+    const myOptions = fillDefaults(options);
+    const key = myOptions.key;
     const currentType = value.type;
     return (
-      <div>
+      <div id={key} key={key}>
         <Select
           options={Object.entries(this.options).map(([type, schema]) => ({
             name: schema.name,
@@ -410,11 +470,18 @@ export class TaggedUnionSchema<T extends { type: string }>
         {this.options[currentType].editor(
           value,
           (value) => onChange({ type: currentType, ...value } as T),
-          { ...options, isRoot: false }
+          { isRoot: false, key: `${key}__option` }
         )}
       </div>
     );
   }
+}
+
+export function taggedUnion<T extends { type: string }>(
+  name: string,
+  options: Record<string, Schema<object>>
+): TaggedUnionSchema<T> {
+  return new TaggedUnionSchema(name, options);
 }
 
 export class RecursiveSchema<T> implements Schema<T> {
@@ -448,40 +515,6 @@ export class RecursiveSchema<T> implements Schema<T> {
   ): JSX.Element {
     return this.schema().editor(value, onChange, options);
   }
-}
-
-export function string(name: string): StringSchema {
-  return new StringSchema(name);
-}
-
-export function array<T>(name: string, elements: Schema<T>): ArraySchema<T> {
-  return new ArraySchema(name, elements);
-}
-
-export function object<T>(
-  name: string,
-  properties: { [Property in keyof T]: Schema<T[Property]> }
-): ObjectSchema<T> {
-  return new ObjectSchema(name, properties);
-}
-
-export function map<K, V>(
-  name: string,
-  keys: Schema<K>,
-  values: Schema<V>
-): MapSchema<K, V> {
-  return new MapSchema(name, keys, values);
-}
-
-export function union<T>(name: string, options: Schema<T>[]): UnionSchema<T> {
-  return new UnionSchema(name, options);
-}
-
-export function taggedUnion<T extends { type: string }>(
-  name: string,
-  options: Record<string, Schema<object>>
-): TaggedUnionSchema<T> {
-  return new TaggedUnionSchema(name, options);
 }
 
 export function defineRef<T>(schema: Schema<T>, ref: Ref<T>): Schema<T> {

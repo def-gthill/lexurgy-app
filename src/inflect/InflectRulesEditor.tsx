@@ -105,6 +105,7 @@ export function InflectRulesEditor_NEW({
 }) {
   return (
     <SchematicEditor
+      id="rules"
       schema={inflectRulesSchema}
       value={rules}
       onChange={saveRules}
