@@ -4,65 +4,65 @@ import SchematicEditor from "@/components/SchematicEditor";
 
 describe("SchematicEditor", () => {
   it("lets the user edit a string", () => {
-    testSchematicEditor(
-      Schema.string("Some String"),
-      () => {
+    testSchematicEditor({
+      schema: Schema.string("Some String"),
+      command: () => {
         cy.contains("Some String").type("foobar");
-        return cy.contains("Save").click();
       },
-      "foobar"
-    );
+      expected: "foobar",
+    });
   });
 
   it("lets the user edit an array of strings", () => {
-    testSchematicEditor(
-      Schema.array("Some List", Schema.string("Some String")),
-      () => {
+    testSchematicEditor({
+      schema: Schema.array("Some List", Schema.string("Some String")),
+      command: () => {
         cy.get("input").last().type("foo");
         cy.contains("Add Some String").click();
         cy.get("input").last().type("bar");
-        return cy.contains("Save").click();
       },
-      ["foo", "bar"]
-    );
+      expected: ["foo", "bar"],
+    });
   });
 
   it("lets the user edit an object", () => {
-    testSchematicEditor(
-      Schema.object("Some Object", {
+    testSchematicEditor({
+      schema: Schema.object("Some Object", {
         foo: Schema.string("Foohood"),
         bar: Schema.string("Barness"),
       }),
-      () => {
+      command: () => {
         cy.contains("Foohood").type("oof");
         cy.contains("Barness").type("rab");
-        return cy.contains("Save").click();
       },
-      { foo: "oof", bar: "rab" }
-    );
+      expected: { foo: "oof", bar: "rab" },
+    });
   });
 
   it("lets the user edit a map", () => {
-    testSchematicEditor(
-      Schema.map("Some Map", Schema.string("Key"), Schema.string("Value")),
-      () => {
+    testSchematicEditor({
+      schema: Schema.map(
+        "Some Map",
+        Schema.string("Key"),
+        Schema.string("Value")
+      ),
+      command: () => {
         cy.get("#schema__0__key").type("foo");
         cy.get("#schema__0__value").type("oof");
         cy.contains("Add Value").click();
         cy.get("#schema__1__key").type("bar");
         cy.get("#schema__1__value").type("rab");
-        return cy.contains("Save").click();
       },
-      new Map([
+      expected: new Map([
         ["foo", "oof"],
         ["bar", "rab"],
-      ])
-    );
+      ]),
+    });
   });
 
   it("lets the user switch between alternative structures", () => {
-    testSchematicEditor(
-      Schema.array(
+    testSchematicEditor({
+      schema: Schema.array(
         "Some Array",
         Schema.union<string | { foo: string; bar: string }>("Choice", [
           Schema.string("String"),
@@ -72,21 +72,40 @@ describe("SchematicEditor", () => {
           }),
         ])
       ),
-      () => {
+      command: () => {
         cy.get("input").last().type("gnirts");
         cy.contains("Add Choice").click();
         cy.get("select").last().select("Object");
         cy.contains("Foohood").type("oof");
         cy.contains("Barness").type("rab");
-        return cy.contains("Save").click();
       },
-      ["gnirts", { foo: "oof", bar: "rab" }]
-    );
+      expected: ["gnirts", { foo: "oof", bar: "rab" }],
+    });
+  });
+
+  it("shows the current structure type in the dropdown", () => {
+    testSchematicEditor({
+      schema: Schema.union<string | { foo: string; bar: string }>("Choice", [
+        Schema.string("String"),
+        Schema.object("Object", {
+          foo: Schema.string("Foohood"),
+          bar: Schema.string("Barness"),
+        }),
+      ]),
+      initialValue: { foo: "oof", bar: "rab" },
+      command: () => {
+        cy.get("select").then((select) =>
+          select.map((_, element) =>
+            expect(element.selectedOptions.item(0)?.text).to.equal("Object")
+          )
+        );
+      },
+    });
   });
 
   it("lets the user switch between objects tagged by a type property", () => {
-    testSchematicEditor(
-      Schema.array(
+    testSchematicEditor({
+      schema: Schema.array(
         "Some Array",
         Schema.taggedUnion<
           | { type: "str"; string: string }
@@ -99,25 +118,47 @@ describe("SchematicEditor", () => {
           }),
         })
       ),
-      () => {
+      command: () => {
         cy.get("input").last().type("gnirts");
         cy.contains("Add Choice").click();
         cy.get("select").last().select("Object");
         cy.contains("Foohood").type("oof");
         cy.contains("Barness").type("rab");
-        return cy.contains("Save").click();
       },
-      [
+      expected: [
         { type: "str", string: "gnirts" },
         { type: "obj", foo: "oof", bar: "rab" },
-      ]
-    );
+      ],
+    });
+  });
+
+  it("shows the current tagged type in the drowpdown", () => {
+    testSchematicEditor({
+      schema: Schema.taggedUnion<
+        | { type: "str"; string: string }
+        | { type: "obj"; foo: string; bar: string }
+      >("Choice", {
+        str: Schema.object("String", { string: Schema.string("String") }),
+        obj: Schema.object("Object", {
+          foo: Schema.string("Foohood"),
+          bar: Schema.string("Barness"),
+        }),
+      }),
+      initialValue: { type: "obj", foo: "oof", bar: "rab" },
+      command: () => {
+        cy.get("select").then((select) =>
+          select.map((_, element) =>
+            expect(element.selectedOptions.item(0)?.text).to.equal("Object")
+          )
+        );
+      },
+    });
   });
 
   it("lets the user build recursive structures", () => {
     const ref = Schema.ref<Recursive>();
-    testSchematicEditor(
-      Schema.defineRef(
+    testSchematicEditor({
+      schema: Schema.defineRef(
         Schema.union<string | Recursive>("Recursive", [
           Schema.string("String"),
           Schema.object("Object", {
@@ -127,16 +168,15 @@ describe("SchematicEditor", () => {
         ]),
         ref
       ),
-      () => {
+      command: () => {
         cy.get("select").select("Object");
         cy.get("#schema__payload").type("foo");
         cy.get("select").last().select("Object");
         cy.get("#schema__nested__payload").last().type("bar");
         cy.get("input").last().type("baz");
-        return cy.contains("Save").click();
       },
-      { payload: "foo", nested: { payload: "bar", nested: "baz" } }
-    );
+      expected: { payload: "foo", nested: { payload: "bar", nested: "baz" } },
+    });
   });
 
   interface Recursive {
@@ -144,29 +184,40 @@ describe("SchematicEditor", () => {
     nested: string | Recursive;
   }
 
-  function testSchematicEditor<T>(
-    schema: Schema.Schema<T>,
-    command: () => Cypress.Chainable<any>,
-    expected: T
-  ) {
+  function testSchematicEditor<T>({
+    schema,
+    initialValue,
+    command,
+    expected,
+  }: {
+    schema: Schema.Schema<T>;
+    initialValue?: T;
+    command: () => void;
+    expected?: T;
+  }) {
     const onSave = cy.stub().as("callback");
     cy.mount(
       <Editor
         component={(value, onChange) => (
           <SchematicEditor schema={schema} value={value} onChange={onChange} />
         )}
-        initialValue={schema.empty()}
+        initialValue={initialValue ?? schema.empty()}
         onSave={onSave}
       />
     );
-    command().then(() => {
-      if (expected instanceof Map) {
-        expect(onSave).to.be.calledOnceWithExactly(
-          Cypress.sinon.match.map.deepEquals(expected)
-        );
-      } else {
-        expect(onSave).to.be.calledOnceWithExactly(expected);
-      }
-    });
+    command();
+    if (expected !== undefined) {
+      cy.contains("Save")
+        .click()
+        .then(() => {
+          if (expected instanceof Map) {
+            expect(onSave).to.be.calledOnceWithExactly(
+              Cypress.sinon.match.map.deepEquals(expected)
+            );
+          } else {
+            expect(onSave).to.be.calledOnceWithExactly(expected);
+          }
+        });
+    }
   }
 });

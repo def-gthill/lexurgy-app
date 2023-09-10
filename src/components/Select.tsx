@@ -3,23 +3,25 @@ import { keys } from "@/map";
 export default function Select<T>({
   id,
   options,
+  currentSelection,
   disabled,
   onChange,
   onOpen,
 }: {
   id?: string;
   options: Option<T>[];
+  currentSelection?: T;
   disabled?: boolean;
   onChange: (option: T) => void;
   onOpen?: () => void;
 }) {
-  const optionMap = new Map(
-    options.map((option) =>
-      typeof option === "string"
-        ? [option, option as T]
-        : [option.name, option.value as T]
-    )
+  const optionPairs: [string, T][] = options.map((option) =>
+    typeof option === "string"
+      ? [option, option as T]
+      : [option.name, option.value as T]
   );
+  const optionMap = new Map(optionPairs);
+  const selected = currentSelection ?? optionPairs[0][1];
   return (
     <select
       id={id}
@@ -28,7 +30,9 @@ export default function Select<T>({
       onFocus={onOpen}
     >
       {keys(optionMap).map((option) => (
-        <option key={option}>{option}</option>
+        <option key={option} selected={optionMap.get(option) === selected}>
+          {option}
+        </option>
       ))}
     </select>
   );

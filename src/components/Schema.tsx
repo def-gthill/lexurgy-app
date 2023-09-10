@@ -341,6 +341,7 @@ export class UnionSchema<T> implements Schema<T> {
             name: option.name,
             value: i,
           }))}
+          currentSelection={optionIndex}
           onChange={(value) => onChange(this.options[value].empty())}
         />
         {this.options[optionIndex].editor(value, onChange, {
@@ -401,6 +402,7 @@ export class TaggedUnionSchema<T extends { type: string }>
             name: schema.name,
             value: type,
           }))}
+          currentSelection={currentType}
           onChange={(value) =>
             onChange({ type: value, ...this.options[value].empty() } as T)
           }
