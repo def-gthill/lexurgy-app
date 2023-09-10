@@ -4,6 +4,7 @@ import { rekey, update } from "@/map";
 import { dropKeys } from "@/object";
 import * as Label from "@radix-ui/react-label";
 import { mapValues } from "lodash";
+import { Fragment } from "react";
 
 export interface Schema<T> {
   name: string;
@@ -314,7 +315,7 @@ export class MapSchema<K, V> implements Schema<Map<K, V>> {
           <div>{this.values.name}</div>
           {[...value.entries()].map(([key, value], i) => {
             return (
-              <>
+              <Fragment key={i}>
                 {this.keys.editor(
                   key,
                   (newKey) => onChange(rekey(map, key, newKey)),
@@ -325,7 +326,7 @@ export class MapSchema<K, V> implements Schema<Map<K, V>> {
                   (newValue) => onChange(update(map, [key, newValue])),
                   { isRoot: false, key: `${domKey}__${i}__value` }
                 )}
-              </>
+              </Fragment>
             );
           })}
           <div className="buttons">

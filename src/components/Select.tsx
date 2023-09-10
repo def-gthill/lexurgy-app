@@ -26,13 +26,12 @@ export default function Select<T>({
     <select
       id={id}
       disabled={disabled}
+      value={optionPairs.find(([_, option]) => option === selected)?.[0]}
       onChange={(event) => onChange(optionMap.get(event.target.value)!)}
       onFocus={onOpen}
     >
       {keys(optionMap).map((option) => (
-        <option key={option} selected={optionMap.get(option) === selected}>
-          {option}
-        </option>
+        <option key={option}>{option}</option>
       ))}
     </select>
   );
