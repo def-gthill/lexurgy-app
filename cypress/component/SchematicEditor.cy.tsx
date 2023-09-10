@@ -42,6 +42,108 @@ describe("SchematicEditor", () => {
     );
   });
 
+  it("lets the user edit a map", () => {
+    testSchematicEditor(
+      Schema.map("Some Map", Schema.string("Key"), Schema.string("Value")),
+      () => {
+        cy.get("#schema__0__key").type("foo");
+        cy.get("#schema__0__value").type("oof");
+        cy.contains("Add Value").click();
+        cy.get("#schema__1__key").type("bar");
+        cy.get("#schema__1__value").type("rab");
+        return cy.contains("Save").click();
+      },
+      new Map([
+        ["foo", "oof"],
+        ["bar", "rab"],
+      ])
+    );
+  });
+
+  it("lets the user switch between alternative structures", () => {
+    testSchematicEditor(
+      Schema.array(
+        "Some Array",
+        Schema.union<string | { foo: string; bar: string }>("Choice", [
+          Schema.string("String"),
+          Schema.object("Object", {
+            foo: Schema.string("Foohood"),
+            bar: Schema.string("Barness"),
+          }),
+        ])
+      ),
+      () => {
+        cy.get("input").last().type("gnirts");
+        cy.contains("Add Choice").click();
+        cy.get("select").last().select("Object");
+        cy.contains("Foohood").type("oof");
+        cy.contains("Barness").type("rab");
+        return cy.contains("Save").click();
+      },
+      ["gnirts", { foo: "oof", bar: "rab" }]
+    );
+  });
+
+  it("lets the user switch between objects tagged by a type property", () => {
+    testSchematicEditor(
+      Schema.array(
+        "Some Array",
+        Schema.taggedUnion<
+          | { type: "str"; string: string }
+          | { type: "obj"; foo: string; bar: string }
+        >("Choice", {
+          str: Schema.object("String", { string: Schema.string("String") }),
+          obj: Schema.object("Object", {
+            foo: Schema.string("Foohood"),
+            bar: Schema.string("Barness"),
+          }),
+        })
+      ),
+      () => {
+        cy.get("input").last().type("gnirts");
+        cy.contains("Add Choice").click();
+        cy.get("select").last().select("Object");
+        cy.contains("Foohood").type("oof");
+        cy.contains("Barness").type("rab");
+        return cy.contains("Save").click();
+      },
+      [
+        { type: "str", string: "gnirts" },
+        { type: "obj", foo: "oof", bar: "rab" },
+      ]
+    );
+  });
+
+  it("lets the user build recursive structures", () => {
+    const ref = Schema.ref<Recursive>();
+    testSchematicEditor(
+      Schema.defineRef(
+        Schema.union<string | Recursive>("Recursive", [
+          Schema.string("String"),
+          Schema.object("Object", {
+            payload: Schema.string("Payload"),
+            nested: Schema.useRef("Nested", ref),
+          }),
+        ]),
+        ref
+      ),
+      () => {
+        cy.get("select").select("Object");
+        cy.get("#schema__payload").type("foo");
+        cy.get("select").last().select("Object");
+        cy.get("#schema__nested__payload").last().type("bar");
+        cy.get("input").last().type("baz");
+        return cy.contains("Save").click();
+      },
+      { payload: "foo", nested: { payload: "bar", nested: "baz" } }
+    );
+  });
+
+  interface Recursive {
+    payload: string;
+    nested: string | Recursive;
+  }
+
   function testSchematicEditor<T>(
     schema: Schema.Schema<T>,
     command: () => Cypress.Chainable<any>,
@@ -57,6 +159,14 @@ describe("SchematicEditor", () => {
         onSave={onSave}
       />
     );
-    command().then(() => expect(onSave).to.be.calledOnceWithExactly(expected));
+    command().then(() => {
+      if (expected instanceof Map) {
+        expect(onSave).to.be.calledOnceWithExactly(
+          Cypress.sinon.match.map.deepEquals(expected)
+        );
+      } else {
+        expect(onSave).to.be.calledOnceWithExactly(expected);
+      }
+    });
   }
 });

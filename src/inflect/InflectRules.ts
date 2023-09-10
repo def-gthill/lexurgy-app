@@ -1,3 +1,5 @@
+import * as Schema from "@/components/Schema";
+
 export type InflectRules = string | CategoryTree | Formula;
 
 export function isTree(rules: InflectRules): rules is CategoryTree {
@@ -31,3 +33,32 @@ export interface Concat {
   type: "concat";
   parts: Formula[];
 }
+
+const rulesRef = Schema.ref<InflectRules>();
+const formulaRef = Schema.ref<Formula>();
+
+export const inflectRulesSchema: Schema.Schema<InflectRules> = Schema.defineRef(
+  Schema.union<InflectRules>("Inflection Rules", [
+    Schema.string("Fixed Form"),
+    Schema.object("Branch", {
+      branches: Schema.map(
+        "Branches",
+        Schema.string("Category"),
+        Schema.useRef("Rules", rulesRef)
+      ),
+    }),
+    Schema.defineRef(
+      Schema.object("Formula", {
+        formula: Schema.taggedUnion<Stem | Fixed | Concat>("Formula", {
+          stem: Schema.object("Stem", {}),
+          fixed: Schema.object("Fixed Form", { form: Schema.string("Form") }),
+          concat: Schema.object("Concatenation", {
+            parts: Schema.array("Parts", Schema.useRef("Part", formulaRef)),
+          }),
+        }),
+      }),
+      formulaRef
+    ),
+  ]),
+  rulesRef
+);

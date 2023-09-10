@@ -8,7 +8,9 @@ import { emptyDimension } from "@/inflect/Dimension";
 import InflectRequest, { fromRules } from "@/inflect/InflectRequest";
 import InflectResponse from "@/inflect/InflectResponse";
 import { InflectRules } from "@/inflect/InflectRules";
-import InflectRulesEditor from "@/inflect/InflectRulesEditor";
+import InflectRulesEditor, {
+  InflectRulesEditor_NEW,
+} from "@/inflect/InflectRulesEditor";
 import { Morph, emptyMorph } from "@/inflect/Morph";
 import axios from "axios";
 import { useState } from "react";
@@ -75,6 +77,14 @@ export default function InflectPublic() {
               <EditorPane id="rules">
                 <h4>Inflection Rules</h4>
                 <InflectRulesEditor rules={rules} saveRules={setRules} />
+              </EditorPane>
+              <EditorPane>
+                <h4>Inflection Rules (New)</h4>
+                <InflectRulesEditor_NEW rules={rules} saveRules={setRules} />
+              </EditorPane>
+              <EditorPane>
+                <h4>Inflection Rules (New)</h4>
+                <InflectRulesEditor_NEW rules={rules} saveRules={setRules} />
               </EditorPane>
               <div id="status">{error ?? status}</div>
             </div>

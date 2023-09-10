@@ -1,6 +1,11 @@
 import EditorPane from "@/components/EditorPane";
+import SchematicEditor from "@/components/SchematicEditor";
 import FormulaEditor from "@/inflect/FormulaEditor";
-import { InflectRules, isTree } from "@/inflect/InflectRules";
+import {
+  InflectRules,
+  inflectRulesSchema,
+  isTree,
+} from "@/inflect/InflectRules";
 import { rekey, update } from "@/map";
 
 export default function InflectRulesEditor({
@@ -89,4 +94,20 @@ export default function InflectRulesEditor({
       saveRules({ branches: update(rules.branches, ["", ""]) });
     }
   }
+}
+
+export function InflectRulesEditor_NEW({
+  rules,
+  saveRules,
+}: {
+  rules: InflectRules;
+  saveRules: (rules: InflectRules) => void;
+}) {
+  return (
+    <SchematicEditor
+      schema={inflectRulesSchema}
+      value={rules}
+      onChange={saveRules}
+    />
+  );
 }
