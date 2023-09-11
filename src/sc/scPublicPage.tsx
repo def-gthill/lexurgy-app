@@ -168,6 +168,7 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
                       name: toNiceName(name),
                       value: name,
                     }))}
+                    currentSelection={startAt ?? undefined}
                     onChange={setStartAt}
                   ></Select>
                   <LabelledSwitch
@@ -183,6 +184,7 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
                       name: toNiceName(name),
                       value: name,
                     }))}
+                    currentSelection={stopBefore ?? undefined}
                     onChange={setStopBefore}
                   ></Select>
                 </div>

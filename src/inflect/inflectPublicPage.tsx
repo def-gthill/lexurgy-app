@@ -8,7 +8,9 @@ import { emptyDimension } from "@/inflect/Dimension";
 import InflectRequest, { fromRules } from "@/inflect/InflectRequest";
 import InflectResponse from "@/inflect/InflectResponse";
 import { InflectRules } from "@/inflect/InflectRules";
-import { InflectRulesEditor_NEW } from "@/inflect/InflectRulesEditor";
+import InflectRulesEditor, {
+  InflectRulesEditor_NEW,
+} from "@/inflect/InflectRulesEditor";
 import { Morph, emptyMorph } from "@/inflect/Morph";
 import axios from "axios";
 import { useState } from "react";
@@ -72,18 +74,14 @@ export default function InflectPublic() {
                   ))}
                 </tbody>
               </table>
-              {/* <EditorPane id="rules">
+              <EditorPane id="rules">
                 <h4>Inflection Rules</h4>
                 <InflectRulesEditor rules={rules} saveRules={setRules} />
-              </EditorPane> */}
+              </EditorPane>
               <EditorPane>
                 <h4>Inflection Rules (New)</h4>
                 <InflectRulesEditor_NEW rules={rules} saveRules={setRules} />
               </EditorPane>
-              {/* <EditorPane>
-                <h4>Inflection Rules (New)</h4>
-                <InflectRulesEditor_NEW rules={rules} saveRules={setRules} />
-              </EditorPane> */}
               <div id="status">{error ?? status}</div>
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
@@ -118,6 +116,11 @@ export default function InflectPublic() {
                                   value: category,
                                 })),
                               ]}
+                              currentSelection={
+                                morphs[i].categories.find((category) =>
+                                  categories.includes(category)
+                                ) ?? ""
+                              }
                               onChange={(value) =>
                                 setMorphCategory(i, name, value)
                               }

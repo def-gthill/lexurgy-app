@@ -19,6 +19,7 @@ export default function FormulaEditor({
           { name: "Stem", value: "stem" },
           { name: "Concatenation", value: "concat" },
         ]}
+        currentSelection={formula.formula.type}
         onChange={setFormulaType}
       />
       {editorFor(formula)}

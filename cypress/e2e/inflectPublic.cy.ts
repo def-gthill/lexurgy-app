@@ -47,7 +47,7 @@ describe("The public inflection page", () => {
     cy.inflectedFormsAre(["fixed", "foo"]);
   });
 
-  it.only("lets the user define concatenation rules", () => {
+  it("lets the user define concatenation rules", () => {
     cy.goToInflectPublic();
     cy.runInflect({
       dimensions: {},

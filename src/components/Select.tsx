@@ -21,7 +21,7 @@ export default function Select<T>({
       : [option.name, option.value as T]
   );
   const optionMap = new Map(optionPairs);
-  const selected = currentSelection ?? optionPairs[0][1];
+  const selected = currentSelection ?? optionPairs[0]?.[1];
   return (
     <select
       id={id}
