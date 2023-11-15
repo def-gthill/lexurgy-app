@@ -44,7 +44,7 @@ export const inflectRulesSchema: Schema.Schema<InflectRules> = Schema.defineRef(
       branches: Schema.map(
         "Branches",
         Schema.string("Category"),
-        Schema.useRef("Rules", rulesRef),
+        Schema.callRef("Rules", rulesRef),
         { entryName: "Branch" }
       ),
     }),
@@ -54,7 +54,7 @@ export const inflectRulesSchema: Schema.Schema<InflectRules> = Schema.defineRef(
           stem: Schema.object("Stem", {}),
           form: Schema.object("Fixed Form", { form: Schema.string("Form") }),
           concat: Schema.object("Concatenation", {
-            parts: Schema.array("Parts", Schema.useRef("Part", formulaRef)),
+            parts: Schema.array("Parts", Schema.callRef("Part", formulaRef)),
           }),
         }),
       }),

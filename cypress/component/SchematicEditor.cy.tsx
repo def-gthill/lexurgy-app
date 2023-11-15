@@ -196,7 +196,7 @@ describe("SchematicEditor", () => {
           Schema.string("String"),
           Schema.object("Object", {
             payload: Schema.string("Payload"),
-            nested: Schema.useRef("Nested", ref),
+            nested: Schema.callRef("Nested", ref),
           }),
         ]),
         ref

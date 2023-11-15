@@ -523,7 +523,7 @@ export function defineRef<T>(schema: Schema<T>, ref: Ref<T>): Schema<T> {
   return schema;
 }
 
-export function useRef<T>(name: string, ref: Ref<T>): RecursiveSchema<T> {
+export function callRef<T>(name: string, ref: Ref<T>): RecursiveSchema<T> {
   return new RecursiveSchema(name, ref);
 }
 
