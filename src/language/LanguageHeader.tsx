@@ -1,6 +1,11 @@
 import Header from "../components/Header";
 
-export type LanguageLink = "Main" | "Lexicon" | "Syntax" | "Glitches";
+export type LanguageLink =
+  | "Main"
+  | "Lexicon"
+  | "Syntax"
+  | "Evolution"
+  | "Glitches";
 
 export default function LanguageHeader({
   id,
@@ -15,6 +20,7 @@ export default function LanguageHeader({
     { label: "Main", url: `/language/${id}` },
     { label: "Lexicon", url: `/language/${id}/lexicon` },
     { label: "Syntax", url: `/language/${id}/syntax` },
+    { label: "Evolution", url: `/language/${id}/sc` },
   ];
   if (glitchCount) {
     links.push({
