@@ -108,6 +108,15 @@ describe("the public sound changer page", () => {
   // Errors on individual words
 
   // Then can I somehow test the file import/exports and the share button?
+
+  it.only("populates the sound changes and input words from the URL if given", () => {
+    cy.goToScPublic({
+      inputWords: ["foo", "bar"],
+      changes: "my-rule:\n o => a",
+    });
+    cy.startSc();
+    cy.scOutputWordsAre(["faa", "bar"]);
+  });
 });
 
 export {};

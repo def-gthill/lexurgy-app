@@ -4,6 +4,7 @@ import Glitch from "@/glitch/Glitch";
 import { Formula, InflectRules } from "@/inflect/InflectRules";
 import SyntaxNode from "@/translation/SyntaxNode";
 import Translation from "@/translation/Translation";
+import { encode } from "js-base64";
 import ApiConstruction from "./ApiConstruction";
 import ApiLexeme from "./ApiLexeme";
 import ApiTranslation from "./ApiTranslation";
@@ -72,7 +73,10 @@ declare global {
         newRomanization: string
       ): Chainable<void>;
       getGlitches(language: string): Chainable<Glitch[]>;
-      goToScPublic(): Chainable<void>;
+      goToScPublic(inputs?: {
+        inputWords: string[];
+        changes: string;
+      }): Chainable<void>;
       runSc(inputs: UserSoundChangeInputs): Chainable<void>;
       startSc(): Chainable<void>;
       scEnterFreeInputWords(inputWords: string): Chainable<void>;
@@ -335,9 +339,18 @@ Cypress.Commands.add("getGlitches", (language: string) => {
     .its("body");
 });
 
-Cypress.Commands.add("goToScPublic", () => {
-  cy.visit("/sc");
-});
+Cypress.Commands.add(
+  "goToScPublic",
+  (inputs?: { inputWords: string[]; changes: string }) => {
+    let url = "/sc";
+    if (inputs) {
+      const inputWordsEncoded = encode(inputs.inputWords.join("\n"), true);
+      const changesEncoded = encode(inputs.changes, true);
+      url += `?changes=${changesEncoded}&input=${inputWordsEncoded}`;
+    }
+    cy.visit(url);
+  }
+);
 
 Cypress.Commands.add("runSc", (inputs: UserSoundChangeInputs) => {
   for (const input of inputs.inputWords) {
