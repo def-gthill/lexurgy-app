@@ -1,31 +1,115 @@
 import { SavedLanguage } from "@/language/Language";
 import LanguagePage from "@/language/LanguagePage";
+import { addId } from "@/object";
+import Evolution, { SavedEvolution } from "@/sc/Evolution";
 import ScRunner from "@/sc/ScRunner";
+import axios from "axios";
 import Head from "next/head";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 export default function Sc({ baseUrl }: { baseUrl: string | null }) {
-  return (
-    <LanguagePage
-      activeLink="Evolution"
-      content={(language: SavedLanguage) => (
-        <>
-          <Head>
-            <title>Lexurgy - {language.name} Evolution</title>
-            <meta
-              name="description"
-              content={`"Evolution of ${language.name}, a constructed language"`}
-            />
-          </Head>
-          <main>
-            <h1>{language.name} Evolution</h1>
-            <ScRunner
-              baseUrl={baseUrl}
-              initialSoundChanges={""}
-              initialTestWords={[""]}
-            />
-          </main>
-        </>
-      )}
-    />
-  );
+  const router = useRouter();
+  const id = router.query.id as string;
+
+  const [error, setError] = useState("");
+  const [evolution, setEvolution] = useState<SavedEvolution | null>(null);
+
+  useEffect(() => {
+    axios
+      .get(`/api/evolutions?language=${id}`)
+      .then((res) => {
+        const evolutions = res.data as SavedEvolution[];
+        const evolution =
+          evolutions[0] ||
+          addId<Evolution>({
+            soundChanges: "",
+            testWords: [""],
+          });
+        setEvolution(evolution);
+      })
+      .catch(() => setError("Sound changes not found"));
+  }, [id]);
+
+  if (error) {
+    return <div>Evolution not found</div>;
+  } else if (evolution) {
+    return (
+      <LanguagePage
+        activeLink="Evolution"
+        content={(language: SavedLanguage) => (
+          <>
+            <Head>
+              <title>Lexurgy - {language.name} Evolution</title>
+              <meta
+                name="description"
+                content={`"Evolution of ${language.name}, a constructed language"`}
+              />
+            </Head>
+            <main>
+              <h1>{language.name} Evolution</h1>
+              <ScRunner
+                baseUrl={baseUrl}
+                evolution={evolution}
+                onUpdate={(newEvolution) =>
+                  axios.post("/api/evolutions", {
+                    id: evolution.id,
+                    languageId: language.id,
+                    ...newEvolution,
+                  })
+                }
+              />
+            </main>
+          </>
+        )}
+      />
+    );
+  }
+
+  // const evolutionCollection = usePersistentCollection<
+  //   SavedEvolution,
+  //   SavedEvolution
+  // >("/api/evolutions", `/api/evolutions?language=${id}`);
+  // return evolutionCollection.fold({
+  //   onLoading: () => <div>Loading evolution...</div>,
+  //   onError: () => <div>Evolution not found</div>,
+  //   onReady: (evolutions: SavedEvolution[]) => {
+  //     const evolution =
+  //       evolutions[0] ||
+  //       addId<Evolution>({
+  //         soundChanges: "",
+  //         testWords: [""],
+  //       });
+  //     return (
+  //       <LanguagePage
+  //         activeLink="Evolution"
+  //         content={(language: SavedLanguage) => (
+  //           <>
+  //             <Head>
+  //               <title>Lexurgy - {language.name} Evolution</title>
+  //               <meta
+  //                 name="description"
+  //                 content={`"Evolution of ${language.name}, a constructed language"`}
+  //               />
+  //             </Head>
+  //             <main>
+  //               <h1>{language.name} Evolution</h1>
+  //               <ScRunner
+  //                 baseUrl={baseUrl}
+  //                 evolution={evolution}
+  //                 onUpdate={(newEvolution) =>
+  //                   evolutionCollection.save({
+  //                     id: evolution.id,
+  //                     languageId: language.id,
+  //                     ...newEvolution,
+  //                   })
+  //                 }
+  //               />
+  //             </main>
+  //           </>
+  //         )}
+  //       />
+  //     );
+  //   },
+  // });
 }

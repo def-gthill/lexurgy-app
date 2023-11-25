@@ -5,6 +5,7 @@ import LabelledSwitch from "@/components/LabelledSwitch";
 import Select from "@/components/Select";
 import SplitPane from "@/components/SplitPane";
 import { entries, hasElements, keys, toMap, values } from "@/map";
+import Evolution from "@/sc/Evolution";
 import HistoryExporter from "@/sc/HistoryExporter";
 import HistoryTable from "@/sc/HistoryTable";
 import Scv1Request from "@/sc/Scv1Request";
@@ -18,20 +19,21 @@ import { useState } from "react";
 
 export default function ScRunner({
   baseUrl,
-  initialSoundChanges,
-  initialTestWords,
+  evolution,
+  onUpdate,
 }: {
   baseUrl: string | null;
-  initialSoundChanges: string;
-  initialTestWords: string[];
+  evolution: Evolution;
+  onUpdate?: (evolution: Evolution) => void;
 }) {
-  const [editedSoundChanges, setEditedSoundChanges] =
-    useState(initialSoundChanges);
+  const [editedSoundChanges, setEditedSoundChanges] = useState(
+    evolution.soundChanges
+  );
   const [intermediateStageNames, setIntermediateStageNames] = useState<
     string[]
   >([]);
   const [histories, setHistories] = useState<WordHistory[]>(
-    initialTestWords.map(emptyHistory)
+    evolution.testWords.map(emptyHistory)
   );
   const [tracing, setTracing] = useState(false);
   const [ruleNames, setRuleNames] = useState<string[]>([]);
@@ -42,6 +44,7 @@ export default function ScRunner({
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState("Ready");
   const [scRunToggle, setScRunToggle] = useState(0);
+  const sendEvolution = useDebounced(updateEvolution, 500);
   const requestUpdatingRuleNames = useDebounced(updateRuleNames, 500);
 
   return (
@@ -52,21 +55,15 @@ export default function ScRunner({
             Sound Changes
           </Label.Root>
           <CodeEditor
-            initialCode={initialSoundChanges}
-            onUpdateCode={(newSoundChanges) => {
-              setEditedSoundChanges(newSoundChanges);
-              requestUpdatingRuleNames(newSoundChanges);
-            }}
+            initialCode={evolution.soundChanges}
+            onUpdateCode={onEditSoundChanges}
             height="30rem"
           />
           <div id="status">{error ?? status}</div>
           <div className="buttons">
             <ImportButton
               expectedFileType=".lsc"
-              sendData={(data) => {
-                setEditedSoundChanges(data);
-                requestUpdatingRuleNames(data);
-              }}
+              sendData={onEditSoundChanges}
             />
             <ExportButton fileName="lexurgy.lsc" data={editedSoundChanges} />
           </div>
@@ -84,14 +81,14 @@ export default function ScRunner({
               intermediateStageNames={intermediateStageNames}
               histories={histories}
               tracing={tracing}
-              setHistories={setHistories}
+              setHistories={onEditHistories}
             />
             <div className="buttons">
               <ImportButton
                 expectedFileType=".wli"
                 sendData={(data) => {
                   const inputWords = data.split(/[\r\n]+/);
-                  setHistories(inputWords.map(emptyHistory));
+                  onEditHistories(inputWords.map(emptyHistory));
                 }}
               />
               <HistoryExporter
@@ -169,6 +166,29 @@ export default function ScRunner({
       </SplitPane>
     </div>
   );
+
+  function onEditSoundChanges(newSoundChanges: string) {
+    setEditedSoundChanges(newSoundChanges);
+    sendEvolution({
+      soundChanges: newSoundChanges,
+      testWords: histories.map((history) => history.inputWord),
+    });
+    requestUpdatingRuleNames(newSoundChanges);
+  }
+
+  function onEditHistories(newHistories: WordHistory[]) {
+    setHistories(newHistories);
+    sendEvolution({
+      soundChanges: editedSoundChanges,
+      testWords: newHistories.map((history) => history.inputWord),
+    });
+  }
+
+  function updateEvolution(newEvolution: Evolution) {
+    if (onUpdate) {
+      onUpdate(newEvolution);
+    }
+  }
 
   async function updateRuleNames(soundChanges: string) {
     try {

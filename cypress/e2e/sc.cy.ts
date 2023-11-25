@@ -20,4 +20,13 @@ describe("a sound changer page", () => {
     });
     cy.scOutputWordsAre(["faa", "bar"]);
   });
+
+  it("persists the sound changes and test words", () => {
+    cy.scEnterSoundChanges("my-rule:\n o => a");
+    cy.scEnterInputWords(["foo", "bar"]);
+    cy.waitForApiResult("/api/evolutions*", "postEvolution");
+    cy.reload();
+    cy.startSc();
+    cy.scOutputWordsAre(["faa", "bar"]);
+  });
 });

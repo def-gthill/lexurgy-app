@@ -29,8 +29,10 @@ export default function ScPublic({ baseUrl }: { baseUrl: string | null }) {
       <main>
         <ScRunner
           baseUrl={baseUrl}
-          initialSoundChanges={soundChangesFromUrl}
-          initialTestWords={testWordsFromUrl}
+          evolution={{
+            soundChanges: soundChangesFromUrl,
+            testWords: testWordsFromUrl,
+          }}
         />
       </main>
     </>

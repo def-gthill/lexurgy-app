@@ -79,8 +79,10 @@ declare global {
       }): Chainable<void>;
       runSc(inputs: UserSoundChangeInputs): Chainable<void>;
       startSc(): Chainable<void>;
+      scEnterInputWords(inputWords: string[]): Chainable<void>;
       scEnterFreeInputWords(inputWords: string): Chainable<void>;
       scEnterSoundChanges(soundChanges: string): Chainable<void>;
+      scStartAt(ruleName: string): Chainable<void>;
       scInputWordsAre(expectedWords: string[]): Chainable<void>;
       scOutputWordsAre(expectedWords: string[]): Chainable<void>;
       scIntermediateWordsAre(
@@ -353,10 +355,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("runSc", (inputs: UserSoundChangeInputs) => {
-  for (const input of inputs.inputWords) {
-    cy.get("table input").last().type(input);
-    cy.contains("Add Word").click();
-  }
+  cy.scEnterInputWords(inputs.inputWords);
   cy.scEnterSoundChanges(inputs.changes);
   if (inputs.traceWords) {
     cy.contains("Trace Changes").click();
@@ -369,8 +368,7 @@ Cypress.Commands.add("runSc", (inputs: UserSoundChangeInputs) => {
     cy.contains("Trace Changes").click();
   }
   if (inputs.startAt) {
-    cy.get("#start-at-enabled").click();
-    cy.get("#start-at").select(inputs.startAt);
+    cy.scStartAt(inputs.startAt);
     if (inputs.turnOffStartAt) {
       cy.get("#start-at-enabled").click();
     }
@@ -389,6 +387,13 @@ Cypress.Commands.add("startSc", () => {
   cy.contains("Apply").click();
 });
 
+Cypress.Commands.add("scEnterInputWords", (inputWords: string[]) => {
+  for (const input of inputWords) {
+    cy.get("table input").last().type(input);
+    cy.contains("Add Word").click();
+  }
+});
+
 Cypress.Commands.add("scEnterFreeInputWords", (inputWordText: string) => {
   cy.get("#free-edit").click();
   cy.get("#input-words").type(inputWordText);
@@ -396,6 +401,11 @@ Cypress.Commands.add("scEnterFreeInputWords", (inputWordText: string) => {
 
 Cypress.Commands.add("scEnterSoundChanges", (soundChanges: string) => {
   cy.get(".cm-line").type(soundChanges);
+});
+
+Cypress.Commands.add("scStartAt", (ruleName: string) => {
+  cy.get("#start-at-enabled").click();
+  cy.get("#start-at").select(ruleName);
 });
 
 Cypress.Commands.add("scInputWordsAre", (expectedWords: string[]) => {
