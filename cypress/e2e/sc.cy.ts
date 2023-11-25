@@ -30,3 +30,5 @@ describe("a sound changer page", () => {
     cy.scOutputWordsAre(["faa", "bar"]);
   });
 });
+
+export {};
