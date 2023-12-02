@@ -35,6 +35,7 @@ export default function ScRunner({
   const [histories, setHistories] = useState<WordHistory[]>(
     evolution.testWords.map(emptyHistory)
   );
+  const testWords = histories.map((history) => history.inputWord);
   const [tracing, setTracing] = useState(false);
   const [ruleNames, setRuleNames] = useState<string[]>([]);
   const [startAtEnabled, setStartAtEnabled] = useState(false);
@@ -112,7 +113,7 @@ export default function ScRunner({
               <ShareButton
                 baseUrl={baseUrl}
                 soundChanges={editedSoundChanges}
-                inputWords={histories.map((history) => history.inputWord)}
+                inputWords={testWords}
               />
             </div>
             <div
@@ -171,7 +172,7 @@ export default function ScRunner({
     setEditedSoundChanges(newSoundChanges);
     sendEvolution({
       soundChanges: newSoundChanges,
-      testWords: histories.map((history) => history.inputWord),
+      testWords,
     });
     requestUpdatingRuleNames(newSoundChanges);
   }
@@ -216,7 +217,7 @@ export default function ScRunner({
     setStatus("Running...");
     const request: Scv1Request = {
       changes: editedSoundChanges,
-      inputWords: histories.map((history) => history.inputWord),
+      inputWords: testWords,
       traceWords: tracing
         ? histories
             .filter((history) => history.tracing)

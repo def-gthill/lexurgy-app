@@ -14,6 +14,8 @@ export default function CodeEditor({
 }) {
   const editor = useRef<HTMLDivElement | null>(null);
   const view = useRef<EditorView | null>(null);
+  // Prevents state variables used in onUpdateCode from being captured.
+  const onUpdateCodeRef = useRef<(newCode: string) => void>(() => {});
 
   const createState = useRef((initialCode: string) => {
     const theme = EditorView.theme({
@@ -23,13 +25,17 @@ export default function CodeEditor({
     });
 
     const onUpdate = EditorView.updateListener.of((v) => {
-      onUpdateCode(v.state.doc.toString());
+      onUpdateCodeRef.current(v.state.doc.toString());
     });
 
     return EditorState.create({
       doc: initialCode,
       extensions: [keymap.of(defaultKeymap), lineNumbers(), onUpdate, theme],
     });
+  });
+
+  useEffect(() => {
+    onUpdateCodeRef.current = onUpdateCode;
   });
 
   useEffect(() => {
