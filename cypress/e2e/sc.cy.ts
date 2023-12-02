@@ -29,6 +29,16 @@ describe("a sound changer page", () => {
     cy.startSc();
     cy.scOutputWordsAre(["faa", "bar"]);
   });
+
+  it("persists the text words if the user ran sound changes in Free Edit", () => {
+    cy.scEnterSoundChanges("my-rule:\n o => a");
+    cy.scEnterFreeInputWords("foo\nbar");
+    cy.startSc();
+    cy.waitForApiResult("/api/evolutions*", "postEvolution");
+    cy.reload();
+    cy.startSc();
+    cy.scOutputWordsAre(["faa", "bar"]);
+  });
 });
 
 export {};

@@ -81,6 +81,7 @@ declare global {
       startSc(): Chainable<void>;
       scEnterInputWords(inputWords: string[]): Chainable<void>;
       scEnterFreeInputWords(inputWords: string): Chainable<void>;
+      scInsertFreeInputWord(word: string, index: number): Chainable<void>;
       scEnterSoundChanges(soundChanges: string): Chainable<void>;
       scStartAt(ruleName: string): Chainable<void>;
       scInputWordsAre(expectedWords: string[]): Chainable<void>;
@@ -397,6 +398,16 @@ Cypress.Commands.add("scEnterInputWords", (inputWords: string[]) => {
 Cypress.Commands.add("scEnterFreeInputWords", (inputWordText: string) => {
   cy.get("#free-edit").click();
   cy.get("#input-words").type(inputWordText);
+});
+
+Cypress.Commands.add("scInsertFreeInputWord", (word: string, index: number) => {
+  let text = "{moveToStart}";
+  for (let i = 0; i < index - 1; i++) {
+    text += "{downArrow}";
+  }
+  text += "{end}\n";
+  text += word;
+  cy.get("#input-words").type(text);
 });
 
 Cypress.Commands.add("scEnterSoundChanges", (soundChanges: string) => {

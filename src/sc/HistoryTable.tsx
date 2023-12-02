@@ -46,7 +46,7 @@ export default function HistoryTable({
               wordWrap: "normal",
             }}
             onChange={(event) => {
-              const inputWords = event.target.value.split(/[\r\n]+/);
+              const inputWords = event.target.value.split(/\r?\n/);
               mySetHistories(inputWords.map(emptyHistory));
             }}
             value={myHistories.map((history) => history.inputWord).join("\n")}

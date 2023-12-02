@@ -16,6 +16,15 @@ describe("the public sound changer page", () => {
     cy.scOutputWordsAre(["faa", "bar"]);
   });
 
+  it("allows the user to insert lines in Free Edit", () => {
+    cy.goToScPublic();
+    cy.scEnterSoundChanges("my-rule:\n o => a");
+    cy.scEnterFreeInputWords("foo\nbar");
+    cy.scInsertFreeInputWord("boo", 1);
+    cy.startSc();
+    cy.scOutputWordsAre(["faa", "baa", "bar"]);
+  });
+
   it("displays intermediate forms if defined", () => {
     cy.goToScPublic();
     cy.runSc({
@@ -109,7 +118,7 @@ describe("the public sound changer page", () => {
 
   // Then can I somehow test the file import/exports and the share button?
 
-  it.only("populates the sound changes and input words from the URL if given", () => {
+  it("populates the sound changes and input words from the URL if given", () => {
     cy.goToScPublic({
       inputWords: ["foo", "bar"],
       changes: "my-rule:\n o => a",
