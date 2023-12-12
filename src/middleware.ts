@@ -13,6 +13,9 @@ export default withAuth({
       }
       return (
         token.email === process.env.NEXTAUTH_ADMIN_EMAIL ||
+        process.env.NEXTAUTH_EXPERIMENTAL_FEATURE_EMAILS?.split(",")?.includes(
+          token.email
+        ) ||
         process.env.NEXTAUTH_TEST_USER_EMAILS?.split(",")?.includes(
           token.email
         ) ||
