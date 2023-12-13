@@ -1,7 +1,9 @@
+import FeatureHider from "@/components/FeatureHider";
 import Header from "@/components/Header";
 import Glitch from "@/glitch/Glitch";
 import { SavedLanguage } from "@/language/Language";
 import useReadOnlyPersistentCollection from "@/useReadOnlyPersistentCollection";
+import axios from "axios";
 import useLanguageInfo from "../language/useLanguageInfo";
 import LanguageHeader, { LanguageLink } from "./LanguageHeader";
 
@@ -13,13 +15,27 @@ export default function LanguagePage({
   activeLink: LanguageLink;
 }) {
   const { language, error } = useLanguageInfo();
+
   if (language !== undefined) {
     return (
-      <LanguagePageWithGlitches
-        language={language}
-        content={content}
-        activeLink={activeLink}
-      />
+      <FeatureHider
+        getVisibleChild={async () =>
+          (await axios.get("/api/userType")).data.featureAccess ===
+          "experimental"
+            ? 1
+            : 0
+        }
+      >
+        <>
+          <Header />
+          {content(language)}
+        </>
+        <LanguagePageWithGlitches
+          language={language}
+          content={content}
+          activeLink={activeLink}
+        />
+      </FeatureHider>
     );
   } else if (error !== undefined) {
     return (

@@ -16,4 +16,11 @@ describe("feature hiding", () => {
     cy.tabTitleIs("Lexurgy - Examplish Evolution");
     cy.pageTitleIs("Examplish Evolution");
   });
+
+  it("hides the language navigation buttons for general users", () => {
+    cy.waitForApiResult("/api/userType", "userType");
+    cy.waitForApiResult("/api/userType", "userType2");
+    cy.contains("Lexicon").should("not.exist");
+    cy.contains("Syntax").should("not.exist");
+  });
 });
