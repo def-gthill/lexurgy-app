@@ -8,7 +8,9 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-export default function Sc({ baseUrl }: { baseUrl: string | null }) {
+const baseUrl = "www.lexurgy.com";
+
+export default function Sc() {
   const router = useRouter();
   const id = router.query.id as string;
 
@@ -64,5 +66,7 @@ export default function Sc({ baseUrl }: { baseUrl: string | null }) {
         )}
       />
     );
+  } else {
+    return <div>Loading evolution...</div>;
   }
 }
