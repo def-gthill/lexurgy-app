@@ -33,40 +33,42 @@ export default function Sc() {
       .catch(() => setError("Sound changes not found"));
   }, [id]);
 
-  if (error) {
-    return <div>Evolution not found</div>;
-  } else if (evolution) {
-    return (
-      <LanguagePage
-        activeLink="Evolution"
-        content={(language: SavedLanguage) => (
-          <>
-            <Head>
-              <title>Lexurgy - {language.name} Evolution</title>
-              <meta
-                name="description"
-                content={`"Evolution of ${language.name}, a constructed language"`}
-              />
-            </Head>
-            <main>
-              <h1>{language.name} Evolution</h1>
-              <ScRunner
-                baseUrl={baseUrl}
-                evolution={evolution}
-                onUpdate={(newEvolution) =>
-                  axios.post("/api/evolutions", {
-                    id: evolution.id,
-                    languageId: language.id,
-                    ...newEvolution,
-                  })
-                }
-              />
-            </main>
-          </>
-        )}
-      />
-    );
-  } else {
-    return <div>Loading evolution...</div>;
-  }
+  return (
+    <LanguagePage
+      activeLink="Evolution"
+      content={(language: SavedLanguage) => {
+        if (error) {
+          return <div>Evolution not found</div>;
+        } else if (evolution) {
+          return (
+            <>
+              <Head>
+                <title>Lexurgy - {language.name} Evolution</title>
+                <meta
+                  name="description"
+                  content={`"Evolution of ${language.name}, a constructed language"`}
+                />
+              </Head>
+              <main>
+                <h1>{language.name} Evolution</h1>
+                <ScRunner
+                  baseUrl={baseUrl}
+                  evolution={evolution}
+                  onUpdate={(newEvolution) =>
+                    axios.post("/api/evolutions", {
+                      id: evolution.id,
+                      languageId: language.id,
+                      ...newEvolution,
+                    })
+                  }
+                />
+              </main>
+            </>
+          );
+        } else {
+          return <div>Loading evolution...</div>;
+        }
+      }}
+    />
+  );
 }
