@@ -1,4 +1,3 @@
-import { useSession } from "next-auth/react";
 import Header from "../components/Header";
 
 export type LanguageLink =
@@ -6,6 +5,7 @@ export type LanguageLink =
   | "Lexicon"
   | "Syntax"
   | "Evolution"
+  | "Settings"
   | "Glitches";
 
 export default function LanguageHeader({
@@ -17,12 +17,12 @@ export default function LanguageHeader({
   active: LanguageLink;
   glitchCount?: number;
 }) {
-  const session = useSession();
   const links = [
     { label: "Main", url: `/language/${id}` },
     { label: "Lexicon", url: `/language/${id}/lexicon` },
     { label: "Syntax", url: `/language/${id}/syntax` },
     { label: "Evolution", url: `/language/${id}/sc` },
+    { label: "Settings", url: `/language/${id}/settings` },
   ];
   if (glitchCount) {
     links.push({
