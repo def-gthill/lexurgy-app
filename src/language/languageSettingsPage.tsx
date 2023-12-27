@@ -4,6 +4,7 @@ import ListCard from "@/components/ListCard";
 import { SavedLanguage } from "@/language/Language";
 import LanguageAccess, { AccessType } from "@/language/LanguageAccess";
 import LanguagePage from "@/language/LanguagePage";
+import useDebounced from "@/useDebounced";
 import usePersistentCollection from "@/usePersistentCollection";
 import { User } from "@/user/User";
 import axios from "axios";
@@ -70,6 +71,8 @@ function GiveAccessEditor({
   const [showing, setShowing] = useState(false);
   const [username, setUsername] = useState("");
   const [access, setAccess] = useState<LanguageAccess | null>(initialValue);
+  const requestUser = useDebounced(getUser, 500);
+
   return showing ? (
     <EditorPane>
       <h4 style={{ marginTop: 0 }}>{showButtonLabel}</h4>
@@ -80,18 +83,7 @@ function GiveAccessEditor({
           value={username ?? ""}
           onChange={async (newUsername) => {
             setUsername(newUsername);
-            const user = await getUser(newUsername);
-            if (user) {
-              if (access) {
-                setAccess({ ...access, user });
-              } else {
-                setAccess({
-                  languageId: language.id,
-                  user,
-                  accessType: "owner",
-                });
-              }
-            }
+            requestUser(newUsername);
           }}
         />
       </Fields>
@@ -121,11 +113,22 @@ function GiveAccessEditor({
     </div>
   );
 
-  async function getUser(username: string): Promise<User | null> {
+  async function getUser(username: string) {
     const users = await axios.get<User[]>("/api/users", {
       params: { username },
     });
-    return users.data[0] ?? null;
+    const user = users.data[0] ?? null;
+    if (user) {
+      if (access) {
+        setAccess({ ...access, user });
+      } else {
+        setAccess({
+          languageId: language.id,
+          user,
+          accessType: "owner",
+        });
+      }
+    }
   }
 }
 
