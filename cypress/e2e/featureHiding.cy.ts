@@ -24,3 +24,5 @@ describe("feature hiding", () => {
     cy.contains("Syntax").should("not.exist");
   });
 });
+
+export {};
