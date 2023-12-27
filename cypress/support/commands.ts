@@ -46,6 +46,7 @@ declare global {
       resetDb(): Chainable<void>;
       goToHome(): Chainable<void>;
       login(user: string): Chainable<void>;
+      ensureUserExists(user: string): Chainable<void>;
       tabTitleIs(expected: string): Chainable<void>;
       pageTitleIs(expected: string): Chainable<void>;
       clickNavigationLink(name: string): Chainable<void>;
@@ -54,6 +55,8 @@ declare global {
       createLanguageWithApi(name: string): Chainable<void>;
       goToLanguage(name: string): Chainable<void>;
       navigateToLanguage(name: string): Chainable<void>;
+      ownersAre(users: string[]): Chainable<void>;
+      addOwner(user: string): Chainable<void>;
       createLexeme(lexeme: UserLexeme): Chainable<void>;
       enterLexemeRomanization(romanized: string): Chainable<void>;
       enterLexemePartOfSpeech(pos: string): Chainable<void>;
@@ -123,12 +126,27 @@ Cypress.Commands.add("goToHome", () => {
   cy.visit("/");
 });
 
+function getUserEmail(user: string) {
+  return Cypress.env(`${user}UserEmail`);
+}
+
 Cypress.Commands.add("login", (user: string) => {
   cy.session(user, () => {
     cy.goToHome();
-    cy.contains("Email").type(Cypress.env(`${user}UserEmail`));
+    cy.contains("Email").type(getUserEmail(user));
     cy.contains("Sign in with Email").click();
     cy.contains("Lexurgy");
+  });
+});
+
+Cypress.Commands.add("ensureUserExists", (user: string) => {
+  cy.request({
+    url: "/api/users",
+    method: "POST",
+    body: {
+      id: crypto.randomUUID(),
+      username: getUserEmail(user),
+    },
   });
 });
 
@@ -174,6 +192,18 @@ Cypress.Commands.add("goToLanguage", (name: string) => {
 
 Cypress.Commands.add("navigateToLanguage", (name: string) => {
   cy.contains(name).click();
+});
+
+Cypress.Commands.add("ownersAre", (users: string[]) => {
+  for (const user of users) {
+    cy.get("main").contains(getUserEmail(user));
+  }
+});
+
+Cypress.Commands.add("addOwner", (user: string) => {
+  cy.contains("Give Access").click();
+  cy.contains("Username").type(getUserEmail(user));
+  cy.contains("Save").click();
 });
 
 Cypress.Commands.add("createLexeme", (lexeme: UserLexeme) => {

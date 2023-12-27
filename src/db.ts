@@ -1,4 +1,4 @@
-import neo4j, { Driver } from "neo4j-driver";
+import neo4j, { Driver, Relationship } from "neo4j-driver";
 
 export default function getDriver(): Driver {
   return neo4j.driver(
@@ -50,7 +50,11 @@ export async function query<T>(
 
   function mapSingle(record: unknown): unknown {
     if (record && typeof record === "object" && "properties" in record) {
-      return record.properties;
+      if (record instanceof Relationship) {
+        return { type: record.type, ...record.properties };
+      } else {
+        return record.properties;
+      }
     } else if (record && record instanceof Array) {
       const result = record.map(mapSingle);
       return result;

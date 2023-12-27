@@ -26,10 +26,12 @@ export default function LanguagePage({
             : 0
         }
       >
-        <>
-          <Header />
-          {content(language)}
-        </>
+        <LanguagePageWithGlitches
+          language={language}
+          content={content}
+          activeLink={activeLink}
+          showLinks={false}
+        />
         <LanguagePageWithGlitches
           language={language}
           content={content}
@@ -62,10 +64,12 @@ function LanguagePageWithGlitches({
   language,
   content,
   activeLink,
+  showLinks = true,
 }: {
   language: SavedLanguage;
   content: (language: SavedLanguage) => JSX.Element;
   activeLink: LanguageLink;
+  showLinks?: boolean;
 }) {
   const glitchCollection = useReadOnlyPersistentCollection<Glitch>(
     `/api/glitches?language=${language.id}`
@@ -73,11 +77,13 @@ function LanguagePageWithGlitches({
   const glitchCount = glitchCollection.getOrEmpty().length;
   return (
     <>
-      <LanguageHeader
-        id={language.id}
-        active={activeLink}
-        glitchCount={glitchCount}
-      />
+      {showLinks && (
+        <LanguageHeader
+          id={language.id}
+          active={activeLink}
+          glitchCount={glitchCount}
+        />
+      )}
       {content(language)}
     </>
   );
