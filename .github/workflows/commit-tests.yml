@@ -39,4 +39,5 @@ jobs:
           working-directory: lexurgy-app
         env:
           CYPRESS_defaultUserEmail: ${{ secrets.NEXTAUTH_ADMIN_EMAIL }}
-          CYPRESS_secondUserEmail: ${{ secrets.NEXTAUTH_TEST_USER_EMAILS }}
+          CYPRESS_secondUserEmail: ${{ secrets.NEXTAUTH_EXPERIMENTAL_FEATURE_EMAILS }}
+          CYPRESS_randomUserEmail: ${{ secrets.NEXTAUTH_TEST_USER_EMAILS }}
