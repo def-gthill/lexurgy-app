@@ -12,25 +12,27 @@ const baseUrl = "www.lexurgy.com";
 
 export default function Sc() {
   const router = useRouter();
-  const id = router.query.id as string;
+  const id = router.query.id;
 
   const [error, setError] = useState("");
   const [evolution, setEvolution] = useState<SavedEvolution | null>(null);
 
   useEffect(() => {
-    axios
-      .get(`/api/evolutions?language=${id}`)
-      .then((res) => {
-        const evolutions = res.data as SavedEvolution[];
-        const evolution =
-          evolutions[0] ||
-          addId<Evolution>({
-            soundChanges: "",
-            testWords: [""],
-          });
-        setEvolution(evolution);
-      })
-      .catch(() => setError("Sound changes not found"));
+    if (typeof id === "string") {
+      axios
+        .get(`/api/evolutions?language=${id}`)
+        .then((res) => {
+          const evolutions = res.data as SavedEvolution[];
+          const evolution =
+            evolutions[0] ||
+            addId<Evolution>({
+              soundChanges: "",
+              testWords: [""],
+            });
+          setEvolution(evolution);
+        })
+        .catch(() => setError("Sound changes not found"));
+    }
   }, [id]);
 
   return (
