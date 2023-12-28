@@ -19,6 +19,7 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> lexurgy-app/.env.local
           echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> lexurgy-app/.env.local
           echo "NEXTAUTH_ADMIN_EMAIL=${{ secrets.NEXTAUTH_ADMIN_EMAIL }}" >> lexurgy-app/.env.local
+          echo "NEXTAUTH_EXPERIMENTAL_FEATURE_EMAILS=${{ secrets.NEXTAUTH_EXPERIMENTAL_FEATURE_EMAILS }}" >> lexurgy-app/.env.local
           echo "NEXTAUTH_TEST_USER_EMAILS=${{ secrets.NEXTAUTH_TEST_USER_EMAILS }}" >> lexurgy-app/.env.local
           echo "NEO4J_URL=bolt://0.0.0.0:7687" >> lexurgy-app/.env.local
           echo "NEO4J_USERNAME=neo4j" >> lexurgy-app/.env.local
