@@ -7,20 +7,13 @@ import { useRouter } from "next/router";
 const baseUrl = "www.lexurgy.com";
 
 export default function ScPublic() {
-  let soundChangesFromUrl = "";
-  let testWordsFromUrl = [""];
   const router = useRouter();
-  if (router.isReady) {
-    const changes = router.query.changes;
-    const input = router.query.input;
-
-    if (typeof input === "string") {
-      testWordsFromUrl = decode(input).split("\n");
-    }
-    if (typeof changes === "string") {
-      soundChangesFromUrl = decode(changes);
-    }
-  }
+  const changes = router.query.changes;
+  const soundChangesFromUrl =
+    typeof changes === "string" ? decode(changes) : "";
+  const input = router.query.input;
+  const testWordsFromUrl =
+    typeof input === "string" ? decode(input).split("\n") : [""];
   return (
     <>
       <PageInfo

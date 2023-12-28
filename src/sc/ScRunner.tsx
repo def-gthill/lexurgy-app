@@ -15,7 +15,7 @@ import { WordHistory, emptyHistory } from "@/sc/WordHistory";
 import useDebounced from "@/useDebounced";
 import * as Label from "@radix-ui/react-label";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ScRunner({
   baseUrl,
@@ -29,12 +29,19 @@ export default function ScRunner({
   const [editedSoundChanges, setEditedSoundChanges] = useState(
     evolution.soundChanges
   );
+  useEffect(() => {
+    setEditedSoundChanges(evolution.soundChanges);
+  }, [evolution.soundChanges]);
   const [intermediateStageNames, setIntermediateStageNames] = useState<
     string[]
   >([]);
   const [histories, setHistories] = useState<WordHistory[]>(
     evolution.testWords.map(emptyHistory)
   );
+  useEffect(() => {
+    setHistories(evolution.testWords.map(emptyHistory));
+  }, [evolution.testWords]);
+
   const testWords = histories.map((history) => history.inputWord);
   const [tracing, setTracing] = useState(false);
   const [ruleNames, setRuleNames] = useState<string[]>([]);

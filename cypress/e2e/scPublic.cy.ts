@@ -123,6 +123,7 @@ describe("the public sound changer page", () => {
       inputWords: ["foo", "bar"],
       changes: "my-rule:\n o => a",
     });
+    cy.scInputWordsAre(["foo", "bar"]);
     cy.startSc();
     cy.scOutputWordsAre(["faa", "bar"]);
   });

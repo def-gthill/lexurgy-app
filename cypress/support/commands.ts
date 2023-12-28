@@ -451,8 +451,9 @@ Cypress.Commands.add("scStartAt", (ruleName: string) => {
 
 Cypress.Commands.add("scInputWordsAre", (expectedWords: string[]) => {
   expectedWords.forEach((word, i) => {
-    cy.get(`tbody > :nth-child(${i + 1}) > :first > input`).then((element) =>
-      expect(element).to.have.value(word)
+    cy.get(`tbody > :nth-child(${i + 1}) > :first > input`).should(
+      "have.value",
+      word
     );
   });
 });
@@ -460,9 +461,7 @@ Cypress.Commands.add("scInputWordsAre", (expectedWords: string[]) => {
 Cypress.Commands.add("scOutputWordsAre", (expectedWords: string[]) => {
   cy.contains(expectedWords[0]);
   expectedWords.forEach((word, i) => {
-    cy.get(`tbody > :nth-child(${i + 1}) > :last`).then((element) =>
-      expect(element.text()).to.equal(word)
-    );
+    cy.get(`tbody > :nth-child(${i + 1}) > :last`).contains(word);
   });
 });
 
