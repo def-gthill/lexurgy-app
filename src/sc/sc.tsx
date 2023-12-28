@@ -29,7 +29,7 @@ export default function Sc() {
               soundChanges: "",
               testWords: [""],
             });
-          setEvolution(evolution);
+          setEvolution((existingEvolution) => existingEvolution || evolution);
         })
         .catch(() => setError("Sound changes not found"));
     }
