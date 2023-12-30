@@ -1,7 +1,11 @@
 import styles from "@/styles/Header.module.css";
+import { User } from "@/user/User";
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
+import axios from "axios";
 import { signOut, useSession } from "next-auth/react";
 import NextLink from "next/link";
+import { useEffect } from "react";
+import { v4 as randomUUID } from "uuid";
 
 export default function Header({
   links,
@@ -11,6 +15,17 @@ export default function Header({
   active?: string;
 }) {
   const session = useSession();
+  useEffect(() => {
+    const username = session.data?.user?.email;
+    if (username) {
+      axios.get("/api/users", { params: { username } }).then((res) => {
+        const users = res.data as User[];
+        if (users.length === 0) {
+          axios.post("/api/users", { id: randomUUID(), username });
+        }
+      });
+    }
+  }, [session]);
   return (
     <NavigationMenu.Root>
       <NavigationMenu.List className={styles.NavigationMenuList}>

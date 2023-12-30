@@ -13,17 +13,28 @@ describe("a settings page", () => {
     cy.pageTitleIs("Examplish Settings");
   });
 
-  it("Displays the language's owner", () => {
+  it("displays the language's owner", () => {
     cy.ownersAre(["default"]);
   });
 
-  it("Lets an owner assign a co-owner", () => {
+  it("lets an owner assign a co-owner", () => {
     cy.ensureUserExists("second");
     cy.addOwner("second");
     cy.ownersAre(["default", "second"]);
     cy.login("second");
     cy.goToHome();
     cy.contains("Examplish");
+  });
+
+  it.only("allows co-owners that have done nothing more than sign in", () => {
+    cy.login("second");
+    cy.goToHome();
+    cy.waitForApiResult("/api/users*", "user");
+    cy.login("default");
+    cy.goToHome();
+    cy.navigateToLanguage("Examplish");
+    cy.clickNavigationLink("Settings");
+    cy.addOwner("second");
   });
 
   it.skip("Lets an owner revoke co-ownership", () => {});
