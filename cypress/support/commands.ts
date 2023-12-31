@@ -159,6 +159,7 @@ Cypress.Commands.add("pageTitleIs", (expected: string) => {
 });
 
 Cypress.Commands.add("clickNavigationLink", (name: string) => {
+  cy.waitForApiResult("/api/userType", "userType");
   cy.contains(name).click();
 });
 
