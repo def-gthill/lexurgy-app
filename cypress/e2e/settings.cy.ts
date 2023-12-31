@@ -26,7 +26,7 @@ describe("a settings page", () => {
     cy.contains("Examplish");
   });
 
-  it.only("allows co-owners that have done nothing more than sign in", () => {
+  it("allows co-owners that have done nothing more than sign in", () => {
     cy.login("second");
     cy.goToHome();
     cy.waitForApiResult("/api/users*", "user");
