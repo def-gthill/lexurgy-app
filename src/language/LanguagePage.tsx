@@ -77,12 +77,14 @@ function LanguagePageWithGlitches({
   const glitchCount = glitchCollection.getOrEmpty().length;
   return (
     <>
-      {showLinks && (
+      {showLinks ? (
         <LanguageHeader
           id={language.id}
           active={activeLink}
           glitchCount={glitchCount}
         />
+      ) : (
+        <Header />
       )}
       {content(language)}
     </>
