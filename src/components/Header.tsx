@@ -48,8 +48,20 @@ export default function Header({
             <NavigationMenu.Link
               className={styles.NavigationMenuLink}
               href="https://github.com/def-gthill/lexurgy-app"
+              target="_blank"
+              rel="noopener"
             >
               GitHub
+            </NavigationMenu.Link>
+          </NavigationMenu.Item>
+          <NavigationMenu.Item>
+            <NavigationMenu.Link
+              className={styles.NavigationMenuLink}
+              href="https://ko-fi.com/meamoria"
+              target="_blank"
+              rel="noopener"
+            >
+              Donate
             </NavigationMenu.Link>
           </NavigationMenu.Item>
           <NavigationMenu.Item>
@@ -61,9 +73,7 @@ export default function Header({
                   signOut();
                 }}
               >
-                {session.data.user.name ??
-                  session.data.user.email ??
-                  "Sign Out"}
+                Sign Out
               </NavigationMenu.Link>
             ) : (
               <NavigationMenu.Link

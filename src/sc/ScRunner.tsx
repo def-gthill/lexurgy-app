@@ -74,6 +74,14 @@ export default function ScRunner({
               sendData={onEditSoundChanges}
             />
             <ExportButton fileName="lexurgy.lsc" data={editedSoundChanges} />
+            <a
+              href="https://www.meamoria.com/lexurgy/html/sc-tutorial.html"
+              target="_blank"
+              rel="noopener"
+              className="button"
+            >
+              Help
+            </a>
           </div>
         </div>
         <div

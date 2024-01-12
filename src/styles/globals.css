@@ -178,19 +178,24 @@ label {
   padding: 4px;
 }
 
-button {
+button,
+.button {
+  display: inline-block;
   background-color: var(--primary);
   color: var(--foreground-always-light);
   border: none;
   padding: 4px;
   border-radius: 4px;
+  cursor: pointer;
 }
 
-button:hover {
+button:hover,
+.button:hover {
   background-color: var(--primary-dark);
 }
 
-button:disabled {
+button:disabled,
+.button:disabled {
   background-color: var(--primary-grey);
 }
 
@@ -211,7 +216,8 @@ button.danger:disabled {
   padding: 2px;
 }
 
-.buttons > button {
+.buttons > button,
+.buttons > .button {
   margin: 2px;
 }
 
