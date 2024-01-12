@@ -3,6 +3,7 @@ import { User } from "@/user/User";
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import axios from "axios";
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import NextLink from "next/link";
 import { useEffect } from "react";
 import { v4 as randomUUID } from "uuid";
@@ -30,6 +31,7 @@ export default function Header({
     <NavigationMenu.Root>
       <NavigationMenu.List className={styles.NavigationMenuList}>
         <div className={styles.leftGroup}>
+          <Image src="/logo.png" alt="" width={48} height={48} />
           <NavigationMenu.Item>
             <Link href="/">Lexurgy</Link>
           </NavigationMenu.Item>
