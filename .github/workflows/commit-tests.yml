@@ -12,6 +12,7 @@ jobs:
         uses: cypress-io/github-action@v5
         with:
           component: true
+          working-directory: lexurgy-app
   cypress-end-to-end:
     runs-on: ubuntu-latest
     steps:
