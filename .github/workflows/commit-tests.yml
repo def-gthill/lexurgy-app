@@ -9,7 +9,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
       - name: Run Unit Tests
-        run: npm run test --watchAll=false
+        run: npm run test
   cypress-component:
     runs-on: ubuntu-latest
     steps:

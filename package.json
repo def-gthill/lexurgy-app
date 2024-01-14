@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest --watch",
+    "test-ci": "jest",
     "cypress": "cypress open",
     "cypress-unit": "cypress run --component",
     "cypress-accept": "cypress run",
