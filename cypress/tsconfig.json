@@ -16,9 +16,9 @@
     "incremental": true,
     "downlevelIteration": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["../src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["cypress.config.ts", "cypress", "node_modules"]
+  "exclude": ["node_modules"]
 }
