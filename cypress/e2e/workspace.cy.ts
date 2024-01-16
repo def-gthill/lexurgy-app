@@ -32,6 +32,13 @@ describe("the workspace page", () => {
     cy.get(".AlertDialogContent").contains("Delete").click();
     cy.get(".card").should("not.exist");
   });
+
+  it.only("lets the user add a world", () => {
+    cy.createWorld("Handwavia", "Home of Betamax Crinkledash");
+    cy.navigateToWorld("Handwavia");
+    cy.pageTitleIs("Handwavia");
+    cy.contains("Home of Betamax Crinkledash");
+  });
 });
 
 export {};

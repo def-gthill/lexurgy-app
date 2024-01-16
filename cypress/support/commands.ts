@@ -51,6 +51,8 @@ declare global {
       pageTitleIs(expected: string): Chainable<void>;
       clickNavigationLink(name: string): Chainable<void>;
       previewShowsJsonOf(value: any): Chainable<void>;
+      createWorld(name: string, description?: string): Chainable<void>;
+      navigateToWorld(name: string): Chainable<void>;
       createLanguage(name: string): Chainable<void>;
       createLanguageWithApi(name: string): Chainable<void>;
       goToLanguage(name: string): Chainable<void>;
@@ -94,6 +96,7 @@ declare global {
       ): Chainable<void>;
       scNoIntermediates(): Chainable<void>;
       scShowsSyntaxError(): Chainable<void>;
+      goToScExamples(): Chainable<void>;
       goToInflectPublic(): Chainable<void>;
       runInflect(inputs: UserInflectInputs): Chainable<void>;
       inflectedFormsAre(forms: string[]): Chainable<void>;
@@ -167,6 +170,19 @@ Cypress.Commands.add("previewShowsJsonOf", (value: any) => {
   cy.get("#preview").then((element) =>
     expect(JSON.parse(element.text())).to.deep.equal(value)
   );
+});
+
+Cypress.Commands.add("createWorld", (name: string, description?: string) => {
+  cy.contains("New World").click();
+  cy.contains("Name").type(name);
+  if (description) {
+    cy.contains("Description").type(description);
+  }
+  cy.contains("Save").click();
+});
+
+Cypress.Commands.add("navigateToWorld", (name: string) => {
+  cy.contains(name).click();
 });
 
 Cypress.Commands.add("createLanguage", (name: string) => {
@@ -497,6 +513,10 @@ Cypress.Commands.add("scNoIntermediates", () => {
 
 Cypress.Commands.add("scShowsSyntaxError", () => {
   cy.get("#status").invoke("text").should("match", /line/);
+});
+
+Cypress.Commands.add("goToScExamples", () => {
+  cy.visit("/sc/examples");
 });
 
 Cypress.Commands.add("goToInflectPublic", () => {

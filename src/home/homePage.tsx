@@ -1,13 +1,17 @@
+import CreateButton from "@/components/CreateButton";
 import Header from "@/components/Header";
 import HiddenEditor from "@/components/HiddenEditor";
 import Language from "@/language/Language";
 import LanguageInfoEditor from "@/language/LanguageInfoEditor";
 import LanguageInfoView from "@/language/LanguageInfoView";
 import usePersistentCollection from "@/usePersistentCollection";
+import { emptyWorld } from "@/world/World";
+import WorldInfoEditor from "@/world/WorldInfoEditor";
 import Head from "next/head";
 import { useState } from "react";
 
 export default function Home() {
+  const [worldEditorToggle, setWorldEditorToggle] = useState(false);
   const [editorToggle, setEditorToggle] = useState(false);
   const languageCollection = usePersistentCollection<Language, Language>(
     "/api/languages"
@@ -23,6 +27,18 @@ export default function Home() {
       return (
         <>
           <h1>My Workspace</h1>
+          <h2>Worlds</h2>
+          <CreateButton
+            label="New World"
+            component={(onSave, onCancel) => (
+              <WorldInfoEditor
+                initialValue={emptyWorld()}
+                onSave={onSave}
+                onCancel={onCancel}
+              />
+            )}
+            onSave={() => {}}
+          />
           <h2>Languages</h2>
           <HiddenEditor
             key={editorToggle.toString()}

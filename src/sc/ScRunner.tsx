@@ -82,6 +82,9 @@ export default function ScRunner({
             >
               Help
             </a>
+            <a className="button" href="/sc/examples" target="_blank">
+              Examples
+            </a>
           </div>
         </div>
         <div

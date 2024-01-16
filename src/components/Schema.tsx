@@ -133,10 +133,6 @@ export class ObjectSchema<T> implements Schema<T> {
         {myOptions.isRoot && <h4>{this.name}</h4>}
         {entries.length === 0 ? (
           <div />
-        ) : entries.length === 1 ? (
-          propertyEditor(
-            entries[0] as [string & keyof T, Schema<T[string & keyof T]>]
-          )
         ) : (
           <div
             style={{
@@ -158,10 +154,10 @@ export class ObjectSchema<T> implements Schema<T> {
     ]: [Property, Schema<T[Property]>]): JSX.Element {
       const childKey = `${key}__${property}`;
       return (
-        <>
+        <Fragment key={childKey}>
           <Label.Root htmlFor={childKey}>{schema.name}</Label.Root>
           {propertyEditor([property, schema])}
-        </>
+        </Fragment>
       );
     }
 

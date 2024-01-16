@@ -45,7 +45,7 @@ describe("SchematicEditor", () => {
         foo: Schema.string("Foohood"),
       }),
       command: () => {
-        cy.get("input").type("oof");
+        cy.contains("Foohood").type("oof");
       },
       expected: { foo: "oof" },
     });
