@@ -83,13 +83,20 @@ export function string(name: string): StringSchema {
 export class ObjectSchema<T> implements Schema<T> {
   name: string;
   properties: { [Property in keyof T]: Schema<T[Property]> };
+  options: { typeKeyed: boolean };
 
   constructor(
     name: string,
-    properties: { [Property in keyof T]: Schema<T[Property]> }
+    properties: { [Property in keyof T]: Schema<T[Property]> },
+    options: { typeKeyed: boolean } = { typeKeyed: false }
   ) {
+    if (options.typeKeyed && Object.entries(properties).length !== 1) {
+      throw new Error("A type-keyed object must have exactly one property");
+    }
+
     this.name = name;
     this.properties = properties;
+    this.options = options;
   }
 
   empty(): T {
@@ -131,19 +138,27 @@ export class ObjectSchema<T> implements Schema<T> {
     return (
       <div id={key} key={key}>
         {myOptions.isRoot && <h4>{this.name}</h4>}
-        {entries.length === 0 ? (
+        {this.options.typeKeyed ? (
+          propertyEditor(
+            entries[0] as [string & keyof T, Schema<T[string & keyof T]>]
+          )
+        ) : entries.length === 0 ? (
           <div />
         ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "max-content max-content",
-            }}
-          >
-            {entries.map(
-              labelledPropertyEditor as (args: [string, unknown]) => JSX.Element
-            )}
-          </div>
+          this.options.typeKeyed && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "max-content max-content",
+              }}
+            >
+              {entries.map(
+                labelledPropertyEditor as (
+                  args: [string, unknown]
+                ) => JSX.Element
+              )}
+            </div>
+          )
         )}
       </div>
     );
@@ -187,6 +202,13 @@ export function object<T>(
   properties: { [Property in keyof T]: Schema<T[Property]> }
 ): ObjectSchema<T> {
   return new ObjectSchema(name, properties);
+}
+
+export function typeKeyedObject<T>(
+  name: string,
+  properties: { [Property in keyof T]: Schema<T[Property]> }
+): ObjectSchema<T> {
+  return new ObjectSchema(name, properties, { typeKeyed: true });
 }
 
 export class ArraySchema<T> implements Schema<T[]> {

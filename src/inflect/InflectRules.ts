@@ -40,7 +40,7 @@ const formulaRef = Schema.ref<Formula>();
 export const inflectRulesSchema: Schema.Schema<InflectRules> = Schema.defineRef(
   Schema.union<InflectRules>("Inflection Rules", [
     Schema.string("Fixed Form"),
-    Schema.object("Branch", {
+    Schema.typeKeyedObject("Branch", {
       branches: Schema.map(
         "Branches",
         Schema.string("Category"),
@@ -49,11 +49,13 @@ export const inflectRulesSchema: Schema.Schema<InflectRules> = Schema.defineRef(
       ),
     }),
     Schema.defineRef(
-      Schema.object("Formula", {
+      Schema.typeKeyedObject("Formula", {
         formula: Schema.taggedUnion<Stem | Fixed | Concat>("Formula", {
           stem: Schema.object("Stem", {}),
-          form: Schema.object("Fixed Form", { form: Schema.string("Form") }),
-          concat: Schema.object("Concatenation", {
+          form: Schema.typeKeyedObject("Fixed Form", {
+            form: Schema.string("Form"),
+          }),
+          concat: Schema.typeKeyedObject("Concatenation", {
             parts: Schema.array("Parts", Schema.callRef("Part", formulaRef)),
           }),
         }),
