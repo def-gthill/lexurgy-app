@@ -1,3 +1,4 @@
+import Editor from "@/components/Editor";
 import { emptyWorld } from "@/world/World";
 import WorldInfoEditor from "@/world/WorldInfoEditor";
 import { render, screen } from "@testing-library/react";
@@ -6,14 +7,15 @@ import userEvent from "@testing-library/user-event";
 describe("a world info editor", () => {
   describe("when creating a new world", () => {
     const onSave = jest.fn();
-    const onCancel = jest.fn();
 
     beforeEach(() => {
       render(
-        <WorldInfoEditor
+        <Editor
+          component={(value, onChange) => (
+            <WorldInfoEditor world={value} onChange={onChange} />
+          )}
           initialValue={emptyWorld()}
           onSave={onSave}
-          onCancel={onCancel}
         />
       );
     });
@@ -30,21 +32,6 @@ describe("a world info editor", () => {
           name: "Handwavia",
           description: "",
         });
-      });
-
-      it("doesn't cancel when the save button is clicked", async () => {
-        await userEvent.click(screen.getByText("Save"));
-        expect(onCancel).not.toHaveBeenCalled();
-      });
-
-      it("cancels when the cancel button is clicked", async () => {
-        await userEvent.click(screen.getByText("Cancel"));
-        expect(onCancel).toHaveBeenCalled();
-      });
-
-      it("doesn't save when the cancel button is clicked", async () => {
-        await userEvent.click(screen.getByText("Cancel"));
-        expect(onSave).not.toHaveBeenCalled();
       });
     });
 

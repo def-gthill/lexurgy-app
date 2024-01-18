@@ -1,4 +1,3 @@
-import CreateButton from "@/components/CreateButton";
 import Header from "@/components/Header";
 import HiddenEditor from "@/components/HiddenEditor";
 import Language from "@/language/Language";
@@ -28,16 +27,13 @@ export default function Home() {
       return (
         <>
           <h2>Worlds</h2>
-          <CreateButton
-            label="New World"
-            component={(onSave, onCancel) => (
-              <WorldInfoEditor
-                initialValue={emptyWorld()}
-                onSave={onSave}
-                onCancel={onCancel}
-              />
+          <HiddenEditor
+            showButtonLabel="New World"
+            component={(value, onChange) => (
+              <WorldInfoEditor world={value} onChange={onChange} />
             )}
-            onSave={(value: World) => worldCollection.save(value)}
+            initialValue={emptyWorld()}
+            onSave={(value) => worldCollection.save(value)}
           />
           {worlds.map((world) => (
             <WorldInfoView key={world.id} world={world} />
