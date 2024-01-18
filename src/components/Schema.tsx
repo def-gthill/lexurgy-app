@@ -1,4 +1,5 @@
 import { set } from "@/array";
+import EditorPane from "@/components/EditorPane";
 import Select from "@/components/Select";
 import { rekey, update } from "@/map";
 import { dropKeys } from "@/object";
@@ -248,16 +249,20 @@ export class ArraySchema<T> implements Schema<T[]> {
       <div id={key} key={key}>
         {myOptions.isRoot && <h4>{this.name}</h4>}
         <div style={{ display: "flex", flexDirection: "column" }}>
-          {value.map((element, i) =>
-            this.elements.editor(
-              element,
-              (element) => onChange(set(value, i, element)),
-              {
-                isRoot: false,
-                key: `${key}__${i}`,
-              }
-            )
-          )}
+          {value.map((element, i) => (
+            <div key={`${key}__${i}`}>
+              <EditorPane>
+                {this.elements.editor(
+                  element,
+                  (element) => onChange(set(value, i, element)),
+                  {
+                    isRoot: false,
+                    key: `${key}__${i}`,
+                  }
+                )}
+              </EditorPane>
+            </div>
+          ))}
         </div>
         <div className="buttons">
           <button onClick={() => onChange([...value, this.elements.empty()])}>
@@ -339,11 +344,13 @@ export class MapSchema<K, V> implements Schema<Map<K, V>> {
                   (newKey) => onChange(rekey(map, key, newKey)),
                   { isRoot: false, key: `${domKey}__${i}__key` }
                 )}
-                {this.values.editor(
-                  value,
-                  (newValue) => onChange(update(map, [key, newValue])),
-                  { isRoot: false, key: `${domKey}__${i}__value` }
-                )}
+                <EditorPane>
+                  {this.values.editor(
+                    value,
+                    (newValue) => onChange(update(map, [key, newValue])),
+                    { isRoot: false, key: `${domKey}__${i}__value` }
+                  )}
+                </EditorPane>
               </Fragment>
             );
           })}
@@ -417,10 +424,14 @@ export class UnionSchema<T> implements Schema<T> {
           currentSelection={optionIndex}
           onChange={(value) => onChange(this.options[value].empty())}
         />
-        {this.options[optionIndex].editor(value, onChange, {
-          isRoot: false,
-          key: `${key}__option`,
-        })}
+        {
+          <EditorPane key={`${key}__option`}>
+            {this.options[optionIndex].editor(value, onChange, {
+              isRoot: false,
+              key: `${key}__option`,
+            })}
+          </EditorPane>
+        }
       </div>
     );
   }
