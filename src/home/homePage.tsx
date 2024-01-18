@@ -8,10 +8,8 @@ import World, { SavedWorld, emptyWorld } from "@/world/World";
 import WorldInfoEditor from "@/world/WorldInfoEditor";
 import WorldInfoView from "@/world/WorldInfoView";
 import Head from "next/head";
-import { useState } from "react";
 
 export default function Home() {
-  const [editorToggle, setEditorToggle] = useState(false);
   const worldCollection = usePersistentCollection<World, SavedWorld>(
     "/api/worlds"
   );
@@ -54,16 +52,12 @@ export default function Home() {
         <>
           <h2>Languages</h2>
           <HiddenEditor
-            key={editorToggle.toString()}
             showButtonLabel="New Language"
             component={(value, onChange) => (
               <LanguageInfoEditor language={value} onChange={onChange} />
             )}
             initialValue={{ name: "" }}
-            onSave={(value) => {
-              languageCollection.save(value);
-              setEditorToggle(!editorToggle);
-            }}
+            onSave={(value) => languageCollection.save(value)}
           />
           {languages.map((language) => (
             <LanguageInfoView

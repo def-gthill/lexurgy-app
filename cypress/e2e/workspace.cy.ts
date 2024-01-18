@@ -33,7 +33,7 @@ describe("the workspace page", () => {
     cy.get(".card").should("not.exist");
   });
 
-  it.only("lets the user add a world", () => {
+  it("lets the user add a world", () => {
     cy.createWorld("Handwavia", "Home of Betamax Crinkledash");
     cy.navigateToWorld("Handwavia");
     cy.contains("Loading world");
