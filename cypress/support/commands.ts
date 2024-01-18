@@ -52,6 +52,8 @@ declare global {
       clickNavigationLink(name: string): Chainable<void>;
       previewShowsJsonOf(value: any): Chainable<void>;
       createWorld(name: string, description?: string): Chainable<void>;
+      createWorldWithApi(name: string, description?: string): Chainable<void>;
+      goToWorld(name: string): Chainable<void>;
       navigateToWorld(name: string): Chainable<void>;
       createLanguage(name: string): Chainable<void>;
       createLanguageWithApi(name: string): Chainable<void>;
@@ -116,6 +118,7 @@ class AliasMap {
   }
 }
 
+const worlds = new AliasMap();
 const languages = new AliasMap();
 const lexemes = new AliasMap();
 const constructions = new AliasMap();
@@ -179,6 +182,26 @@ Cypress.Commands.add("createWorld", (name: string, description?: string) => {
     cy.contains("Description").type(description);
   }
   cy.contains("Save").click();
+});
+
+Cypress.Commands.add(
+  "createWorldWithApi",
+  (name: string, description?: string) => {
+    cy.request({
+      url: "/api/worlds",
+      method: "POST",
+      body: {
+        id: worlds.getId(name),
+        name,
+        description: description ?? "",
+      },
+    });
+  }
+);
+
+Cypress.Commands.add("goToWorld", (name: string) => {
+  cy.visit("/");
+  cy.navigateToWorld(name);
 });
 
 Cypress.Commands.add("navigateToWorld", (name: string) => {
