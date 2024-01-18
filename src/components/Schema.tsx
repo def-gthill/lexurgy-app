@@ -146,20 +146,16 @@ export class ObjectSchema<T> implements Schema<T> {
         ) : entries.length === 0 ? (
           <div />
         ) : (
-          this.options.typeKeyed && (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "max-content max-content",
-              }}
-            >
-              {entries.map(
-                labelledPropertyEditor as (
-                  args: [string, unknown]
-                ) => JSX.Element
-              )}
-            </div>
-          )
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "max-content max-content",
+            }}
+          >
+            {entries.map(
+              labelledPropertyEditor as (args: [string, unknown]) => JSX.Element
+            )}
+          </div>
         )}
       </div>
     );
