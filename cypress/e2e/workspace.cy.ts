@@ -36,6 +36,7 @@ describe("the workspace page", () => {
   it.only("lets the user add a world", () => {
     cy.createWorld("Handwavia", "Home of Betamax Crinkledash");
     cy.navigateToWorld("Handwavia");
+    cy.contains("Loading world");
     cy.pageTitleIs("Handwavia");
     cy.contains("Home of Betamax Crinkledash");
   });

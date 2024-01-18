@@ -5,28 +5,28 @@ import Language from "@/language/Language";
 import LanguageInfoEditor from "@/language/LanguageInfoEditor";
 import LanguageInfoView from "@/language/LanguageInfoView";
 import usePersistentCollection from "@/usePersistentCollection";
-import { emptyWorld } from "@/world/World";
+import World, { SavedWorld, emptyWorld } from "@/world/World";
 import WorldInfoEditor from "@/world/WorldInfoEditor";
+import WorldInfoView from "@/world/WorldInfoView";
 import Head from "next/head";
 import { useState } from "react";
 
 export default function Home() {
-  const [worldEditorToggle, setWorldEditorToggle] = useState(false);
   const [editorToggle, setEditorToggle] = useState(false);
+  const worldCollection = usePersistentCollection<World, SavedWorld>(
+    "/api/worlds"
+  );
   const languageCollection = usePersistentCollection<Language, Language>(
     "/api/languages"
   );
 
-  const content = languageCollection.fold({
-    onLoading: () => <div>Loading workspace...</div>,
-    onError: () => <div>Error loading workspace</div>,
-    onReady: (languages) => {
-      languages.sort((a: Language, b: Language) =>
-        a.name.localeCompare(b.name)
-      );
+  const worldContent = worldCollection.fold({
+    onLoading: () => <div>Loading worlds...</div>,
+    onError: () => <div>Error loading worlds</div>,
+    onReady: (worlds) => {
+      worlds.sort((a: Language, b: Language) => a.name.localeCompare(b.name));
       return (
         <>
-          <h1>My Workspace</h1>
           <h2>Worlds</h2>
           <CreateButton
             label="New World"
@@ -37,8 +37,25 @@ export default function Home() {
                 onCancel={onCancel}
               />
             )}
-            onSave={() => {}}
+            onSave={(value: World) => worldCollection.save(value)}
           />
+          {worlds.map((world) => (
+            <WorldInfoView key={world.id} world={world} />
+          ))}
+        </>
+      );
+    },
+  });
+
+  const languageContent = languageCollection.fold({
+    onLoading: () => <div>Loading languages...</div>,
+    onError: () => <div>Error loading languages</div>,
+    onReady: (languages) => {
+      languages.sort((a: Language, b: Language) =>
+        a.name.localeCompare(b.name)
+      );
+      return (
+        <>
           <h2>Languages</h2>
           <HiddenEditor
             key={editorToggle.toString()}
@@ -72,7 +89,11 @@ export default function Home() {
         <meta name="description" content="A high-powered conlanger's toolkit" />
       </Head>
       <Header />
-      <main>{content}</main>
+      <main>
+        <h1>My Workspace</h1>
+        {worldContent}
+        {languageContent}
+      </main>
     </>
   );
 }
