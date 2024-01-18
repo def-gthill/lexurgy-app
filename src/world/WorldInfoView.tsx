@@ -1,3 +1,4 @@
+import Editor from "@/components/Editor";
 import World from "@/world/World";
 import WorldInfoEditor from "@/world/WorldInfoEditor";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
@@ -23,15 +24,15 @@ export default function WorldInfoView({
   );
   if (onUpdate && editing) {
     return (
-      <WorldInfoEditor
+      <Editor
+        component={(value, onChange) => (
+          <WorldInfoEditor world={value} onChange={onChange} />
+        )}
         initialValue={editedWorld}
         onSave={(value) => {
           setEditing(false);
           setEditedWorld(value);
           onUpdate({ ...value, id: world.id });
-        }}
-        onCancel={() => {
-          setEditing(false);
         }}
       />
     );
