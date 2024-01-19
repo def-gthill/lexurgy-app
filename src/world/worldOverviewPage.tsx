@@ -1,4 +1,7 @@
 import Header from "@/components/Header";
+import Language, { SavedLanguage } from "@/language/Language";
+import LanguageList from "@/language/LanguageList";
+import usePersistentCollection from "@/usePersistentCollection";
 import { SavedWorld } from "@/world/World";
 import axios from "axios";
 import Head from "next/head";
@@ -13,6 +16,10 @@ export default function WorldOverview() {
   const { data: world, error } = useSWR<SavedWorld, Error>(
     router.isReady ? `/api/worlds/${id}` : null,
     fetcher
+  );
+  const languageCollection = usePersistentCollection<Language, SavedLanguage>(
+    "/api/languages",
+    `/api/languages?world=${id}`
   );
 
   if (world !== undefined) {
@@ -29,6 +36,11 @@ export default function WorldOverview() {
         <main>
           <h1>{world.name}</h1>
           <p>{world.description}</p>
+          <LanguageList
+            languages={languageCollection.getOrEmpty()}
+            onSave={languageCollection.save}
+            onDelete={languageCollection.delete}
+          />
         </main>
       </>
     );
