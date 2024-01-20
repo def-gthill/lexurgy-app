@@ -13,6 +13,13 @@ describe("a world page", () => {
     cy.reload();
     cy.contains("Examplish");
   });
+
+  it("only shows languages from this world", () => {
+    cy.createLanguageWithApi("Unwantese");
+    cy.reload();
+    cy.waitForApiResult("/api/languages*", "getLanguages");
+    cy.contains("Unwantese").should("not.exist");
+  });
 });
 
 export {};

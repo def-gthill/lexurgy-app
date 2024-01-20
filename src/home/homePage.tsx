@@ -13,7 +13,8 @@ export default function Home() {
     "/api/worlds"
   );
   const languageCollection = usePersistentCollection<Language, SavedLanguage>(
-    "/api/languages"
+    "/api/languages",
+    "/api/languages?world=none"
   );
 
   const worldContent = worldCollection.fold({

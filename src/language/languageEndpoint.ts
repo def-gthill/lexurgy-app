@@ -12,29 +12,44 @@ export async function postLanguage(
   if (language.id === undefined) {
     language.id = crypto.randomUUID();
   }
-  await execute(
-    driver,
-    `MERGE (lang:Language {id: $id}) SET lang.name = $name
+  let query = `MERGE (lang:Language {id: $id}) SET lang.name = $name
+  WITH lang
+  MATCH (user:User {id: $userId})
+  CREATE (user) -[:OWNS]-> (lang)`;
+  if (language.worldId) {
+    query += `
     WITH lang
-    MATCH (user:User {id: $userId})
-    CREATE (user) -[:OWNS]-> (lang)`,
-    {
-      ...language,
-      userId,
-    }
-  );
+    MATCH (world:World {id: $worldId})
+    CREATE (lang) -[:IS_IN]-> (world)`;
+  }
+  await execute(driver, query, {
+    ...language,
+    userId,
+  });
   return language;
 }
 
 export async function getLanguages(
-  _requestQuery: RequestQuery,
+  requestQuery: RequestQuery,
   userId: string
 ): Promise<Language[]> {
-  return await query<Language>(
-    driver,
-    "MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language) RETURN lang;",
-    { userId }
-  );
+  const worldId = requestQuery.world;
+  let dbQuery;
+  if (!worldId) {
+    dbQuery = `MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language)
+      OPTIONAL MATCH (lang) -[:IS_IN]-> (world:World)
+      RETURN lang{.*, worldId: world.id}`;
+  } else if (worldId === "none") {
+    dbQuery = `MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language)
+    OPTIONAL MATCH (lang) -[:IS_IN]-> (world:World)
+    WITH lang, world
+    WHERE world IS NULL
+    RETURN lang`;
+  } else {
+    dbQuery = `MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language) -[:IS_IN]-> (world:World {id: $worldId})
+      RETURN lang{.*, worldId: world.id};`;
+  }
+  return await query<Language>(driver, dbQuery, { userId, worldId });
 }
 
 export async function getLanguage(
@@ -43,7 +58,9 @@ export async function getLanguage(
 ): Promise<Language[]> {
   return await query<Language>(
     driver,
-    "MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language {id: $id}) RETURN lang;",
+    `MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language {id: $id})
+    OPTIONAL MATCH (lang) -[:IS_IN]-> (world:World)
+    RETURN lang{.*, worldId: world.id};`,
     { id, userId }
   );
 }

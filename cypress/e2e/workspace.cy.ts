@@ -40,6 +40,14 @@ describe("the workspace page", () => {
     cy.pageTitleIs("Handwavia");
     cy.contains("Home of Betamax Crinkledash");
   });
+
+  it("doesn't list languages in worlds", () => {
+    cy.createWorldWithApi("Handwavia", "Home of Betamax Crinkledash");
+    cy.createLanguageWithApi("Unwantese", { world: "Handwavia" });
+    cy.reload();
+    cy.waitForApiResult("/api/languages*", "getLanguages");
+    cy.contains("Unwantese").should("not.exist");
+  });
 });
 
 export {};

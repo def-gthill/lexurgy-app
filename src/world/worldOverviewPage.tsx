@@ -2,19 +2,19 @@ import Header from "@/components/Header";
 import Language, { SavedLanguage } from "@/language/Language";
 import LanguageList from "@/language/LanguageList";
 import usePersistentCollection from "@/usePersistentCollection";
+import waitForId from "@/waitForId";
 import { SavedWorld } from "@/world/World";
 import axios from "axios";
 import Head from "next/head";
-import { useRouter } from "next/router";
 import useSWR from "swr";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
-export default function WorldOverview() {
-  const router = useRouter();
-  const id = router.query.id as string;
+export default waitForId(WorldOverview);
+
+function WorldOverview({ id }: { id: string }) {
   const { data: world, error } = useSWR<SavedWorld, Error>(
-    router.isReady ? `/api/worlds/${id}` : null,
+    `/api/worlds/${id}`,
     fetcher
   );
   const languageCollection = usePersistentCollection<Language, SavedLanguage>(
@@ -38,7 +38,9 @@ export default function WorldOverview() {
           <p>{world.description}</p>
           <LanguageList
             languages={languageCollection.getOrEmpty()}
-            onSave={languageCollection.save}
+            onSave={(newLanguage) =>
+              languageCollection.save({ ...newLanguage, worldId: id })
+            }
             onDelete={languageCollection.delete}
           />
         </main>

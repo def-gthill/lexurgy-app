@@ -2,6 +2,7 @@
 
 import Glitch from "@/glitch/Glitch";
 import { Formula, InflectRules } from "@/inflect/InflectRules";
+import Language from "@/language/Language";
 import SyntaxNode from "@/translation/SyntaxNode";
 import Translation from "@/translation/Translation";
 import { encode } from "js-base64";
@@ -56,7 +57,12 @@ declare global {
       goToWorld(name: string): Chainable<void>;
       navigateToWorld(name: string): Chainable<void>;
       createLanguage(name: string): Chainable<void>;
-      createLanguageWithApi(name: string): Chainable<void>;
+      createLanguageWithApi(
+        name: string,
+        options?: { world?: string }
+      ): Chainable<void>;
+      getLanguages(filter?: { world?: string | null }): Chainable<Language[]>;
+      getLanguage(name: string): Chainable<Language>;
       goToLanguage(name: string): Chainable<void>;
       navigateToLanguage(name: string): Chainable<void>;
       ownersAre(users: string[]): Chainable<void>;
@@ -214,15 +220,41 @@ Cypress.Commands.add("createLanguage", (name: string) => {
   cy.contains("Save").click();
 });
 
-Cypress.Commands.add("createLanguageWithApi", (name: string) => {
-  cy.request({
-    url: "/api/languages",
-    method: "POST",
-    body: {
+Cypress.Commands.add(
+  "createLanguageWithApi",
+  (name: string, { world }: { world?: string } = {}) => {
+    const language: Language = {
       id: languages.getId(name),
       name,
-    },
-  });
+    };
+    if (world) {
+      language.worldId = worlds.getId(world);
+    }
+    cy.request({
+      url: "/api/languages",
+      method: "POST",
+      body: language,
+    });
+  }
+);
+
+Cypress.Commands.add(
+  "getLanguages",
+  ({ world }: { world?: string | null } = {}) => {
+    const url =
+      world === undefined
+        ? "/api/languages"
+        : `/api/languages?world=${
+            world === null ? "none" : worlds.getId(world)
+          }`;
+    return cy.request({ url, method: "GET" }).its("body");
+  }
+);
+
+Cypress.Commands.add("getLanguage", (name: string) => {
+  return cy
+    .request({ url: `/api/languages/${languages.getId(name)}`, method: "GET" })
+    .its("body");
 });
 
 Cypress.Commands.add("goToLanguage", (name: string) => {
