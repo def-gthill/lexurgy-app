@@ -17,3 +17,5 @@ describe("the SC examples page", () => {
     cy.contains("Handwavia").should("not.exist");
   });
 });
+
+export {};
