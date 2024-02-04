@@ -84,20 +84,28 @@ export function string(name: string): StringSchema {
 export class ObjectSchema<T> implements Schema<T> {
   name: string;
   properties: { [Property in keyof T]: Schema<T[Property]> };
-  options: { typeKeyed: boolean };
+  options: { typeKeyed: boolean; hideName: boolean };
 
   constructor(
     name: string,
     properties: { [Property in keyof T]: Schema<T[Property]> },
-    options: { typeKeyed: boolean } = { typeKeyed: false }
+    options: { typeKeyed?: boolean; hideName?: boolean } = {}
   ) {
-    if (options.typeKeyed && Object.entries(properties).length !== 1) {
+    const optionsWithDefaults = {
+      typeKeyed: false,
+      hideName: false,
+      ...options,
+    };
+    if (
+      optionsWithDefaults.typeKeyed &&
+      Object.entries(properties).length !== 1
+    ) {
       throw new Error("A type-keyed object must have exactly one property");
     }
 
     this.name = name;
     this.properties = properties;
-    this.options = options;
+    this.options = optionsWithDefaults;
   }
 
   empty(): T {
@@ -138,7 +146,7 @@ export class ObjectSchema<T> implements Schema<T> {
     const entries = Object.entries(this.properties);
     return (
       <div id={key} key={key}>
-        {myOptions.isRoot && <h4>{this.name}</h4>}
+        {myOptions.isRoot && !this.options.hideName && <h4>{this.name}</h4>}
         {this.options.typeKeyed ? (
           propertyEditor(
             entries[0] as [string & keyof T, Schema<T[string & keyof T]>]
@@ -196,16 +204,18 @@ export class ObjectSchema<T> implements Schema<T> {
 
 export function object<T>(
   name: string,
-  properties: { [Property in keyof T]: Schema<T[Property]> }
+  properties: { [Property in keyof T]: Schema<T[Property]> },
+  options: { hideName?: boolean } = {}
 ): ObjectSchema<T> {
-  return new ObjectSchema(name, properties);
+  return new ObjectSchema(name, properties, options);
 }
 
 export function typeKeyedObject<T>(
   name: string,
-  properties: { [Property in keyof T]: Schema<T[Property]> }
+  properties: { [Property in keyof T]: Schema<T[Property]> },
+  options: { hideName?: boolean } = {}
 ): ObjectSchema<T> {
-  return new ObjectSchema(name, properties, { typeKeyed: true });
+  return new ObjectSchema(name, properties, { ...options, typeKeyed: true });
 }
 
 export class ArraySchema<T> implements Schema<T[]> {

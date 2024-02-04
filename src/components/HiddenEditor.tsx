@@ -7,18 +7,22 @@ export default function HiddenEditor<T>({
   initialValue,
   onSave,
   startsShowing,
+  hideLabelWhenOpen,
 }: {
   showButtonLabel: string;
   component: (value: T, onChange: (newValue: T) => void) => JSX.Element;
   initialValue: T;
   onSave: (value: T) => void;
   startsShowing?: boolean;
+  hideLabelWhenOpen?: boolean;
 }) {
   const [showing, setShowing] = useState(startsShowing);
   const [value, setValue] = useState(initialValue);
   return showing ? (
     <EditorPane>
-      <h4 style={{ marginTop: 0 }}>{showButtonLabel}</h4>
+      {!hideLabelWhenOpen && (
+        <h4 style={{ marginTop: 0 }}>{showButtonLabel}</h4>
+      )}
       {component(value, setValue)}
       <div className="buttons">
         <button

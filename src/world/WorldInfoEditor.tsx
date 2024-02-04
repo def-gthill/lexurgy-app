@@ -11,10 +11,14 @@ export default function WorldInfoEditor({
 }) {
   return (
     <SchematicEditor
-      schema={Schema.object("World", {
-        name: Schema.string("Name"),
-        description: Schema.string("Description"),
-      })}
+      schema={Schema.object(
+        "World",
+        {
+          name: Schema.string("Name"),
+          description: Schema.string("Description"),
+        },
+        { hideName: true }
+      )}
       value={world}
       onChange={onChange}
     />

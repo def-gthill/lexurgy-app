@@ -46,19 +46,8 @@ export default function LanguageInfoView({
     return (
       <li className="card" style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flexGrow: 1 }}>{content}</div>
-        <div className="buttons">
-          {onUpdate && <button onClick={() => setEditing(true)}>Edit</button>}
-          {onUpdate && worlds && worlds.length > 0 && (
-            <button onClick={() => setMoving(true)}>Move</button>
-          )}
-          {onDelete && (
-            <DeleteLanguageConfirmDialog
-              language={language}
-              onDelete={onDelete}
-            />
-          )}
-        </div>
-        {onUpdate && worlds && moving && (
+
+        {onUpdate && worlds && moving ? (
           <LanguageMover
             worlds={worlds}
             onSave={(world) => {
@@ -72,6 +61,19 @@ export default function LanguageInfoView({
               setMoving(false);
             }}
           />
+        ) : (
+          <div className="buttons">
+            {onUpdate && <button onClick={() => setEditing(true)}>Edit</button>}
+            {onUpdate && worlds && worlds.length > 0 && (
+              <button onClick={() => setMoving(true)}>Move</button>
+            )}
+            {onDelete && (
+              <DeleteLanguageConfirmDialog
+                language={language}
+                onDelete={onDelete}
+              />
+            )}
+          </div>
         )}
       </li>
     );
