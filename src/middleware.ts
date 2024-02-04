@@ -1,6 +1,12 @@
 import { withAuth } from "next-auth/middleware";
 
-const publicPages = ["/sc", "/inflect", "/api/services", "/api/daily"];
+const publicPages = [
+  "/sc",
+  "/sc/examples",
+  "/inflect",
+  "/api/services",
+  "/api/daily",
+];
 
 export default withAuth({
   callbacks: {

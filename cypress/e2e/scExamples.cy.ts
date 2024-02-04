@@ -1,10 +1,19 @@
 describe("the SC examples page", () => {
   beforeEach(() => {
-    cy.goToScExamples();
+    cy.resetDb();
+    cy.login("default");
+    cy.createWorldWithApi("Handwavia");
+    cy.createLanguageWithApi("Private", { world: "Handwavia" });
+    cy.createExampleWorldWithApi("Examples");
+    cy.createLanguageWithApi("Example 1", { world: "Examples" });
+    cy.createLanguageWithApi("Example 2", { world: "Examples" });
+    cy.logout();
   });
 
-  it.skip("provides links for all the tutorial languages", () => {
-    // This should be based on the database, not hard-coded!
-    cy.contains("Basican");
+  it("provides links for all the tutorial languages", () => {
+    cy.goToScExamples();
+    cy.contains("Example 1");
+    cy.contains("Example 2");
+    cy.contains("Handwavia").should("not.exist");
   });
 });

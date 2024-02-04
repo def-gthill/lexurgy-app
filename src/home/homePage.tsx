@@ -21,7 +21,7 @@ export default function Home() {
     onLoading: () => <div>Loading worlds...</div>,
     onError: () => <div>Error loading worlds</div>,
     onReady: (worlds) => {
-      worlds.sort((a: Language, b: Language) => a.name.localeCompare(b.name));
+      worlds.sort((a, b) => a.name.localeCompare(b.name));
       return (
         <>
           <h2>Worlds</h2>
@@ -45,9 +45,7 @@ export default function Home() {
     onLoading: () => <div>Loading languages...</div>,
     onError: () => <div>Error loading languages</div>,
     onReady: (languages) => {
-      languages.sort((a: Language, b: Language) =>
-        a.name.localeCompare(b.name)
-      );
+      languages.sort((a, b) => a.name.localeCompare(b.name));
       return (
         <LanguageList
           languages={languages}

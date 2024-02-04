@@ -12,11 +12,12 @@ export async function postWorld(
   await execute(
     driver,
     `MERGE (world: World {id: $id})
-    SET world.name = $name, world.description = $description
+    SET world.name = $name, world.description = $description, world.isExample = $isExample
     WITH world
     MATCH (user:User {id: $userId})
     CREATE (user) -[:OWNS]-> (world)`,
     {
+      isExample: false,
       ...savedWorld,
       userId,
     }
@@ -25,9 +26,16 @@ export async function postWorld(
 }
 
 export async function getWorlds(
-  _requestQuery: RequestQuery,
+  requestQuery: RequestQuery,
   userId: string
 ): Promise<SavedWorld[]> {
+  const isExample = requestQuery.isExample ?? false;
+  if (isExample) {
+    return await query<SavedWorld>(
+      driver,
+      "MATCH (world: World {isExample: true}) RETURN world;"
+    );
+  }
   return await query<SavedWorld>(
     driver,
     "MATCH (user:User {id: $userId}) -[:OWNS]-> (world: World) RETURN world;",

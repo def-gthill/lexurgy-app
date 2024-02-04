@@ -47,6 +47,7 @@ declare global {
       resetDb(): Chainable<void>;
       goToHome(): Chainable<void>;
       login(user: string): Chainable<void>;
+      logout(): Chainable<void>;
       ensureUserExists(user: string): Chainable<void>;
       tabTitleIs(expected: string): Chainable<void>;
       pageTitleIs(expected: string): Chainable<void>;
@@ -54,6 +55,10 @@ declare global {
       previewShowsJsonOf(value: any): Chainable<void>;
       createWorld(name: string, description?: string): Chainable<void>;
       createWorldWithApi(name: string, description?: string): Chainable<void>;
+      createExampleWorldWithApi(
+        name: string,
+        description?: string
+      ): Chainable<void>;
       goToWorld(name: string): Chainable<void>;
       navigateToWorld(name: string): Chainable<void>;
       createLanguage(name: string): Chainable<void>;
@@ -151,6 +156,11 @@ Cypress.Commands.add("login", (user: string) => {
   });
 });
 
+Cypress.Commands.add("logout", () => {
+  cy.goToHome();
+  cy.contains("Sign Out").click();
+});
+
 Cypress.Commands.add("ensureUserExists", (user: string) => {
   cy.request({
     url: "/api/users",
@@ -200,6 +210,22 @@ Cypress.Commands.add(
         id: worlds.getId(name),
         name,
         description: description ?? "",
+      },
+    });
+  }
+);
+
+Cypress.Commands.add(
+  "createExampleWorldWithApi",
+  (name: string, description?: string) => {
+    cy.request({
+      url: "/api/worlds",
+      method: "POST",
+      body: {
+        id: worlds.getId(name),
+        name,
+        description: description ?? "",
+        isExample: true,
       },
     });
   }

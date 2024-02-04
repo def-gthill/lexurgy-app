@@ -4,6 +4,7 @@ export default interface World {
   id?: string;
   name: string;
   description: string;
+  isExample?: boolean;
 }
 
 export type SavedWorld = RequiredKeys<World, "id">;
