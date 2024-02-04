@@ -5,12 +5,14 @@ import { Formula, InflectRules } from "@/inflect/InflectRules";
 import Language from "@/language/Language";
 import SyntaxNode from "@/translation/SyntaxNode";
 import Translation from "@/translation/Translation";
+import World from "@/world/World";
 import { encode } from "js-base64";
 import ApiConstruction from "./ApiConstruction";
 import ApiLexeme from "./ApiLexeme";
 import ApiTranslation from "./ApiTranslation";
 import UserConstruction from "./UserConstruction";
 import UserInflectInputs from "./UserInflectInputs";
+import UserLanguage from "./UserLanguage";
 import { UserLexeme } from "./UserLexeme";
 import { UserSoundChangeInputs } from "./UserSoundChangeInputs";
 import UserTranslation, { UserStructure } from "./UserTranslation";
@@ -59,12 +61,17 @@ declare global {
         name: string,
         description?: string
       ): Chainable<void>;
+      getWorlds(): Chainable<World[]>;
       goToWorld(name: string): Chainable<void>;
       navigateToWorld(name: string): Chainable<void>;
       createLanguage(name: string): Chainable<void>;
       createLanguageWithApi(
         name: string,
         options?: { world?: string }
+      ): Chainable<void>;
+      updateLanguageWithApi(
+        name: string,
+        update: Partial<UserLanguage>
       ): Chainable<void>;
       getLanguages(filter?: { world?: string | null }): Chainable<Language[]>;
       getLanguage(name: string): Chainable<Language>;
@@ -231,6 +238,10 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add("getWorlds", () => {
+  return cy.request({ url: "/api/worlds", method: "GET" }).its("body");
+});
+
 Cypress.Commands.add("goToWorld", (name: string) => {
   cy.visit("/");
   cy.navigateToWorld(name);
@@ -260,6 +271,26 @@ Cypress.Commands.add(
       url: "/api/languages",
       method: "POST",
       body: language,
+    });
+  }
+);
+
+Cypress.Commands.add(
+  "updateLanguageWithApi",
+  (name: string, update: Partial<UserLanguage>) => {
+    cy.getLanguage(name).then((existingLanguage) => {
+      const newLanguage = { ...existingLanguage };
+      if (update.name) {
+        newLanguage.name = update.name;
+      }
+      if (update.world) {
+        newLanguage.worldId = worlds.getId(update.world);
+      }
+      cy.request({
+        url: "/api/languages",
+        method: "POST",
+        body: newLanguage,
+      });
     });
   }
 );

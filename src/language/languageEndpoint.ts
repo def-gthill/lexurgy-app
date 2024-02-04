@@ -12,15 +12,17 @@ export async function postLanguage(
   if (language.id === undefined) {
     language.id = crypto.randomUUID();
   }
-  let query = `MERGE (lang:Language {id: $id}) SET lang.name = $name
-  WITH lang
-  MATCH (user:User {id: $userId})
-  CREATE (user) -[:OWNS]-> (lang)`;
+  let query = `MATCH (user:User {id: $userId})
+  MERGE (user) -[:OWNS]-> (lang:Language {id: $id})
+  SET lang.name = $name`;
   if (language.worldId) {
     query += `
     WITH lang
+    OPTIONAL MATCH (lang) -[rel:IS_IN]-> (world:World)
+    DELETE rel
+    WITH lang
     MATCH (world:World {id: $worldId})
-    CREATE (lang) -[:IS_IN]-> (world)`;
+    MERGE (lang) -[:IS_IN]-> (world)`;
   }
   await execute(driver, query, {
     ...language,

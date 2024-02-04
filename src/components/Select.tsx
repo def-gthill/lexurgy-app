@@ -1,4 +1,5 @@
 import { keys } from "@/map";
+import { useEffect } from "react";
 
 export default function Select<T>({
   id,
@@ -22,6 +23,13 @@ export default function Select<T>({
   );
   const optionMap = new Map(optionPairs);
   const selected = currentSelection ?? optionPairs[0]?.[1];
+
+  useEffect(() => {
+    if (currentSelection === undefined || currentSelection === null) {
+      onChange(selected);
+    }
+  });
+
   return (
     <select
       id={id}

@@ -48,6 +48,16 @@ describe("the workspace page", () => {
     cy.waitForApiResult("/api/languages*", "getLanguages");
     cy.contains("Unwantese").should("not.exist");
   });
+
+  it("lets the user move an existing language into a world", () => {
+    cy.createWorld("Handwavia", "Home of Betamax Crinkledash");
+    cy.contains("Move").click();
+    cy.get("#to-world").select("Handwavia");
+    cy.contains("Save").click();
+    cy.navigateToWorld("Handwavia");
+    cy.contains("Home of Betamax Crinkledash");
+    cy.contains("Examplish");
+  });
 });
 
 export {};

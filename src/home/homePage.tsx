@@ -49,6 +49,7 @@ export default function Home() {
       return (
         <LanguageList
           languages={languages}
+          worlds={worldCollection.getOrEmpty()}
           onSave={languageCollection.save}
           onDelete={languageCollection.delete}
         />
