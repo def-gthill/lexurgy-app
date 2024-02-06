@@ -5,6 +5,7 @@ import { Formula, InflectRules } from "@/inflect/InflectRules";
 import Language from "@/language/Language";
 import SyntaxNode from "@/translation/SyntaxNode";
 import Translation from "@/translation/Translation";
+import { User } from "@/user/User";
 import World from "@/world/World";
 import { encode } from "js-base64";
 import ApiConstruction from "./ApiConstruction";
@@ -51,6 +52,7 @@ declare global {
       login(user: string): Chainable<void>;
       logout(): Chainable<void>;
       ensureUserExists(user: string): Chainable<void>;
+      getUser(user: string): Chainable<User>;
       tabTitleIs(expected: string): Chainable<void>;
       pageTitleIs(expected: string): Chainable<void>;
       clickNavigationLink(name: string): Chainable<void>;
@@ -72,6 +74,10 @@ declare global {
       updateLanguageWithApi(
         name: string,
         update: Partial<UserLanguage>
+      ): Chainable<void>;
+      addCoOwnerToLanguageWithApi(
+        langaugeName: string,
+        user: string
       ): Chainable<void>;
       getLanguages(filter?: { world?: string | null }): Chainable<Language[]>;
       getLanguage(name: string): Chainable<Language>;
@@ -177,6 +183,16 @@ Cypress.Commands.add("ensureUserExists", (user: string) => {
       username: getUserEmail(user),
     },
   });
+});
+
+Cypress.Commands.add("getUser", (user: string) => {
+  return cy
+    .request({
+      url: `/api/users?username=${getUserEmail(user)}`,
+      method: "GET",
+    })
+    .its("body")
+    .its(0);
 });
 
 Cypress.Commands.add("tabTitleIs", (expected: string) => {
@@ -290,6 +306,24 @@ Cypress.Commands.add(
         url: "/api/languages",
         method: "POST",
         body: newLanguage,
+      });
+    });
+  }
+);
+
+Cypress.Commands.add(
+  "addCoOwnerToLanguageWithApi",
+  (languageName: string, user: string) => {
+    cy.getUser(user).then((userObject) => {
+      const languageId = languages.getId(languageName);
+      cy.request({
+        url: `/api/languages/${languageId}/access`,
+        method: "POST",
+        body: {
+          languageId,
+          user: userObject,
+          accessType: "owner",
+        },
       });
     });
   }

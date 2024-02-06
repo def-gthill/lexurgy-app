@@ -39,11 +39,11 @@ export async function getLanguages(
   let dbQuery;
   if (!worldId) {
     dbQuery = `MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language)
-      OPTIONAL MATCH (lang) -[:IS_IN]-> (world:World)
+      OPTIONAL MATCH (lang) -[:IS_IN]-> (world:World) <-[:OWNS]- (user)
       RETURN lang{.*, worldId: world.id}`;
   } else if (worldId === "none") {
     dbQuery = `MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language)
-    OPTIONAL MATCH (lang) -[:IS_IN]-> (world:World)
+    OPTIONAL MATCH (lang) -[:IS_IN]-> (world:World) <-[:OWNS]- (user)
     WITH lang, world
     WHERE world IS NULL
     RETURN lang`;

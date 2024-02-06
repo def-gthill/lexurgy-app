@@ -63,6 +63,18 @@ describe("the language endpoint", () => {
     });
   });
 
+  it("finds languages in worlds the user can't see when world=none", () => {
+    cy.createWorldWithApi("Handwavia");
+    cy.createLanguageWithApi("Examplish", { world: "Handwavia" });
+    cy.ensureUserExists("second");
+    cy.addCoOwnerToLanguageWithApi("Examplish", "second");
+    cy.login("second");
+    cy.getLanguages({ world: null }).should((languages) => {
+      expect(languages.length).to.equal(1);
+      expect(languages[0].name).to.equal("Examplish");
+    });
+  });
+
   it("can move a language to a different world", () => {
     cy.createWorldWithApi("Handwavia");
     cy.createWorldWithApi("Wavehandia");
