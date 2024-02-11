@@ -1,3 +1,4 @@
+import FeatureHider from "@/components/FeatureHider";
 import Header from "@/components/Header";
 import HiddenEditor from "@/components/HiddenEditor";
 import Language, { SavedLanguage } from "@/language/Language";
@@ -6,6 +7,7 @@ import usePersistentCollection from "@/usePersistentCollection";
 import World, { SavedWorld, emptyWorld } from "@/world/World";
 import WorldInfoEditor from "@/world/WorldInfoEditor";
 import WorldInfoView from "@/world/WorldInfoView";
+import axios from "axios";
 import Head from "next/head";
 
 export default function Home() {
@@ -34,7 +36,20 @@ export default function Home() {
             onSave={(value) => worldCollection.save(value)}
           />
           {worlds.map((world) => (
-            <WorldInfoView key={world.id} world={world} />
+            <FeatureHider
+              key={world.id}
+              getVisibleChild={async () => {
+                const userType = (await axios.get("/api/userType")).data;
+                return userType.hasAdminAccess ? 1 : 0;
+              }}
+            >
+              <WorldInfoView world={world} onUpdate={worldCollection.save} />
+              <WorldInfoView
+                world={world}
+                onUpdate={worldCollection.save}
+                exampleSwitchEnabled
+              />
+            </FeatureHider>
           ))}
         </>
       );

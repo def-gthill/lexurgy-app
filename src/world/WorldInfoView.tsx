@@ -1,4 +1,5 @@
 import Editor from "@/components/Editor";
+import LabelledSwitch from "@/components/LabelledSwitch";
 import World from "@/world/World";
 import WorldInfoEditor from "@/world/WorldInfoEditor";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
@@ -10,10 +11,12 @@ export default function WorldInfoView({
   world,
   onUpdate,
   onDelete,
+  exampleSwitchEnabled = false,
 }: {
   world: World;
   onUpdate?: (newWorld: World) => void;
   onDelete?: (id: string) => void;
+  exampleSwitchEnabled?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [editedWorld, setEditedWorld] = useState(world);
@@ -40,6 +43,14 @@ export default function WorldInfoView({
     return (
       <li className="card" style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flexGrow: 1 }}>{content}</div>
+        {onUpdate && exampleSwitchEnabled && (
+          <LabelledSwitch
+            id="example"
+            label="Example"
+            checked={world.isExample ?? false}
+            onCheckedChange={() => onUpdate({ ...world, isExample: true })}
+          />
+        )}
         <div className="buttons">
           {onUpdate && <button onClick={() => setEditing(true)}>Edit</button>}
           {onDelete && (

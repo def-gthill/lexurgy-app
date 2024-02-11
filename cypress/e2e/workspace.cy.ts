@@ -58,6 +58,22 @@ describe("the workspace page", () => {
     cy.contains("Home of Betamax Crinkledash");
     cy.contains("Examplish");
   });
+
+  it("lets the admin user mark a world as an example world", () => {
+    cy.createWorld("Handwavia", "Home of Betamax Crinkledash");
+    cy.contains("Example").click();
+    cy.goToScExamples();
+    cy.contains("Handwavia");
+  });
+
+  it("doesn't let any other user mark a world as an example world", () => {
+    cy.logout();
+    cy.login("second");
+    cy.goToHome();
+    cy.createWorld("Handwavia", "Home of Betamax Crinkledash");
+    cy.contains("Edit");
+    cy.contains("Example").should("not.exist");
+  });
 });
 
 export {};
