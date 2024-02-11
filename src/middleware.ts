@@ -7,6 +7,7 @@ const publicPages = [
   "/api/services",
   "/api/daily",
   "/api/scExampleWorlds",
+  "/logo.png",
 ];
 
 export default withAuth({
