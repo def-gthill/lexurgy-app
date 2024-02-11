@@ -61,7 +61,8 @@ describe("the workspace page", () => {
 
   it("lets the admin user mark a world as an example world", () => {
     cy.createWorld("Handwavia", "Home of Betamax Crinkledash");
-    cy.contains("Example").click();
+    cy.get("#example").click();
+    cy.waitForApiResult("/api/worlds", "worlds");
     cy.goToScExamples();
     cy.contains("Handwavia");
   });
