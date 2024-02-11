@@ -3,6 +3,7 @@
 import Glitch from "@/glitch/Glitch";
 import { Formula, InflectRules } from "@/inflect/InflectRules";
 import Language from "@/language/Language";
+import Evolution from "@/sc/Evolution";
 import SyntaxNode from "@/translation/SyntaxNode";
 import Translation from "@/translation/Translation";
 import { User } from "@/user/User";
@@ -124,6 +125,10 @@ declare global {
       ): Chainable<void>;
       scNoIntermediates(): Chainable<void>;
       scShowsSyntaxError(): Chainable<void>;
+      createEvolutionWithApi(
+        language: string,
+        evolution: Evolution
+      ): Chainable<void>;
       goToScExamples(): Chainable<void>;
       goToInflectPublic(): Chainable<void>;
       runInflect(inputs: UserInflectInputs): Chainable<void>;
@@ -172,8 +177,7 @@ Cypress.Commands.add("login", (user: string) => {
 });
 
 Cypress.Commands.add("logout", () => {
-  cy.goToHome();
-  cy.contains("Sign Out").click();
+  cy.session("anonymous", () => {});
 });
 
 Cypress.Commands.add("ensureUserExists", (user: string) => {
@@ -694,6 +698,21 @@ Cypress.Commands.add("scNoIntermediates", () => {
 Cypress.Commands.add("scShowsSyntaxError", () => {
   cy.get("#status").invoke("text").should("match", /line/);
 });
+
+Cypress.Commands.add(
+  "createEvolutionWithApi",
+  (language: string, evolution: Evolution) => {
+    const evolutionWithLanguageId: Evolution = {
+      languageId: languages.getId(language),
+      ...evolution,
+    };
+    cy.request({
+      url: "/api/evolutions",
+      method: "POST",
+      body: evolutionWithLanguageId,
+    });
+  }
+);
 
 Cypress.Commands.add("goToScExamples", () => {
   cy.visit("/sc/examples");

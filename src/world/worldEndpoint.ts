@@ -24,16 +24,9 @@ export async function postWorld(
 }
 
 export async function getWorlds(
-  requestQuery: RequestQuery,
+  _requestQuery: RequestQuery,
   userId: string
 ): Promise<SavedWorld[]> {
-  const isExample = requestQuery.isExample ?? false;
-  if (isExample) {
-    return await query<SavedWorld>(
-      driver,
-      "MATCH (world: World {isExample: true}) RETURN world;"
-    );
-  }
   return await query<SavedWorld>(
     driver,
     "MATCH (user:User {id: $userId}) -[:OWNS]-> (world: World) RETURN world;",

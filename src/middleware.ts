@@ -6,6 +6,7 @@ const publicPages = [
   "/inflect",
   "/api/services",
   "/api/daily",
+  "/api/scExampleWorlds",
 ];
 
 export default withAuth({

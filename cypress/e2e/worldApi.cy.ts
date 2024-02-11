@@ -23,3 +23,5 @@ describe("the world endpoint", () => {
     });
   });
 });
+
+export {};

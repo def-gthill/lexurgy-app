@@ -1,0 +1,81 @@
+.SelectTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  padding: 0 15px;
+  line-height: 1;
+  height: 35px;
+  gap: 5px;
+  background-color: var(--background);
+  color: var(--foreground);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--foreground);
+}
+.SelectTrigger:hover {
+  background-color: var(--background);
+}
+
+.SelectIcon {
+  color: Var(--violet-11);
+}
+
+.SelectContent {
+  overflow: hidden;
+  background-color: var(--card-background);
+  border-radius: 4px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--foreground);
+}
+
+.SelectViewport {
+  padding: 5px;
+}
+
+.SelectItem {
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  height: 25px;
+  padding: 0 35px 0 25px;
+  position: relative;
+  user-select: none;
+  cursor: pointer;
+}
+.SelectItem[data-highlighted] {
+  background-color: var(--primary);
+}
+
+.SelectLabel {
+  padding: 0 25px;
+  line-height: 25px;
+  color: var(--foreground);
+  font-weight: bold;
+}
+
+.SelectSeparator {
+  height: 1px;
+  background-color: var(--foreground);
+  margin: 5px;
+}
+
+.SelectItemIndicator {
+  position: absolute;
+  left: 0;
+  width: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.SelectScrollButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 25px;
+  background-color: var(--background);
+  color: var(--foreground);
+  cursor: default;
+}

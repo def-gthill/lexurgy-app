@@ -10,3 +10,7 @@ export default interface Evolution {
 export type EvolutionWithLanguageId = RequiredKeys<Evolution, "languageId">;
 
 export type SavedEvolution = RequiredKeys<Evolution, "id" | "languageId">;
+
+export function emptyEvolution(): Evolution {
+  return { soundChanges: "", testWords: [""] };
+}
