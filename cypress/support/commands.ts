@@ -59,11 +59,13 @@ declare global {
       previewShowsJsonOf(value: any): Chainable<void>;
       createWorld(name: string, description?: string): Chainable<void>;
       createWorldWithApi(name: string, description?: string): Chainable<void>;
+      updateWorldWithApi(name: string, update: Partial<World>): Chainable<void>;
       createExampleWorldWithApi(
         name: string,
         description?: string
       ): Chainable<void>;
       getWorlds(): Chainable<World[]>;
+      getWorld(name: string): Chainable<World>;
       goToWorld(name: string): Chainable<void>;
       navigateToWorld(name: string): Chainable<void>;
       createLanguage(name: string): Chainable<void>;
@@ -239,6 +241,29 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
+  "updateWorldWithApi",
+  (name: string, update: Partial<World>) => {
+    cy.getWorld(name).then((existingWorld) => {
+      const newWorld = { ...existingWorld };
+      if (update.name) {
+        newWorld.name = update.name;
+      }
+      if (update.description) {
+        newWorld.description = update.description;
+      }
+      if ("isExample" in update) {
+        newWorld.isExample = update.isExample;
+      }
+      cy.request({
+        url: "/api/worlds",
+        method: "POST",
+        body: newWorld,
+      });
+    });
+  }
+);
+
+Cypress.Commands.add(
   "createExampleWorldWithApi",
   (name: string, description?: string) => {
     cy.request({
@@ -256,6 +281,15 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("getWorlds", () => {
   return cy.request({ url: "/api/worlds", method: "GET" }).its("body");
+});
+
+Cypress.Commands.add("getWorld", (name: string) => {
+  return cy
+    .request({
+      url: `/api/worlds/${worlds.getId(name)}`,
+      method: "GET",
+    })
+    .its("body");
 });
 
 Cypress.Commands.add("goToWorld", (name: string) => {

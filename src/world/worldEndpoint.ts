@@ -11,11 +11,9 @@ export async function postWorld(
   const savedWorld = addId(world);
   await execute(
     driver,
-    `MERGE (world: World {id: $id})
-    SET world.name = $name, world.description = $description, world.isExample = $isExample
-    WITH world
-    MATCH (user:User {id: $userId})
-    CREATE (user) -[:OWNS]-> (world)`,
+    `MATCH (user:User {id: $userId})
+    MERGE (user) -[:OWNS]-> (world: World {id: $id})
+    SET world.name = $name, world.description = $description, world.isExample = $isExample`,
     {
       isExample: false,
       ...savedWorld,
