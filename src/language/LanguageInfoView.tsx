@@ -23,6 +23,8 @@ export default function LanguageInfoView({
   const [editing, setEditing] = useState(false);
   const [moving, setMoving] = useState(false);
   const [editedLanguage, setEditedLanguage] = useState(language);
+  const canMove =
+    onUpdate && worlds && worlds.length > 0 && language.worldId !== "redacted";
   const content = (
     <Link href={`/language/${language.id}`} style={{ flexGrow: 1 }}>
       {language.name}
@@ -38,7 +40,11 @@ export default function LanguageInfoView({
         onSave={(value) => {
           setEditing(false);
           setEditedLanguage(value);
-          onUpdate({ ...value, id: language.id });
+          const newLanguage = { ...value, id: language.id };
+          if (newLanguage.worldId === "redacted") {
+            delete newLanguage.worldId;
+          }
+          onUpdate(newLanguage);
         }}
       />
     );
@@ -64,9 +70,7 @@ export default function LanguageInfoView({
         ) : (
           <div className="buttons">
             {onUpdate && <button onClick={() => setEditing(true)}>Edit</button>}
-            {onUpdate && worlds && worlds.length > 0 && (
-              <button onClick={() => setMoving(true)}>Move</button>
-            )}
+            {canMove && <button onClick={() => setMoving(true)}>Move</button>}
             {onDelete && (
               <DeleteLanguageConfirmDialog
                 language={language}

@@ -39,14 +39,29 @@ export async function getLanguages(
   let dbQuery;
   if (!worldId) {
     dbQuery = `MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language)
-      OPTIONAL MATCH (lang) -[:IS_IN]-> (world:World) <-[:OWNS]- (user)
-      RETURN lang{.*, worldId: world.id}`;
+      OPTIONAL MATCH (lang) -[:IS_IN]-> (world:World)
+      OPTIONAL MATCH (world) <-[own:OWNS]- (user)
+      RETURN lang{
+        .*, 
+        worldId: CASE
+          WHEN world IS NULL THEN null
+          WHEN own IS NULL THEN "redacted"
+          ELSE world.id
+        END
+      }`;
   } else if (worldId === "none") {
     dbQuery = `MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language)
-    OPTIONAL MATCH (lang) -[:IS_IN]-> (world:World) <-[:OWNS]- (user)
+    OPTIONAL MATCH (lang) -[:IS_IN]-> (world:World)
+    OPTIONAL MATCH (world) <-[own:OWNS]- (user)
     WITH lang, world
-    WHERE world IS NULL
-    RETURN lang`;
+    WHERE world IS NULL OR own IS NULL
+    RETURN lang{
+      .*,
+      worldId: CASE
+        WHEN world IS NULL THEN null
+        ELSE "redacted"
+      END
+    }`;
   } else {
     dbQuery = `MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language) -[:IS_IN]-> (world:World {id: $worldId})
       RETURN lang{.*, worldId: world.id};`;

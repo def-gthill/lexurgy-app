@@ -60,6 +60,7 @@ describe("the language endpoint", () => {
     cy.getLanguages({ world: null }).should((languages) => {
       expect(languages.length).to.equal(1);
       expect(languages[0].name).to.equal("Examplish");
+      expect(languages[0]).not.to.haveOwnProperty("worldId");
     });
   });
 
@@ -72,6 +73,7 @@ describe("the language endpoint", () => {
     cy.getLanguages({ world: null }).should((languages) => {
       expect(languages.length).to.equal(1);
       expect(languages[0].name).to.equal("Examplish");
+      expect(languages[0].worldId).to.equal("redacted");
     });
   });
 
