@@ -13,17 +13,6 @@ export default async function handler(
     hasAdminAccess: false,
     hasExperimentalAccess: false,
   };
-  if (
-    username &&
-    (username === process.env.NEXTAUTH_ADMIN_EMAIL ||
-      process.env.NEXTAUTH_EXPERIMENTAL_FEATURE_EMAILS?.split(",")?.includes(
-        username
-      ))
-  ) {
-    result.featureAccess = "experimental";
-  } else {
-    result.featureAccess = "general";
-  }
   if (username && username === process.env.NEXTAUTH_ADMIN_EMAIL) {
     result.hasAdminAccess = true;
     result.hasExperimentalAccess = true;

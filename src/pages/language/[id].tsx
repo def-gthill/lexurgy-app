@@ -7,9 +7,7 @@ export default function LanguageMainPage() {
   return (
     <FeatureHider
       getVisibleChild={async () =>
-        (await axios.get("/api/userType")).data.featureAccess === "experimental"
-          ? 1
-          : 0
+        (await axios.get("/api/userType")).data.hasExperimentalAccess ? 1 : 0
       }
     >
       <Sc />
