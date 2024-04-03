@@ -1,4 +1,4 @@
-import { defaultKeymap } from "@codemirror/commands";
+import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { EditorState } from "@codemirror/state";
 import { EditorView, keymap, lineNumbers } from "@codemirror/view";
 import { useEffect, useRef } from "react";
@@ -30,7 +30,14 @@ export default function CodeEditor({
 
     return EditorState.create({
       doc: initialCode,
-      extensions: [keymap.of(defaultKeymap), lineNumbers(), onUpdate, theme],
+      extensions: [
+        history(),
+        keymap.of(historyKeymap),
+        keymap.of(defaultKeymap),
+        lineNumbers(),
+        onUpdate,
+        theme,
+      ],
     });
   });
 
