@@ -1,3 +1,4 @@
+import { closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { EditorState } from "@codemirror/state";
 import { EditorView, keymap, lineNumbers } from "@codemirror/view";
@@ -33,6 +34,8 @@ export default function CodeEditor({
       extensions: [
         history(),
         keymap.of(historyKeymap),
+        closeBrackets(),
+        keymap.of(closeBracketsKeymap),
         keymap.of(defaultKeymap),
         lineNumbers(),
         onUpdate,
