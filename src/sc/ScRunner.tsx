@@ -94,7 +94,9 @@ export default function ScRunner({
             height: "100%",
           }}
         >
-          <div style={{ flexGrow: 1 }}>
+          <div
+            style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
+          >
             <HistoryTable
               key={scRunToggle}
               intermediateStageNames={intermediateStageNames}

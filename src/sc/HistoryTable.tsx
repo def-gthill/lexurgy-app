@@ -18,48 +18,46 @@ export default function HistoryTable({
   tracing?: boolean;
   setHistories: (histories: WordHistory[]) => void;
 }) {
-  const [freeEditing, setFreeEditing] = useState(false);
+  const [editingInputs, setEditingInputs] = useState(true);
   const [showingStages, setShowingStages] = useState(true);
   const [myHistories, mySetHistories] = useWeakState(histories, setHistories);
 
   return (
-    <div>
-      <LabelledSwitch
-        id="free-edit"
-        label="Edit Input List"
-        checked={freeEditing}
-        onCheckedChange={setFreeEditing}
-      />
-      {freeEditing ? (
-        <div>
-          <Label.Root htmlFor="input-words" style={{ fontWeight: "bold" }}>
-            Input Words
-          </Label.Root>
-          <textarea
-            id="input-words"
-            style={{
-              display: "block",
-              width: "100%",
-              resize: "none",
-              height: "10rem",
-              whiteSpace: "pre",
-              wordWrap: "normal",
-            }}
-            onChange={(event) => {
-              const inputWords = event.target.value.split(/\r?\n/);
-              mySetHistories(inputWords.map(emptyHistory));
-            }}
-            value={myHistories.map((history) => history.inputWord).join("\n")}
-          />
-        </div>
-      ) : (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <div style={{ display: "flex", maxHeight: "18rem" }}>
+    <div style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+      <div
+        style={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <div style={{ display: "flex" }}>
+          {editingInputs && (
+            <div>
+              <Label.Root htmlFor="input-words" style={{ fontWeight: "bold" }}>
+                Input Words
+              </Label.Root>
+              <textarea
+                id="input-words"
+                style={{
+                  display: "block",
+                  width: "10rem",
+                  resize: "none",
+                  height: "25rem",
+                  whiteSpace: "pre",
+                  wordWrap: "normal",
+                }}
+                onChange={(event) => {
+                  const inputWords = event.target.value.split(/\r?\n/);
+                  mySetHistories(inputWords.map(emptyHistory));
+                }}
+                value={myHistories
+                  .map((history) => history.inputWord)
+                  .join("\n")}
+              />
+            </div>
+          )}
+          <div style={{ display: "flex", maxHeight: "25rem" }}>
             <ScrollArea>
               <table>
                 <thead>
@@ -121,13 +119,14 @@ export default function HistoryTable({
               </table>
             </ScrollArea>
           </div>
-          {myHistories.at(-1)?.inputWord && (
-            <div className="buttons">
-              <button onClick={addInputWord}>Add Word</button>
-            </div>
-          )}
         </div>
-      )}
+      </div>
+      <LabelledSwitch
+        id="free-edit"
+        label="Edit Inputs"
+        checked={editingInputs}
+        onCheckedChange={setEditingInputs}
+      />
       <LabelledSwitch
         id="show-stages"
         label="Show Stages"
@@ -136,10 +135,6 @@ export default function HistoryTable({
       />
     </div>
   );
-
-  function addInputWord() {
-    mySetHistories([...myHistories, emptyHistory()]);
-  }
 
   function setInputWord(i: number, word: string) {
     mySetHistories(set(myHistories, i, { ...myHistories[i], inputWord: word }));
