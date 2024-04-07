@@ -1,0 +1,218 @@
+# Simple rule
+
+foo:
+  a => b
+
+==>
+
+file(
+  ChangeRule(
+    RuleName(Name),
+    Block(
+      BlockElement(
+        ExpressionList(
+          StandardExpression(
+            RuleElement(Text(Name)),
+            Text(Name)
+          )
+        )
+      )
+    )
+  )
+)
+
+# Empty
+
+foo:
+  a => *
+
+==>
+
+file(
+  ChangeRule(
+    RuleName(Name),
+    Block(
+      BlockElement(
+        ExpressionList(
+          StandardExpression(
+            RuleElement(Text(Name)),
+            Empty
+          )
+        )
+      )
+    )
+  )
+)
+
+# Keyword expression
+
+foo:
+  unchanged
+
+==>
+
+file(
+  ChangeRule(
+    RuleName(Name),
+    Block(
+      BlockElement(
+        ExpressionList(
+          KeywordExpression
+        )
+      )
+    )
+  )
+)
+
+# Glomination rule
+
+glomination:
+  @vowel => * / @vowel $$ _
+
+==>
+
+file(
+  ChangeRule(
+    RuleName(Name),
+    Block(
+      BlockElement(
+        ExpressionList(
+          StandardExpression(
+            RuleElement(ElementRef(Name)),
+            Empty,
+            Condition(
+              Environment(
+                Sequence(
+                  ElementRef(Name),
+                  BetweenWords
+                )
+                Anchor
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
+
+# Then block
+
+foo:
+  a => b
+  then:
+  c => d
+
+==>
+
+file(
+  ChangeRule(
+    RuleName(Name),
+    Block(
+      BlockElement(
+        ExpressionList(
+          StandardExpression(
+            RuleElement(Text(Name)),
+            Text(Name)
+          )
+        )
+      ),
+      BlockType(BlockTypeKw),
+      BlockElement(
+        ExpressionList(
+          StandardExpression(
+            RuleElement(Text(Name)),
+            Text(Name)
+          )
+        )
+      )
+    )
+  )
+)
+
+# Then block and another rule
+
+foo:
+  a => b
+  then:
+  c => *
+
+bar:
+  unchanged
+
+==>
+
+file(
+  ChangeRule(
+    RuleName(Name),
+    Block(
+      BlockElement(
+        ExpressionList(
+          StandardExpression(
+            RuleElement(Text(Name)),
+            Text(Name)
+          )
+        )
+      ),
+      BlockType(BlockTypeKw),
+      BlockElement(
+        ExpressionList(
+          StandardExpression(
+            RuleElement(Text(Name)),
+            Empty
+          )
+        )
+      )
+    )
+  ),
+  ChangeRule(
+    RuleName(Name),
+    Block(BlockElement(ExpressionList(KeywordExpression)))
+  )
+)
+
+# Syllable element
+
+foo:
+  <syl> => b
+
+==>
+
+file(
+  ChangeRule(
+    RuleName(Name),
+    Block(
+      BlockElement(
+        ExpressionList(
+          StandardExpression(
+            RuleElement(AnySyllable),
+            Text(Name)
+          )
+        )
+      )
+    )
+  )
+)
+
+# Tie bars
+
+foo:
+  t => t͡s
+
+==>
+
+file(
+  ChangeRule(
+    RuleName(Name),
+    Block(
+      BlockElement(
+        ExpressionList(
+          StandardExpression(
+            RuleElement(Text(Name)),
+            Text(Name, OtherText)
+          )
+        )
+      )
+    )
+  )
+)

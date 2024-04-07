@@ -1,0 +1,160 @@
+@top file { (newline | ws)? (statement ~nextStatement (newline statement ~nextStatement)* (newline | ws)?)? }
+
+@skip { Comment }
+
+statement {
+  FeatureDecl | DiacriticDecl | SymbolDecl | ClassDecl | ElementDecl | SyllableDecl |
+  Deromanizer | InterRomanizer | Romanizer | ChangeRule
+}
+
+ElementDecl { ElementKw ws Name ws RuleElement }
+ElementKw { @specialize<Name, "Element"> | @specialize<Name, "element"> }
+ClassDecl { ClassKw ws Name ws "{" ws? classElement ("," ws? classElement)* ","? ws? "}" }
+ClassKw { @specialize<Name, "Class"> | @specialize<Name, "class"> }
+classElement { ElementRef | Text }
+FeatureDecl {
+  FeatureKw ws (
+    (PlusFeature ("," ws? PlusFeature)*) |
+    FullFeature
+  )
+}
+FeatureKw { @specialize<Name, "Feature"> | @specialize<Name, "feature"> }
+FeatureModifier { "(Syllable)" | "(syllable)" }
+PlusFeature { (FeatureModifier ws)? PlusFeatureDecl }
+PlusFeatureDecl { "+"? Name ~feature }
+FullFeature { (FeatureModifier ws)? Name ~feature ws? "(" ws? (NullAlias "," ws?)? FeatureValue ("," ws? FeatureValue)* ws? ")" }
+NullAlias { "*" FeatureValue }
+DiacriticDecl {
+  DiacriticKw ws Text ws
+  (DiacriticModifier ws)* Matrix (~diamods ws DiacriticModifier)* ~diamods
+}
+DiacriticKw { @specialize<Name, "Diacritic"> | @specialize<Name, "diacritic"> }
+DiacriticModifier { "(Before)" | "(before)" | "(First)" | "(first)" | "(Floating)" | "(floating)" }
+SymbolDecl { SymbolKw ws Text ~symbol (("," ws? Text ~symbol)* | ws Matrix) }
+SymbolKw { @specialize<Name, "Symbol"> | @specialize<Name, "symbol"> }
+
+SyllableDecl {
+  SyllableKw ":" (newline KeywordPattern | (~pattern newline SyllablePattern)+ ~pattern)
+}
+KeywordPattern {
+  @specialize<Name, "Explicit"> | @specialize<Name, "explicit"> |
+  @specialize<Name, "Clear"> | @specialize<Name, "clear">
+}
+SyllableKw { @specialize<Name, "Syllables"> | @specialize<Name, "syllables"> }
+SyllablePattern { RuleElement (ws? "=>" (newline | ws)? Matrix)? ~pattern compoundEnvironment? }
+
+Deromanizer { DeromanizerKw (ws LiteralKw)? ":" newline Block }
+DeromanizerKw { @specialize<Name, "Deromanizer"> | @specialize<Name, "deromanizer"> }
+Romanizer { RomanizerKw (ws LiteralKw)? ":" newline Block }
+InterRomanizer { RomanizerKw "-" RuleName (ws LiteralKw)? ":" newline Block }
+RomanizerKw { @specialize<Name, "Romanizer"> | @specialize<Name, "romanizer"> }
+LiteralKw { @specialize<Name, "Literal"> | @specialize<Name, "literal"> }
+
+ChangeRule { RuleName (ws changeRuleModifier)* ":" newline Block }
+changeRuleModifier { Filter | KeywordModifier }
+Filter { RuleElement }
+Block { BlockElement (~block newline BlockType ":" newline BlockElement)* ~block }
+BlockElement { ExpressionList | "(" ws? Block ws? ")" }
+BlockType { BlockTypeKw (ws changeRuleModifier)* }
+BlockTypeKw[@dynamicPrecedence=1] { "Then" | "then" | "Else" | "else" }
+KeywordModifier {
+  @specialize<Name, "LTR"> | @specialize<Name, "Ltr"> | @specialize<Name, "ltr"> |
+  @specialize<Name, "RTL"> | @specialize<Name, "Rtl"> | @specialize<Name, "rtl"> |
+  @specialize<Name, "Propagate"> | @specialize<Name, "propagate"> |
+  @specialize<Name, "Defer"> | @specialize<Name, "defer"> |
+  @specialize<Name, "Cleanup"> | @specialize<Name, "cleanup">
+}
+ExpressionList { expression (~expression newline expression)* ~expression }
+RuleName { Name ("-" Name)* }
+
+expression { KeywordExpression | BlockRef | StandardExpression }
+KeywordExpression {
+  @specialize<Name, "Unchanged"> | @specialize<Name, "unchanged"> |
+  @specialize<Name, "Off"> | @specialize<Name, "off">
+}
+BlockRef { ":" RuleName }
+StandardExpression { RuleElement ws? "=>" ws? unconditionalRuleElement ~sequenceStart compoundEnvironment? }
+
+RuleElement { unconditionalRuleElement ~sequenceStart compoundEnvironment? }
+unconditionalRuleElement { bounded | Interfix | Negated | postfix | simple | Sequence }
+
+// "Bounded" elements have a clear start and end symbol
+bounded { Group | List }
+Group { "(" ws? RuleElement ws? ")" }
+List { "{" ws? RuleElement ("," ws? RuleElement)* ws? "}" }
+
+// "Free" elements have sub-elements floating free amid whitespace
+Sequence { freeElement ~sequenceStart (~sequenceContinue ws freeElement)+ ~sequenceContinue }
+freeElement { bounded | Interfix | Negated | postfix | simple }
+
+compoundEnvironment { Condition ~condition | Exclusion | (Condition ~condition Exclusion) }
+Condition { ws? "/" (newline | ws)? (Environment | EnvironmentList) }
+Exclusion { ws? "//" (newline | ws)? (Environment | EnvironmentList) }
+EnvironmentList { "{" ws? Environment ("," ws? Environment)* ws? "}" }
+Environment {
+  (unconditionalRuleElement ~sequenceStart ws)? Anchor ~after (ws unconditionalRuleElement ~sequenceStart) |
+  (unconditionalRuleElement ~sequenceStart ws)? Anchor ~after
+}
+
+// "Interfix" elements use a delimiter but no whitespace or boundary marker
+Interfix { interfixElement (InterfixType interfixElement)+ }
+InterfixType { "&" | "&!" | ">" }
+interfixElement { bounded | Negated | postfix | simple }
+
+// "Prefix" elements use a prefix operator
+Negated { "!" (bounded | simple) }
+
+// "Postfix" elements use a postfix operator
+postfix { Capture | Repeater }
+Capture { (bounded | Negated | simple) CaptureRef }
+Repeater { (bounded | simple) RepeaterType }
+
+// "Simple" elements can't have other elements inside them
+simple { AnySyllable | ElementRef | CaptureRef | FancyMatrix | Empty | SylBoundary | Boundary | BetweenWords | Text }
+AnySyllable { "<Syl>" | "<syl>" }
+ElementRef { "@" Name }
+CaptureRef { "~"? "$" "."? Number }
+
+FancyMatrix { "[" ws? (fancyValue (ws fancyValue)* ws?)? "]" }
+fancyValue { matrixValue | NegatedValue | AbsentFeature | FeatureVariable }
+NegatedValue { "!" matrixValue }
+AbsentFeature { "*" Name }
+FeatureVariable { "$" Name }
+
+Anchor { "_" }
+Empty { "*" }
+SylBoundary { "." }
+Boundary { "$" }
+BetweenWords { "$$" }
+RepeaterType { RepeatRange | "+" | "*" | "?" }
+RepeatRange { "*" (Number | ( "(" ws? Number? "-" Number?  ws? ")")) }
+Matrix { "[" ws? (matrixValue (ws matrixValue)* ws?)? "]" }
+matrixValue { PlusFeatureValue | FeatureValue }
+PlusFeatureValue { ("+" | "-") Name }
+FeatureValue { Name }
+Text { Name OtherText | Name | OtherText }
+newline { singleNewline+ }
+
+@tokens {
+  ws { (" " | "\t")+ }
+  Comment { "#" ![\n]* }
+  singleNewline { (" " | "\t")* ("\r\n" | "\n") (" " | "\t")* }
+  OtherText { textChar+ "!"? }
+  textChar { "\\" ![] | ![ \,.=>()*[\]{}+?/\-_:!~$@#&\n\r] }
+  Name { $[A-Za-z0-9]+ }
+  Number { $[0-9]+ }
+  @precedence { singleNewline, ws, Name, OtherText }
+  @precedence { "<Syl>", "<syl>", OtherText, ">" }
+  "("
+  ")"
+  "["
+  "]"
+  "{"
+  "}"
+  ","
+  ":"
+  "=>"
+  "/"
+  "//"
+  "!"
+}

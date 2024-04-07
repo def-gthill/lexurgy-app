@@ -1,0 +1,69 @@
+.tok-comment {
+  color: darkgray;
+}
+
+.tok-keyword {
+  color: blue;
+}
+
+.tok-typeName {
+  color: darkolivegreen;
+}
+
+.tok-propertyName {
+  color: darkgreen;
+}
+
+.tok-variableName {
+  color: darkmagenta;
+}
+
+.tok-variableName.tok-local {
+  color: darkorchid;
+}
+
+.tok-className {
+  color: darkslateblue;
+}
+
+.tok-operator {
+  color: darkred;
+}
+
+.tok-punctuation {
+  color: darkslategray;
+}
+
+@media (prefers-color-scheme: dark) {
+  .tok-keyword {
+    color: lightblue;
+  }
+
+  .tok-typeName {
+    color: lightseagreen;
+  }
+
+  .tok-propertyName {
+    color: lightgreen;
+  }
+
+  .tok-variableName {
+    color: lightsalmon;
+  }
+
+  .tok-variableName.tok-local {
+    color: lightcoral;
+  }
+
+  .tok-className {
+    color: plum;
+  }
+
+  .tok-operator {
+    color: lightpink;
+  }
+
+  .tok-punctuation {
+    color: lightgrey;
+  }
+}
