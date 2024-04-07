@@ -10,7 +10,11 @@ export default function ShareButton({
   soundChanges: string;
   inputWords: string[];
 }) {
-  return <button onClick={share}>Share</button>;
+  return (
+    <button onClick={share} className="big-button">
+      Share
+    </button>
+  );
 
   function share() {
     const inputWordsEncoded = encode(inputWords.join("\n"), true);

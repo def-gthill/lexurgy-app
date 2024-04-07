@@ -221,6 +221,12 @@ button.danger:disabled {
   margin: 2px;
 }
 
+.big-button {
+  font-size: 2em;
+  padding: 20px;
+  border-radius: 10px;
+}
+
 .AlertDialogOverlay {
   background-color: hsl(0 0% 50% / 20%);
   position: fixed;

@@ -116,73 +116,82 @@ export default function ScRunner({
               />
             </div>
           </div>
-          <div style={{ display: "flex" }}>
-            <div className="buttons">
-              <button
-                onClick={runSc}
-                style={{
-                  fontSize: "2em",
-                  padding: "20px",
-                  borderRadius: "10px",
-                }}
-              >
-                Apply
-              </button>
-              <ShareButton
-                baseUrl={baseUrl}
-                soundChanges={editedSoundChanges}
-                inputWords={testWords}
-              />
-            </div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "max-content max-content",
-              }}
-            >
-              <LabelledSwitch
-                id="trace-changes"
-                label="Trace Changes"
-                checked={tracing}
-                onCheckedChange={setTracing}
-              />
-              <div />
-              <LabelledSwitch
-                id="start-at-enabled"
-                label="Start At Rule"
-                checked={startAtEnabled}
-                onCheckedChange={setStartAtEnabled}
-              />
-              <Select
-                id="start-at"
-                disabled={!startAtEnabled}
-                options={ruleNames.map((name) => ({
-                  name: toNiceName(name),
-                  value: name,
-                }))}
-                currentSelection={startAt ?? undefined}
-                onChange={setStartAt}
-              ></Select>
-              <LabelledSwitch
-                id="stop-before-enabled"
-                label="Stop Before Rule"
-                checked={stopBeforeEnabled}
-                onCheckedChange={setStopBeforeEnabled}
-              />
-              <Select
-                id="stop-before"
-                disabled={!stopBeforeEnabled}
-                options={ruleNames.map((name) => ({
-                  name: toNiceName(name),
-                  value: name,
-                }))}
-                currentSelection={stopBefore ?? undefined}
-                onChange={setStopBefore}
-              ></Select>
-            </div>
-          </div>
         </div>
       </SplitPane>
+      <hr />
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
+        <div
+          style={{
+            width: "50%",
+            display: "flex",
+            justifyContent: "right",
+            alignItems: "center",
+          }}
+        >
+          <div className="buttons">
+            <button onClick={runSc} className="big-button">
+              Apply
+            </button>
+            <ShareButton
+              baseUrl={baseUrl}
+              soundChanges={editedSoundChanges}
+              inputWords={testWords}
+            />
+          </div>
+        </div>
+        <div style={{ width: "50%" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "max-content max-content",
+            }}
+          >
+            <LabelledSwitch
+              id="trace-changes"
+              label="Trace Changes"
+              checked={tracing}
+              onCheckedChange={setTracing}
+            />
+            <div />
+            <LabelledSwitch
+              id="start-at-enabled"
+              label="Start At Rule"
+              checked={startAtEnabled}
+              onCheckedChange={setStartAtEnabled}
+            />
+            <Select
+              id="start-at"
+              disabled={!startAtEnabled}
+              options={ruleNames.map((name) => ({
+                name: toNiceName(name),
+                value: name,
+              }))}
+              currentSelection={startAt ?? undefined}
+              onChange={setStartAt}
+            ></Select>
+            <LabelledSwitch
+              id="stop-before-enabled"
+              label="Stop Before Rule"
+              checked={stopBeforeEnabled}
+              onCheckedChange={setStopBeforeEnabled}
+            />
+            <Select
+              id="stop-before"
+              disabled={!stopBeforeEnabled}
+              options={ruleNames.map((name) => ({
+                name: toNiceName(name),
+                value: name,
+              }))}
+              currentSelection={stopBefore ?? undefined}
+              onChange={setStopBefore}
+            ></Select>
+          </div>
+        </div>
+      </div>
     </div>
   );
 
