@@ -2,6 +2,7 @@ import { set } from "@/array";
 import Checkbox from "@/components/Checkbox";
 import LabelledSwitch from "@/components/LabelledSwitch";
 import ScrollArea from "@/components/ScrollArea";
+import styles from "@/sc/HistoryTable.module.css";
 import useWeakState from "@/useWeakState";
 import * as Label from "@radix-ui/react-label";
 import { Fragment, useState } from "react";
@@ -31,7 +32,7 @@ export default function HistoryTable({
           flexDirection: "column",
         }}
       >
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex", gap: "4px" }}>
           {editingInputs && (
             <div>
               <Label.Root htmlFor="input-words" style={{ fontWeight: "bold" }}>
@@ -43,7 +44,7 @@ export default function HistoryTable({
                   display: "block",
                   width: "10rem",
                   resize: "none",
-                  height: "25rem",
+                  height: "30rem",
                   whiteSpace: "pre",
                   wordWrap: "normal",
                 }}
@@ -57,30 +58,30 @@ export default function HistoryTable({
               />
             </div>
           )}
-          <div style={{ display: "flex", maxHeight: "25rem" }}>
+          <div style={{ minWidth: 0, height: "31rem", flexGrow: 1 }}>
             <ScrollArea>
-              <table>
+              <table style={{ borderSpacing: 0, textAlign: "left" }}>
                 <thead>
                   <tr>
-                    {tracing && <th>Trace</th>}
-                    <th>Input Word</th>
-                    <th></th>
+                    {tracing && <th className={styles.stickyHeader}>Trace</th>}
+                    <th className={styles.stickyHeader}>Input Word</th>
                     {showingStages &&
                       intermediateStageNames &&
                       intermediateStageNames.map((name) => (
                         <Fragment key={name}>
-                          <th>{toNiceName(name)}</th>
-                          <th></th>
+                          <th className={styles.stickyHeader}>
+                            {toNiceName(name)}
+                          </th>
                         </Fragment>
                       ))}
-                    <th>Output Word</th>
+                    <th className={styles.stickyHeader}>Output Word</th>
                   </tr>
                 </thead>
                 <tbody>
                   {myHistories.map((history, i) => (
                     <tr key={i}>
                       {tracing && (
-                        <td>
+                        <td className={styles.cell}>
                           <Checkbox
                             id={`tracing-${i}`}
                             checked={history.tracing}
@@ -90,29 +91,21 @@ export default function HistoryTable({
                           />
                         </td>
                       )}
-                      <td>
-                        <input
-                          type="text"
-                          value={history.inputWord}
-                          onChange={(event) =>
-                            setInputWord(i, event.target.value)
-                          }
-                        />
+                      <td className={styles.cell}>
+                        <b>{history.inputWord}</b>
                       </td>
-                      <td>{history.outputWord && ">"}</td>
                       {showingStages &&
                         intermediateStageNames &&
                         intermediateStageNames.map((name) => {
                           const intermediateWord =
                             history.intermediates.get(name);
                           return (
-                            <Fragment key={name}>
-                              <td>{intermediateWord}</td>
-                              <td>{intermediateWord && ">"}</td>
-                            </Fragment>
+                            <td className={styles.cell} key={name}>
+                              {intermediateWord}
+                            </td>
                           );
                         })}
-                      <td>{history.outputWord}</td>
+                      <td className={styles.cell}>{history.outputWord}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -135,10 +128,6 @@ export default function HistoryTable({
       />
     </div>
   );
-
-  function setInputWord(i: number, word: string) {
-    mySetHistories(set(myHistories, i, { ...myHistories[i], inputWord: word }));
-  }
 
   function setTracingWord(i: number, tracing: boolean) {
     mySetHistories(set(myHistories, i, { ...myHistories[i], tracing }));

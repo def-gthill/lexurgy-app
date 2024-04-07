@@ -58,16 +58,25 @@ export default function ScRunner({
   return (
     <div className="card">
       <SplitPane>
-        <div>
-          <Label.Root htmlFor="sound-changes" style={{ fontWeight: "bold" }}>
-            Sound Changes
-          </Label.Root>
-          <CodeEditor
-            initialCode={evolution.soundChanges}
-            onUpdateCode={onEditSoundChanges}
-            height="30rem"
-          />
-          <div id="status">{error ?? status}</div>
+        <div
+          style={{
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+        >
+          <div>
+            <Label.Root htmlFor="sound-changes" style={{ fontWeight: "bold" }}>
+              Sound Changes
+            </Label.Root>
+            <CodeEditor
+              initialCode={evolution.soundChanges}
+              onUpdateCode={onEditSoundChanges}
+              height="30rem"
+            />
+            <div id="status">{error ?? status}</div>
+          </div>
           <div className="buttons">
             <ImportButton
               expectedFileType=".lsc"

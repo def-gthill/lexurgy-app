@@ -1,0 +1,9 @@
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  background-color: var(--card-background);
+}
+
+.cell {
+  text-wrap: nowrap;
+}
