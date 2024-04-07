@@ -22,6 +22,7 @@
   padding: 2px;
   background: var(--background);
   transition: background 160ms ease-out;
+  z-index: 2;
 }
 .scrollbar[data-orientation="vertical"] {
   width: var(--scrollbar-size);

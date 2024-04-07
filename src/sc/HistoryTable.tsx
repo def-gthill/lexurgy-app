@@ -23,6 +23,10 @@ export default function HistoryTable({
   const [showingStages, setShowingStages] = useState(true);
   const [myHistories, mySetHistories] = useWeakState(histories, setHistories);
 
+  const inputColumnStyle = tracing
+    ? styles.stickySecondColumnHeader
+    : styles.stickyColumnHeader;
+
   return (
     <div style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
       <div
@@ -63,8 +67,18 @@ export default function HistoryTable({
               <table style={{ borderSpacing: 0, textAlign: "left" }}>
                 <thead>
                   <tr>
-                    {tracing && <th className={styles.stickyHeader}>Trace</th>}
-                    <th className={styles.stickyHeader}>Input Word</th>
+                    {tracing && (
+                      <th
+                        className={`${styles.stickyHeader} ${styles.stickyColumnHeader}`}
+                      >
+                        <div style={{ minWidth: "4em" }}>Trace</div>
+                      </th>
+                    )}
+                    <th
+                      className={`${styles.stickyHeader} ${inputColumnStyle}`}
+                    >
+                      Input Word
+                    </th>
                     {showingStages &&
                       intermediateStageNames &&
                       intermediateStageNames.map((name) => (
@@ -81,7 +95,9 @@ export default function HistoryTable({
                   {myHistories.map((history, i) => (
                     <tr key={i}>
                       {tracing && (
-                        <td className={styles.cell}>
+                        <td
+                          className={`${styles.cell} ${styles.stickyColumnHeader}`}
+                        >
                           <Checkbox
                             id={`tracing-${i}`}
                             checked={history.tracing}
@@ -91,7 +107,7 @@ export default function HistoryTable({
                           />
                         </td>
                       )}
-                      <td className={styles.cell}>
+                      <td className={`${styles.cell} ${inputColumnStyle}`}>
                         <b>{history.inputWord}</b>
                       </td>
                       {showingStages &&

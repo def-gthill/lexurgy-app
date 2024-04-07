@@ -2,6 +2,29 @@
   position: sticky;
   top: 0;
   background-color: var(--card-background);
+  z-index: 1;
+}
+
+.stickyColumnHeader {
+  position: sticky;
+  left: 0;
+  background-color: var(--card-background);
+  z-index: 1;
+}
+
+.stickySecondColumnHeader {
+  position: sticky;
+  left: 4em;
+  background-color: var(--card-background);
+  z-index: 1;
+}
+
+.stickyHeader.stickyColumnHeader {
+  z-index: 2;
+}
+
+.stickyHeader.stickySecondColumnHeader {
+  z-index: 2;
 }
 
 .cell {
