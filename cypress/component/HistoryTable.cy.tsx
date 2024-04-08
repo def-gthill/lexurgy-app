@@ -12,7 +12,7 @@ describe("HistoryTable", () => {
     cy.scInputWordsAre(["foo", "bar"]);
   });
 
-  it("lets the user edit input words in Free Edit mode", () => {
+  it("lets the user edit input words into the text area", () => {
     let savedHistories: WordHistory[] = [];
     function setHistories(histories: WordHistory[]) {
       savedHistories = histories;

@@ -620,14 +620,10 @@ Cypress.Commands.add("startSc", () => {
 });
 
 Cypress.Commands.add("scEnterInputWords", (inputWords: string[]) => {
-  for (const input of inputWords) {
-    cy.get("table input").last().type(input);
-    cy.contains("Add Word").click();
-  }
+  cy.scEnterFreeInputWords(inputWords.join("\n"));
 });
 
 Cypress.Commands.add("scEnterFreeInputWords", (inputWordText: string) => {
-  cy.get("#free-edit").click();
   cy.get("#input-words").type(inputWordText);
 });
 
@@ -652,10 +648,7 @@ Cypress.Commands.add("scStartAt", (ruleName: string) => {
 
 Cypress.Commands.add("scInputWordsAre", (expectedWords: string[]) => {
   expectedWords.forEach((word, i) => {
-    cy.get(`tbody > :nth-child(${i + 1}) > :first > input`).should(
-      "have.value",
-      word
-    );
+    cy.get(`tbody > :nth-child(${i + 1}) > :first`).should("have.text", word);
   });
 });
 
@@ -674,14 +667,12 @@ Cypress.Commands.add(
       const tracing = element.attr("data-state") === "checked";
       const traceOffset = tracing ? 1 : 0;
       expectedWords.forEach(([key, words], i) => {
-        cy.get(
-          `thead > tr > :nth-child(${2 * (i + 1) + 1 + traceOffset})`
-        ).then((element) => expect(element.text()).to.equal(key));
+        cy.get(`thead > tr > :nth-child(${i + 2 + traceOffset})`).then(
+          (element) => expect(element.text()).to.equal(key)
+        );
         words.forEach((word, j) => {
           cy.get(
-            `tbody > :nth-child(${j + 1}) > :nth-child(${
-              2 * (i + 1) + 1 + traceOffset
-            })`
+            `tbody > :nth-child(${j + 1}) > :nth-child(${i + 2 + traceOffset})`
           ).then((element) => expect(element.text()).to.equal(word));
         });
       });
@@ -690,7 +681,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("scNoIntermediates", () => {
-  cy.get(`thead > tr > :nth-child(3)`).then((element) =>
+  cy.get(`thead > tr > :nth-child(2)`).then((element) =>
     expect(element.text()).to.equal("Output Word")
   );
 });

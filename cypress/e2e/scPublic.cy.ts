@@ -8,15 +8,7 @@ describe("the public sound changer page", () => {
     cy.scOutputWordsAre(["faa", "bar"]);
   });
 
-  it("switches to the History view if the user ran sound changes in Free Edit", () => {
-    cy.goToScPublic();
-    cy.scEnterFreeInputWords("foo\nbar");
-    cy.scEnterSoundChanges("my-rule:\n o => a");
-    cy.startSc();
-    cy.scOutputWordsAre(["faa", "bar"]);
-  });
-
-  it("allows the user to insert lines in Free Edit", () => {
+  it("allows the user to insert lines in the text area", () => {
     cy.goToScPublic();
     cy.scEnterSoundChanges("my-rule:\n o => a");
     cy.scEnterFreeInputWords("foo\nbar");
