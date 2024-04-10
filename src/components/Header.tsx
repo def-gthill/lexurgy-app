@@ -82,7 +82,7 @@ export default function Header({
                 className={styles.NavigationMenuLink}
                 href="/api/auth/signin?callbackUrl=%2Fsc"
               >
-                {"Sign In"}
+                {"Sign In (Doesn't Work)"}
               </NavigationMenu.Link>
             )}
           </NavigationMenu.Item>
