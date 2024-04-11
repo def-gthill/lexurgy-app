@@ -2,10 +2,12 @@ import { FormEvent, useRef } from "react";
 
 export default function ImportButton({
   label,
+  ariaLabel,
   expectedFileType,
   sendData,
 }: {
   label?: string;
+  ariaLabel?: string;
   expectedFileType: string;
   sendData: (fileContents: string) => void;
 }) {
@@ -19,7 +21,12 @@ export default function ImportButton({
         style={{ display: "none" }}
         onInput={readFile}
       />
-      <button onClick={promptForFile}>{label ?? "Import"}</button>
+      <button
+        onClick={promptForFile}
+        aria-label={ariaLabel ?? label ?? "Import"}
+      >
+        {label ?? "Import"}
+      </button>
     </>
   );
 

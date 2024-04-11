@@ -15,21 +15,31 @@ import { WordHistory, emptyHistory } from "@/sc/WordHistory";
 import useDebounced from "@/useDebounced";
 import * as Label from "@radix-ui/react-label";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 
 export default function ScRunner({
   baseUrl,
   evolution,
   onUpdate,
+  importButton = defaultImportButton,
 }: {
   baseUrl: string | null;
   evolution: Evolution;
   onUpdate?: (evolution: Evolution) => void;
+  importButton?: (
+    ariaLabel: string,
+    expectedFileType: string,
+    sendData: (data: string) => void
+  ) => ReactElement;
 }) {
+  const [initialSoundChanges, setInitialSoundChanges] = useState(
+    evolution.soundChanges
+  );
   const [editedSoundChanges, setEditedSoundChanges] = useState(
     evolution.soundChanges
   );
   useEffect(() => {
+    setInitialSoundChanges(evolution.soundChanges);
     setEditedSoundChanges(evolution.soundChanges);
   }, [evolution.soundChanges]);
   const [intermediateStageNames, setIntermediateStageNames] = useState<
@@ -71,17 +81,21 @@ export default function ScRunner({
               Sound Changes
             </Label.Root>
             <CodeEditor
-              initialCode={evolution.soundChanges}
+              initialCode={initialSoundChanges}
               onUpdateCode={onEditSoundChanges}
               height="30rem"
             />
             <div id="status">{error ?? status}</div>
           </div>
           <div className="buttons">
-            <ImportButton
-              expectedFileType=".lsc"
-              sendData={onEditSoundChanges}
-            />
+            {importButton(
+              "Import Sound Changes",
+              ".lsc",
+              (soundChanges: string) => {
+                setInitialSoundChanges(soundChanges);
+                onEditSoundChanges(soundChanges);
+              }
+            )}
             <ExportButton fileName="lexurgy.lsc" data={editedSoundChanges} />
             <a
               href="https://www.meamoria.com/lexurgy/html/sc-tutorial.html"
@@ -114,13 +128,10 @@ export default function ScRunner({
               setHistories={onEditHistories}
             />
             <div className="buttons">
-              <ImportButton
-                expectedFileType=".wli"
-                sendData={(data) => {
-                  const inputWords = data.split(/[\r\n]+/);
-                  onEditHistories(inputWords.map(emptyHistory));
-                }}
-              />
+              {importButton("Import Input Words", ".wli", (data) => {
+                const inputWords = data.split(/[\r\n]+/);
+                onEditHistories(inputWords.map(emptyHistory));
+              })}
               <HistoryExporter
                 histories={histories}
                 intermediateStageNames={intermediateStageNames}
@@ -319,6 +330,20 @@ export default function ScRunner({
       setStatus("Ready");
     }
   }
+}
+
+function defaultImportButton(
+  ariaLabel: string,
+  expectedFileType: string,
+  sendData: (data: string) => void
+) {
+  return (
+    <ImportButton
+      ariaLabel={ariaLabel}
+      expectedFileType={expectedFileType}
+      sendData={sendData}
+    />
+  );
 }
 
 function toNiceName(name: string) {
