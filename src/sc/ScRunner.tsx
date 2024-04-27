@@ -66,6 +66,13 @@ export default function ScRunner({
   const sendEvolution = useDebounced(updateEvolution, 500);
   const requestUpdatingRuleNames = useDebounced(updateRuleNames, 500);
 
+  const selectableRules = ruleNames
+    .filter((name) => !name.startsWith("<"))
+    .map((name) => ({
+      name: toNiceName(name),
+      value: name,
+    }));
+
   return (
     <div className="card">
       <SplitPane>
@@ -189,10 +196,7 @@ export default function ScRunner({
             <Select
               id="start-at"
               disabled={!startAtEnabled}
-              options={ruleNames.map((name) => ({
-                name: toNiceName(name),
-                value: name,
-              }))}
+              options={selectableRules}
               currentSelection={startAt ?? undefined}
               onChange={setStartAt}
             ></Select>
@@ -205,10 +209,7 @@ export default function ScRunner({
             <Select
               id="stop-before"
               disabled={!stopBeforeEnabled}
-              options={ruleNames.map((name) => ({
-                name: toNiceName(name),
-                value: name,
-              }))}
+              options={selectableRules}
               currentSelection={stopBefore ?? undefined}
               onChange={setStopBefore}
             ></Select>
