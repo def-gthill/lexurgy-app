@@ -3,6 +3,7 @@ import Checkbox from "@/components/Checkbox";
 import LabelledSwitch from "@/components/LabelledSwitch";
 import ScrollArea from "@/components/ScrollArea";
 import styles from "@/sc/HistoryTable.module.css";
+import { toNiceName } from "@/sc/ruleName";
 import useWeakState from "@/useWeakState";
 import * as Label from "@radix-ui/react-label";
 import { Fragment, useState } from "react";
@@ -148,11 +149,4 @@ export default function HistoryTable({
   function setTracingWord(i: number, tracing: boolean) {
     mySetHistories(set(myHistories, i, { ...myHistories[i], tracing }));
   }
-}
-
-function toNiceName(name: string) {
-  return name
-    .split("-")
-    .map((word) => word.slice(0, 1).toLocaleUpperCase() + word.slice(1))
-    .join(" ");
 }

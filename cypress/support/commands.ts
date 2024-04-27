@@ -638,7 +638,7 @@ Cypress.Commands.add("scInsertFreeInputWord", (word: string, index: number) => {
 });
 
 Cypress.Commands.add("scEnterSoundChanges", (soundChanges: string) => {
-  cy.get(".cm-line").type(soundChanges);
+  cy.get(".cm-line").type(soundChanges, { parseSpecialCharSequences: false });
 });
 
 Cypress.Commands.add("scStartAt", (ruleName: string) => {

@@ -12,6 +12,7 @@ import Scv1Request from "@/sc/Scv1Request";
 import Scv1Response from "@/sc/Scv1Response";
 import ShareButton from "@/sc/ShareButton";
 import { WordHistory, emptyHistory } from "@/sc/WordHistory";
+import { toNiceName } from "@/sc/ruleName";
 import useDebounced from "@/useDebounced";
 import * as Label from "@radix-ui/react-label";
 import axios from "axios";
@@ -344,13 +345,6 @@ function defaultImportButton(
       sendData={sendData}
     />
   );
-}
-
-function toNiceName(name: string) {
-  return name
-    .split("-")
-    .map((word) => word.slice(0, 1).toLocaleUpperCase() + word.slice(1))
-    .join(" ");
 }
 
 function toErrorMessage(error: any) {

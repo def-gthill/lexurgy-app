@@ -97,6 +97,34 @@ describe("the public sound changer page", () => {
     cy.scNoIntermediates();
   });
 
+  it("shows the correct names of special stages", () => {
+    cy.goToScPublic();
+    cy.runSc({
+      inputWords: ["aaa"],
+      changes: "foo:\n a => b\n\nromanizer-foo:\n b => c",
+      traceWords: ["aaa"],
+    });
+    cy.scOutputWordsAre(["bbb"]);
+    cy.scIntermediateWordsAre([
+      ["Foo", ["bbb"]],
+      ["Romanizer Foo", ["ccc"]],
+    ]);
+  });
+
+  it("shows all stages even if some have the same nice name", () => {
+    cy.goToScPublic();
+    cy.runSc({
+      inputWords: ["aba", "aca"],
+      changes: "Syllables:\n {a, ba, aca}\n\nSyllables:\n {a, ba, ca}",
+      traceWords: ["aba", "aca"],
+    });
+    cy.scOutputWordsAre(["a.ba", "a.ca"]);
+    cy.scIntermediateWordsAre([
+      ["Syllables", ["a.ba", ""]],
+      ["Syllables", ["", "a.ca"]],
+    ]);
+  });
+
   it("displays an error message if the sound changes contain a parse-time error", () => {
     cy.goToScPublic();
     cy.runSc({
