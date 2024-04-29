@@ -49,7 +49,7 @@ export default function HistoryTable({
                   display: "block",
                   width: "10rem",
                   resize: "none",
-                  height: "30rem",
+                  height: "27rem",
                   whiteSpace: "pre",
                   wordWrap: "normal",
                 }}
@@ -63,7 +63,7 @@ export default function HistoryTable({
               />
             </div>
           )}
-          <div style={{ minWidth: 0, height: "31rem", flexGrow: 1 }}>
+          <div style={{ minWidth: 0, height: "28rem", flexGrow: 1 }}>
             <ScrollArea>
               <table style={{ borderSpacing: 0, textAlign: "left" }}>
                 <thead>

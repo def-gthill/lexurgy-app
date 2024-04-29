@@ -1,4 +1,3 @@
-import styles from "@/styles/Header.module.css";
 import { User } from "@/user/User";
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import axios from "axios";
@@ -7,6 +6,7 @@ import Image from "next/image";
 import NextLink from "next/link";
 import { useEffect } from "react";
 import { v4 as randomUUID } from "uuid";
+import styles from "./Header.module.css";
 
 export default function Header({
   links,
@@ -28,7 +28,7 @@ export default function Header({
     }
   }, [session]);
   return (
-    <NavigationMenu.Root>
+    <NavigationMenu.Root className={styles.NavigationMenuRoot}>
       <NavigationMenu.List className={styles.NavigationMenuList}>
         <div className={styles.leftGroup}>
           <Image src="/logo.png" alt="" width={48} height={48} />

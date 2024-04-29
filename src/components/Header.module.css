@@ -1,3 +1,8 @@
+.NavigationMenuRoot {
+  position: sticky;
+  top: 0;
+}
+
 .NavigationMenuList {
   display: flex;
   justify-content: stretch;

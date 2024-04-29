@@ -80,7 +80,7 @@ export default function ScRunner({
       <SplitPane>
         <div
           style={{
-            height: "100%",
+            height: "38rem",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
@@ -93,7 +93,7 @@ export default function ScRunner({
             <CodeEditor
               initialCode={initialSoundChanges}
               onUpdateCode={onEditSoundChanges}
-              height="30rem"
+              height="27rem"
             />
             <div id="status">{error ?? status}</div>
           </div>
@@ -122,9 +122,9 @@ export default function ScRunner({
         </div>
         <div
           style={{
+            height: "100%",
             display: "flex",
             flexDirection: "column",
-            height: "100%",
           }}
         >
           {exporting ? (
@@ -150,10 +150,6 @@ export default function ScRunner({
                   onEditHistories(inputWords.map(emptyHistory));
                 })}
                 <button onClick={() => setExporting(true)}>Export</button>
-                {/* <HistoryExporter
-                histories={histories}
-                intermediateStageNames={intermediateStageNames}
-              /> */}
               </div>
             </div>
           )}

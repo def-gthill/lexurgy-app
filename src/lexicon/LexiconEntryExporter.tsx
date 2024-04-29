@@ -18,6 +18,7 @@ export default function LexiconEntryExporter({
         readOnly
         id="preview"
         rows={Math.min(stringified.split("\n").length, 10)}
+        className="export-preview"
       >
         {stringified}
       </textarea>

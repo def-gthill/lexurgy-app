@@ -1,6 +1,6 @@
 import { editLast } from "@/array";
-import Checkbox from "@/components/Checkbox";
 import ExportButton from "@/components/ExportButton";
+import LabelledCheckbox from "@/components/LabelledCheckbox";
 import * as Label from "@radix-ui/react-label";
 import copy from "copy-to-clipboard";
 import { useState } from "react";
@@ -26,35 +26,51 @@ export default function HistoryExporter({
   });
 
   return (
-    <div style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-      <Label.Root htmlFor="preview" style={{ fontWeight: "bold" }}>
-        Export Histories
-      </Label.Root>
-      <textarea readOnly value={data} id="preview" rows={20} />
+    <div
+      style={{
+        flexGrow: 1,
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <div style={{ flexGrow: 1 }}>
+        <Label.Root htmlFor="preview" style={{ fontWeight: "bold" }}>
+          Export Histories
+        </Label.Root>
+        <div style={{ flexGrow: 1 }}>
+          <textarea
+            readOnly
+            value={data}
+            id="preview"
+            style={{ height: "27rem", width: "100%" }}
+            className="export-preview"
+          />
+        </div>
+      </div>
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "max-content max-content",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        <Checkbox
+        <LabelledCheckbox
           id="include-input-words"
+          label="Input Words"
           checked={includeInputWords}
           onCheckedChange={setIncludeInputWords}
         />
-        <Label.Root htmlFor="include-input-words">Input Words</Label.Root>
-        <Checkbox
+        <LabelledCheckbox
           id="include-stages"
+          label="Stages"
           checked={includeStages}
           onCheckedChange={setIncludeStages}
         />
-        <Label.Root htmlFor="include-stages">Stages</Label.Root>
-        <Checkbox
+        <LabelledCheckbox
           id="include-output-words"
+          label="Output Words"
           checked={includeOutputWords}
           onCheckedChange={setIncludeOutputWords}
         />
-        <Label.Root htmlFor="include-output-words">Output Words</Label.Root>
       </div>
       <div className="buttons">
         <button

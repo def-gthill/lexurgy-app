@@ -160,9 +160,12 @@ select,
 }
 
 textarea {
+  resize: none;
+}
+
+textarea.export-preview {
   white-space: pre;
   font-family: monospace;
-  resize: none;
 }
 
 .cm-editor .cm-content {
