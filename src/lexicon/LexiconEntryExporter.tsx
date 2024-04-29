@@ -18,7 +18,6 @@ export default function LexiconEntryExporter({
         readOnly
         id="preview"
         rows={Math.min(stringified.split("\n").length, 10)}
-        style={{ whiteSpace: "pre", fontFamily: "monospace", resize: "none" }}
       >
         {stringified}
       </textarea>

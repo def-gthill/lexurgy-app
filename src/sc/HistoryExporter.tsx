@@ -2,17 +2,19 @@ import { editLast } from "@/array";
 import Checkbox from "@/components/Checkbox";
 import ExportButton from "@/components/ExportButton";
 import * as Label from "@radix-ui/react-label";
+import copy from "copy-to-clipboard";
 import { useState } from "react";
 import { WordHistory } from "./WordHistory";
 
 export default function HistoryExporter({
   histories,
   intermediateStageNames,
+  onDone,
 }: {
   histories: WordHistory[];
   intermediateStageNames: string[];
+  onDone: () => void;
 }) {
-  const [exporting, setExporting] = useState(false);
   const [includeInputWords, setIncludeInputWords] = useState(true);
   const [includeStages, setIncludeStages] = useState(true);
   const [includeOutputWords, setIncludeOutputWords] = useState(true);
@@ -23,8 +25,12 @@ export default function HistoryExporter({
     intermediateStageNames: includeStages ? intermediateStageNames : [],
   });
 
-  return exporting ? (
-    <div>
+  return (
+    <div style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+      <Label.Root htmlFor="preview" style={{ fontWeight: "bold" }}>
+        Export Histories
+      </Label.Root>
+      <textarea readOnly value={data} id="preview" rows={20} />
       <div
         style={{
           display: "grid",
@@ -51,16 +57,18 @@ export default function HistoryExporter({
         <Label.Root htmlFor="include-output-words">Output Words</Label.Root>
       </div>
       <div className="buttons">
-        <ExportButton
-          fileName="lexurgy.wli"
-          data={data}
-          onSuccess={() => setExporting(false)}
-        />
-        <button onClick={() => setExporting(false)}>Cancel</button>
+        <button
+          onClick={() => {
+            copy(data);
+            alert("Copied to clipboard!");
+          }}
+        >
+          Copy
+        </button>
+        <ExportButton label="Download" fileName="lexurgy.wli" data={data} />
+        <button onClick={onDone}>Done</button>
       </div>
     </div>
-  ) : (
-    <button onClick={() => setExporting(true)}>Export</button>
   );
 }
 

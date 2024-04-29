@@ -159,6 +159,12 @@ select,
   border: 1px solid var(--foreground-muted);
 }
 
+textarea {
+  white-space: pre;
+  font-family: monospace;
+  resize: none;
+}
+
 .cm-editor .cm-content {
   caret-color: var(--foreground-muted);
 }

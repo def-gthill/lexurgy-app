@@ -53,6 +53,8 @@ export default function ScRunner({
     setHistories(evolution.testWords.map(emptyHistory));
   }, [evolution.testWords]);
 
+  const [exporting, setExporting] = useState(false);
+
   const testWords = histories.map((history) => history.inputWord);
   const [tracing, setTracing] = useState(false);
   const [ruleNames, setRuleNames] = useState<string[]>([]);
@@ -125,27 +127,36 @@ export default function ScRunner({
             height: "100%",
           }}
         >
-          <div
-            style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
-          >
-            <HistoryTable
-              key={scRunToggle}
-              intermediateStageNames={intermediateStageNames}
+          {exporting ? (
+            <HistoryExporter
               histories={histories}
-              tracing={tracing}
-              setHistories={onEditHistories}
+              intermediateStageNames={intermediateStageNames}
+              onDone={() => setExporting(false)}
             />
-            <div className="buttons">
-              {importButton("Import Input Words", ".wli", (data) => {
-                const inputWords = data.split(/[\r\n]+/);
-                onEditHistories(inputWords.map(emptyHistory));
-              })}
-              <HistoryExporter
+          ) : (
+            <div
+              style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
+            >
+              <HistoryTable
+                key={scRunToggle}
+                intermediateStageNames={intermediateStageNames}
+                histories={histories}
+                tracing={tracing}
+                setHistories={onEditHistories}
+              />
+              <div className="buttons">
+                {importButton("Import Input Words", ".wli", (data) => {
+                  const inputWords = data.split(/[\r\n]+/);
+                  onEditHistories(inputWords.map(emptyHistory));
+                })}
+                <button onClick={() => setExporting(true)}>Export</button>
+                {/* <HistoryExporter
                 histories={histories}
                 intermediateStageNames={intermediateStageNames}
-              />
+              /> */}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </SplitPane>
       <hr />
