@@ -8,6 +8,7 @@ import { entries, hasElements, keys, toMap, values } from "@/map";
 import Evolution from "@/sc/Evolution";
 import HistoryExporter from "@/sc/HistoryExporter";
 import HistoryTable from "@/sc/HistoryTable";
+import { RuntimeError } from "@/sc/RuntimeError";
 import Scv1Request from "@/sc/Scv1Request";
 import Scv1Response from "@/sc/Scv1Response";
 import ShareButton from "@/sc/ShareButton";
@@ -52,6 +53,7 @@ export default function ScRunner({
   useEffect(() => {
     setHistories(evolution.testWords.map(emptyHistory));
   }, [evolution.testWords]);
+  const [runtimeErrors, setRuntimeErrors] = useState<RuntimeError[]>([]);
 
   const [exporting, setExporting] = useState(false);
 
@@ -142,6 +144,7 @@ export default function ScRunner({
                 intermediateStageNames={intermediateStageNames}
                 histories={histories}
                 tracing={tracing}
+                errors={runtimeErrors}
                 setHistories={onEditHistories}
               />
               <div className="buttons">
@@ -295,8 +298,10 @@ export default function ScRunner({
       const result = response.data;
       const intermediateWords = toMap(result.intermediateWords ?? {});
       const traces = toMap(result.traces ?? {});
+      const errors = response.data.errors ?? [];
       setError(null);
       setScRunToggle(1 - scRunToggle);
+      setRuntimeErrors(errors);
       if (hasElements(traces)) {
         setIntermediateStageNames(
           result.ruleNames.filter((ruleName) =>

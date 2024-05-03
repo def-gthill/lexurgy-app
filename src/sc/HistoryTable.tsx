@@ -3,9 +3,12 @@ import Checkbox from "@/components/Checkbox";
 import LabelledSwitch from "@/components/LabelledSwitch";
 import ScrollArea from "@/components/ScrollArea";
 import styles from "@/sc/HistoryTable.module.css";
+import { RuntimeError } from "@/sc/RuntimeError";
 import { toNiceName } from "@/sc/ruleName";
 import useWeakState from "@/useWeakState";
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import * as Label from "@radix-ui/react-label";
+import * as Popover from "@radix-ui/react-popover";
 import { Fragment, useState } from "react";
 import { WordHistory, emptyHistory } from "./WordHistory";
 
@@ -13,11 +16,13 @@ export default function HistoryTable({
   intermediateStageNames,
   histories,
   tracing,
+  errors,
   setHistories,
 }: {
   intermediateStageNames?: string[];
   histories: WordHistory[];
   tracing?: boolean;
+  errors?: RuntimeError[];
   setHistories: (histories: WordHistory[]) => void;
 }) {
   const [editingInputs, setEditingInputs] = useState(true);
@@ -115,14 +120,19 @@ export default function HistoryTable({
                         intermediateStageNames &&
                         intermediateStageNames.map((name) => {
                           const intermediateWord =
-                            history.intermediates.get(name);
+                            history.intermediates.get(name) ?? "";
                           return (
                             <td className={styles.cell} key={name}>
-                              {intermediateWord}
+                              {outputCell(history.inputWord, intermediateWord)}
                             </td>
                           );
                         })}
-                      <td className={styles.cell}>{history.outputWord}</td>
+                      <td className={styles.cell}>
+                        {outputCell(
+                          history.inputWord,
+                          history.outputWord ?? ""
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -148,5 +158,43 @@ export default function HistoryTable({
 
   function setTracingWord(i: number, tracing: boolean) {
     mySetHistories(set(myHistories, i, { ...myHistories[i], tracing }));
+  }
+
+  function outputCell(inputWord: string, outputWord: string) {
+    if (outputWord === "ERROR") {
+      const error = errors?.find((error) => error.originalWord === inputWord);
+      if (!error) {
+        return "ERROR";
+      }
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div>ERROR</div>
+
+          <Popover.Root>
+            <Popover.Trigger asChild>
+              <button aria-label="Error Details">
+                <QuestionMarkCircledIcon />
+              </button>
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Content
+                className="PopoverContent"
+                sideOffset={5}
+                onFocusOutside={(event) => event.preventDefault()}
+                onInteractOutside={(event) => event.preventDefault()}
+              >
+                <div>{error.message}</div>
+                <Popover.Close className="PopoverClose">
+                  <button>Done</button>
+                </Popover.Close>
+                <Popover.Arrow className="PopoverArrow" />
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>
+      );
+    } else {
+      return outputWord;
+    }
   }
 }
