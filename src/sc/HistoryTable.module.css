@@ -34,3 +34,12 @@
   padding-left: 4px;
   padding-right: 4px;
 }
+
+.errorPopover {
+  background-color: var(--card-background);
+  border-style: solid;
+  border-color: var(--foreground-muted);
+  border-radius: 4px;
+  padding: 4px;
+  max-width: var(--radix-popover-content-available-width);
+}

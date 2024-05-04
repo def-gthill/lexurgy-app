@@ -9,7 +9,7 @@ import useWeakState from "@/useWeakState";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import * as Label from "@radix-ui/react-label";
 import * as Popover from "@radix-ui/react-popover";
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { WordHistory, emptyHistory } from "./WordHistory";
 
 export default function HistoryTable({
@@ -28,6 +28,7 @@ export default function HistoryTable({
   const [editingInputs, setEditingInputs] = useState(true);
   const [showingStages, setShowingStages] = useState(true);
   const [myHistories, mySetHistories] = useWeakState(histories, setHistories);
+  const tableRef = useRef(null);
 
   const inputColumnStyle = tracing
     ? styles.stickySecondColumnHeader
@@ -68,7 +69,10 @@ export default function HistoryTable({
               />
             </div>
           )}
-          <div style={{ minWidth: 0, height: "28rem", flexGrow: 1 }}>
+          <div
+            ref={tableRef}
+            style={{ minWidth: 0, height: "28rem", flexGrow: 1 }}
+          >
             <ScrollArea>
               <table style={{ borderSpacing: 0, textAlign: "left" }}>
                 <thead>
@@ -167,27 +171,36 @@ export default function HistoryTable({
         return "ERROR";
       }
       return (
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem",
+            width: "max-content",
+          }}
+        >
           <div>ERROR</div>
 
           <Popover.Root>
             <Popover.Trigger asChild>
-              <button aria-label="Error Details">
+              <button aria-label="Error Details" style={{ flexShrink: 0 }}>
                 <QuestionMarkCircledIcon />
               </button>
             </Popover.Trigger>
             <Popover.Portal>
               <Popover.Content
-                className="PopoverContent"
+                className={styles.errorPopover}
                 sideOffset={5}
                 onFocusOutside={(event) => event.preventDefault()}
                 onInteractOutside={(event) => event.preventDefault()}
+                avoidCollisions
+                collisionBoundary={tableRef.current}
               >
                 <div>{error.message}</div>
-                <Popover.Close className="PopoverClose">
+                <Popover.Close>
                   <button>Done</button>
                 </Popover.Close>
-                <Popover.Arrow className="PopoverArrow" />
+                <Popover.Arrow />
               </Popover.Content>
             </Popover.Portal>
           </Popover.Root>
