@@ -9,7 +9,7 @@ import useWeakState from "@/useWeakState";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import * as Label from "@radix-ui/react-label";
 import * as Popover from "@radix-ui/react-popover";
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useState } from "react";
 import { WordHistory, emptyHistory } from "./WordHistory";
 
 export default function HistoryTable({
@@ -28,7 +28,7 @@ export default function HistoryTable({
   const [editingInputs, setEditingInputs] = useState(true);
   const [showingStages, setShowingStages] = useState(true);
   const [myHistories, mySetHistories] = useWeakState(histories, setHistories);
-  const tableRef = useRef(null);
+  const [tableRef, setTableRef] = useState<HTMLElement | null>(null);
 
   const inputColumnStyle = tracing
     ? styles.stickySecondColumnHeader
@@ -70,7 +70,7 @@ export default function HistoryTable({
             </div>
           )}
           <div
-            ref={tableRef}
+            ref={setTableRef}
             style={{ minWidth: 0, height: "28rem", flexGrow: 1 }}
           >
             <ScrollArea>
@@ -194,7 +194,7 @@ export default function HistoryTable({
                 onFocusOutside={(event) => event.preventDefault()}
                 onInteractOutside={(event) => event.preventDefault()}
                 avoidCollisions
-                collisionBoundary={tableRef.current}
+                collisionBoundary={tableRef}
               >
                 <div>{error.message}</div>
                 <Popover.Close>
