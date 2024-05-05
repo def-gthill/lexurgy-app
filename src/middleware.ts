@@ -1,6 +1,7 @@
 import { withAuth } from "next-auth/middleware";
 
 const publicPages = [
+  "/",
   "/sc",
   "/sc/examples",
   "/inflect",

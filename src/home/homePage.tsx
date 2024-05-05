@@ -8,9 +8,40 @@ import World, { SavedWorld, emptyWorld } from "@/world/World";
 import WorldInfoEditor from "@/world/WorldInfoEditor";
 import WorldInfoView from "@/world/WorldInfoView";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
+import Link from "next/link";
 
 export default function Home() {
+  const session = useSession();
+
+  return (
+    <>
+      <Head>
+        <title>Lexurgy</title>
+        <meta name="description" content="A high-powered conlanger's toolkit" />
+      </Head>
+      <Header />
+      <main>
+        <FeatureHider
+          getVisibleChild={() =>
+            Promise.resolve(session.data?.user?.email ? 1 : 0)
+          }
+        >
+          <>
+            <h2>Tools</h2>
+            <div className="card">
+              <Link href="/sc">Sound Changer</Link>
+            </div>
+          </>
+          <Workspace />
+        </FeatureHider>
+      </main>
+    </>
+  );
+}
+
+function Workspace() {
   const worldCollection = usePersistentCollection<World, SavedWorld>(
     "/api/worlds"
   );
@@ -74,16 +105,9 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>Lexurgy</title>
-        <meta name="description" content="A high-powered conlanger's toolkit" />
-      </Head>
-      <Header />
-      <main>
-        <h1>My Workspace</h1>
-        {worldContent}
-        {languageContent}
-      </main>
+      <h1>My Workspace</h1>
+      {worldContent}
+      {languageContent}
     </>
   );
 }
