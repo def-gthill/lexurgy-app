@@ -170,6 +170,7 @@ function getUserEmail(user: string) {
 Cypress.Commands.add("login", (user: string) => {
   cy.session(user, () => {
     cy.goToHome();
+    cy.contains("Sign In").click();
     cy.contains("Email").type(getUserEmail(user));
     cy.contains("Sign in with Email").click();
     cy.contains("Lexurgy");
