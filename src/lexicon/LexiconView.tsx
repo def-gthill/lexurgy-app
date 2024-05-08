@@ -3,7 +3,7 @@ import Language from "@/language/Language";
 import Lexeme from "@/lexicon/Lexeme";
 import LexiconEntryEditor from "@/lexicon/LexiconEntryEditor";
 import LexiconEntryExporter from "@/lexicon/LexiconEntryExporter";
-import styles from "@/styles/LexiconView.module.css";
+import styles from "@/lexicon/LexiconView.module.css";
 import { useState } from "react";
 
 export default function LexiconView({
