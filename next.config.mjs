@@ -1,5 +1,6 @@
 import toc from "@jsdevtools/rehype-toc";
 import createMDX from "@next/mdx";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -61,7 +62,11 @@ function isHeading(node) {
 
 const withMdx = createMDX({
   options: {
-    rehypePlugins: [stableHeadingIds, [toc, { headings: ["h2"] }]],
+    rehypePlugins: [
+      stableHeadingIds,
+      [toc, { headings: ["h2"] }],
+      [rehypeAutolinkHeadings, { behavior: "wrap" }],
+    ],
   },
 });
 
