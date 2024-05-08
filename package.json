@@ -22,6 +22,7 @@
     "@codemirror/commands": "^6.2.4",
     "@codemirror/state": "^6.2.1",
     "@codemirror/view": "^6.14.0",
+    "@jsdevtools/rehype-toc": "^3.0.2",
     "@lezer/highlight": "^1.2.0",
     "@lezer/lr": "^1.4.0",
     "@mdx-js/loader": "^3.0.1",
