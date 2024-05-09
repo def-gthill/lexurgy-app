@@ -60,11 +60,30 @@ function isHeading(node) {
   );
 }
 
+function wrap() {
+  return function transformer(root) {
+    return {
+      type: "root",
+      children: [
+        {
+          type: "element",
+          tagName: "main",
+          properties: {
+            class: "md-main",
+          },
+          children: root.children,
+        },
+      ],
+    };
+  };
+}
+
 const withMdx = createMDX({
   options: {
     rehypePlugins: [
       stableHeadingIds,
-      [toc, { headings: ["h2"] }],
+      wrap,
+      [toc, { headings: ["h2"], position: "beforebegin" }],
       [rehypeAutolinkHeadings, { behavior: "wrap" }],
     ],
   },
