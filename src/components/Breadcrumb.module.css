@@ -1,0 +1,11 @@
+.root {
+  position: sticky;
+  top: 56px;
+  display: flex;
+  align-items: center;
+  background-color: var(--primary);
+}
+
+.link {
+  padding: 4px;
+}
