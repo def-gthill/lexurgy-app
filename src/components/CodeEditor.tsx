@@ -101,6 +101,7 @@ export default function CodeEditor({
         syntaxHighlighting(highlighter),
         onUpdate,
         theme,
+        EditorView.contentAttributes.of({ "aria-label": "Sound Changes" }),
       ],
     });
   });

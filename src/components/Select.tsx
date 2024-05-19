@@ -3,6 +3,7 @@ import { useEffect } from "react";
 
 export default function Select<T>({
   id,
+  ariaLabel,
   options,
   currentSelection,
   disabled,
@@ -10,6 +11,7 @@ export default function Select<T>({
   onOpen,
 }: {
   id?: string;
+  ariaLabel?: string;
   options: Option<T>[];
   currentSelection?: T;
   disabled?: boolean;
@@ -33,6 +35,7 @@ export default function Select<T>({
   return (
     <select
       id={id}
+      aria-label={ariaLabel}
       disabled={disabled}
       value={optionPairs.find(([_, option]) => option === selected)?.[0]}
       onChange={(event) => onChange(optionMap.get(event.target.value)!)}

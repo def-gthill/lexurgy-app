@@ -110,6 +110,7 @@ export default function HistoryTable({
                         >
                           <Checkbox
                             id={`tracing-${i}`}
+                            ariaLabel="Trace"
                             checked={history.tracing}
                             onCheckedChange={(checked) => {
                               setTracingWord(i, checked === true);

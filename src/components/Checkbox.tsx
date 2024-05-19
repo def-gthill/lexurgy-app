@@ -4,10 +4,12 @@ import styles from "./Checkbox.module.css";
 
 export default function Checkbox({
   id,
+  ariaLabel,
   checked,
   onCheckedChange,
 }: {
   id: string;
+  ariaLabel?: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
 }) {
@@ -15,6 +17,7 @@ export default function Checkbox({
     <Root
       className={styles.root}
       id={id}
+      aria-label={ariaLabel}
       checked={checked}
       onCheckedChange={onCheckedChange}
     >

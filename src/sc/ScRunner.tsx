@@ -17,6 +17,7 @@ import { toNiceName } from "@/sc/ruleName";
 import useDebounced from "@/useDebounced";
 import * as Label from "@radix-ui/react-label";
 import axios from "axios";
+import _ from "lodash";
 import { ReactElement, useEffect, useState } from "react";
 
 export default function ScRunner({
@@ -24,6 +25,8 @@ export default function ScRunner({
   evolution,
   onUpdate,
   importButton = defaultImportButton,
+  getRuleNames = defaultGetRuleNames,
+  runSoundChanges = defaultRunSoundChanges,
 }: {
   baseUrl: string | null;
   evolution: Evolution;
@@ -33,6 +36,8 @@ export default function ScRunner({
     expectedFileType: string,
     sendData: (data: string) => void
   ) => ReactElement;
+  getRuleNames?: (changes: string) => Promise<string[]>;
+  runSoundChanges?: (inputs: Scv1Request) => Promise<Scv1Response>;
 }) {
   const [initialSoundChanges, setInitialSoundChanges] = useState(
     evolution.soundChanges
@@ -67,8 +72,10 @@ export default function ScRunner({
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState("Ready");
   const [scRunToggle, setScRunToggle] = useState(0);
+
   const sendEvolution = useDebounced(updateEvolution, 500);
   const requestUpdatingRuleNames = useDebounced(updateRuleNames, 500);
+  const runScWithCaching = useCaching(runSoundChanges);
 
   const selectableRules = ruleNames
     .filter((name) => !name.startsWith("<"))
@@ -89,7 +96,7 @@ export default function ScRunner({
           }}
         >
           <div>
-            <Label.Root htmlFor="sound-changes" style={{ fontWeight: "bold" }}>
+            <Label.Root style={{ fontWeight: "bold" }}>
               Sound Changes
             </Label.Root>
             <CodeEditor
@@ -205,6 +212,7 @@ export default function ScRunner({
             />
             <Select
               id="start-at"
+              ariaLabel="Choose Rule to Start At"
               disabled={!startAtEnabled}
               options={selectableRules}
               currentSelection={startAt ?? undefined}
@@ -218,6 +226,7 @@ export default function ScRunner({
             />
             <Select
               id="stop-before"
+              ariaLabel="Choose Rule to Stop Before"
               disabled={!stopBeforeEnabled}
               options={selectableRules}
               currentSelection={stopBefore ?? undefined}
@@ -254,19 +263,9 @@ export default function ScRunner({
 
   async function updateRuleNames(soundChanges: string) {
     try {
-      const response = await axios.post<{ ruleNames: string[] }>(
-        "/api/services",
-        {
-          changes: soundChanges,
-        },
-        {
-          params: {
-            endpoint: "scv1/validate",
-          },
-        }
-      );
+      const ruleNames = await getRuleNames(soundChanges);
       setError(null);
-      setRuleNames(response.data.ruleNames);
+      setRuleNames(ruleNames);
     } catch (error: any) {
       if (error.response) {
         setError(toErrorMessage(error.response.data));
@@ -288,17 +287,10 @@ export default function ScRunner({
       stopBefore: stopBeforeEnabled ? stopBefore : null,
     };
     try {
-      const response = await axios.post<Scv1Response>(
-        "/api/services",
-        request,
-        {
-          params: { endpoint: "scv1" },
-        }
-      );
-      const result = response.data;
+      const result = await runScWithCaching(request);
       const intermediateWords = toMap(result.intermediateWords ?? {});
       const traces = toMap(result.traces ?? {});
-      const errors = response.data.errors ?? [];
+      const errors = result.errors ?? [];
       setError(null);
       setScRunToggle(1 - scRunToggle);
       setRuntimeErrors(errors);
@@ -360,10 +352,132 @@ function defaultImportButton(
   );
 }
 
+async function defaultGetRuleNames(changes: string): Promise<string[]> {
+  const response = await axios.post<{ ruleNames: string[] }>(
+    "/api/services",
+    { changes },
+    { params: { endpoint: "scv1/validate" } }
+  );
+  return response.data.ruleNames;
+}
+
+async function defaultRunSoundChanges(
+  inputs: Scv1Request
+): Promise<Scv1Response> {
+  const response = await axios.post<Scv1Response>("/api/services", inputs, {
+    params: { endpoint: "scv1" },
+  });
+  return response.data;
+}
+
 function toErrorMessage(error: any) {
   let message = error.message;
   if (error.lineNumber) {
     message += ` (line ${error.lineNumber})`;
   }
   return message;
+}
+
+interface ScRun {
+  request: Scv1Request;
+  result: Scv1Response;
+}
+
+function useCaching(runSc: (request: Scv1Request) => Promise<Scv1Response>) {
+  const [lastRun, setLastRun] = useState<ScRun | null>(null);
+
+  return async function runScWithCaching(
+    request: Scv1Request
+  ): Promise<Scv1Response> {
+    if (
+      lastRun?.request?.changes !== request.changes ||
+      lastRun?.request?.startAt !== request.startAt ||
+      lastRun?.request?.stopBefore !== request.stopBefore
+    ) {
+      const result = await runSc(request);
+      setLastRun({ request, result });
+      return result;
+    }
+    const lastInputWords = new Set(lastRun?.request?.inputWords ?? []);
+    const lastTraceWords = new Set(lastRun?.request?.traceWords ?? []);
+    const newTraceWords = new Set(request.traceWords);
+    const filteredRequest = {
+      ...request,
+      inputWords: request.inputWords.filter(
+        (word) =>
+          !lastInputWords.has(word) ||
+          lastTraceWords.has(word) !== newTraceWords.has(word)
+      ),
+    };
+    const result = await runSc(filteredRequest);
+    if (lastRun) {
+      const combiner = new OutputWordCombiner({
+        savedInputWords: lastRun.request.inputWords,
+        newInputWords: filteredRequest.inputWords,
+        allInputWords: request.inputWords,
+      });
+      result.outputWords = combiner.combineOutputWords({
+        savedOutputWords: lastRun.result.outputWords,
+        newOutputWords: result.outputWords,
+      });
+      if (lastRun.result.intermediateWords) {
+        result.intermediateWords = _.mapValues(
+          result.intermediateWords,
+          (words, stageName) =>
+            combiner.combineOutputWords({
+              savedOutputWords: lastRun.result.intermediateWords![stageName],
+              newOutputWords: words,
+            })
+        );
+      }
+      if (lastRun.result.traces) {
+        result.traces = _.merge(result.traces, lastRun.result.traces);
+      }
+      result.errors = [
+        ...(result.errors ?? []),
+        ...(lastRun.result.errors ?? []),
+      ];
+    }
+    setLastRun({ request, result });
+    return result;
+  };
+}
+
+class OutputWordCombiner {
+  savedInputWords: string[];
+  newInputWords: string[];
+  allInputWords: string[];
+
+  constructor({
+    savedInputWords,
+    newInputWords,
+    allInputWords,
+  }: {
+    savedInputWords: string[];
+    newInputWords: string[];
+    allInputWords: string[];
+  }) {
+    this.savedInputWords = savedInputWords;
+    this.newInputWords = newInputWords;
+    this.allInputWords = allInputWords;
+  }
+
+  combineOutputWords({
+    savedOutputWords,
+    newOutputWords,
+  }: {
+    savedOutputWords: string[];
+    newOutputWords: string[];
+  }) {
+    const inputWordsToOutputWords = new Map();
+    for (let i = 0; i < this.savedInputWords.length; i++) {
+      inputWordsToOutputWords.set(this.savedInputWords[i], savedOutputWords[i]);
+    }
+    for (let i = 0; i < this.newInputWords.length; i++) {
+      inputWordsToOutputWords.set(this.newInputWords[i], newOutputWords[i]);
+    }
+    return this.allInputWords.map((inputWord) =>
+      inputWordsToOutputWords.get(inputWord)
+    );
+  }
 }
