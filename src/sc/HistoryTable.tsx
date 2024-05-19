@@ -18,12 +18,16 @@ export default function HistoryTable({
   tracing,
   errors,
   setHistories,
+  showSwitches = true,
+  heightInRem = 28,
 }: {
   intermediateStageNames?: string[];
   histories: WordHistory[];
   tracing?: boolean;
   errors?: RuntimeError[];
   setHistories: (histories: WordHistory[]) => void;
+  showSwitches?: boolean;
+  heightInRem?: number;
 }) {
   const [editingInputs, setEditingInputs] = useState(true);
   const [showingStages, setShowingStages] = useState(true);
@@ -55,7 +59,7 @@ export default function HistoryTable({
                   display: "block",
                   width: "10rem",
                   resize: "none",
-                  height: "27rem",
+                  height: `${heightInRem}rem`,
                   whiteSpace: "pre",
                   wordWrap: "normal",
                 }}
@@ -71,7 +75,11 @@ export default function HistoryTable({
           )}
           <div
             ref={setTableRef}
-            style={{ minWidth: 0, height: "28rem", flexGrow: 1 }}
+            style={{
+              minWidth: 0,
+              height: `${heightInRem + 1}rem`,
+              flexGrow: 1,
+            }}
           >
             <ScrollArea>
               <table style={{ borderSpacing: 0, textAlign: "left" }}>
@@ -146,18 +154,22 @@ export default function HistoryTable({
           </div>
         </div>
       </div>
-      <LabelledSwitch
-        id="free-edit"
-        label="Edit Inputs"
-        checked={editingInputs}
-        onCheckedChange={setEditingInputs}
-      />
-      <LabelledSwitch
-        id="show-stages"
-        label="Show Stages"
-        checked={showingStages}
-        onCheckedChange={setShowingStages}
-      />
+      {showSwitches && (
+        <>
+          <LabelledSwitch
+            id="free-edit"
+            label="Edit Inputs"
+            checked={editingInputs}
+            onCheckedChange={setEditingInputs}
+          />
+          <LabelledSwitch
+            id="show-stages"
+            label="Show Stages"
+            checked={showingStages}
+            onCheckedChange={setShowingStages}
+          />
+        </>
+      )}
     </div>
   );
 

@@ -8,8 +8,6 @@ export default function Breadcrumb({
   baseUrl: string;
   pathComponents: { name: string; path: string }[];
 }) {
-  console.log("Fooby!");
-  console.log(pathComponents);
   const links = [];
   let base = baseUrl;
   for (const { name, path } of pathComponents) {
