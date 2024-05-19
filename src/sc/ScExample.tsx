@@ -1,15 +1,11 @@
 import CodeEditor from "@/components/CodeEditor";
 import SplitPane from "@/components/SplitPane";
-import { entries, hasElements, keys, toMap, values } from "@/map";
 import HistoryTable from "@/sc/HistoryTable";
-import { RuntimeError } from "@/sc/RuntimeError";
-import Scv1Request from "@/sc/Scv1Request";
-import Scv1Response from "@/sc/Scv1Response";
-import { WordHistory, emptyHistory } from "@/sc/WordHistory";
-import useScCaching from "@/sc/useScCaching";
+import { emptyHistory } from "@/sc/WordHistory";
+import { getRuleNames, runSoundChanges } from "@/sc/api";
+import useScState from "@/sc/useScState";
 import * as Label from "@radix-ui/react-label";
-import axios from "axios";
-import { useState } from "react";
+import { useEffect } from "react";
 
 export default function ScExample({
   changes,
@@ -18,19 +14,16 @@ export default function ScExample({
   changes: string;
   inputs: string[];
 }) {
-  const [soundChanges, setSoundChanges] = useState(changes);
-  const [intermediateStageNames, setIntermediateStageNames] = useState<
-    string[]
-  >([]);
-  const [histories, setHistories] = useState<WordHistory[]>(
-    inputs.map(emptyHistory)
-  );
-  const [runtimeErrors, setRuntimeErrors] = useState<RuntimeError[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState("Ready");
-  const [scRunToggle, setScRunToggle] = useState(0);
+  const sc = useScState(getRuleNames, runSoundChanges);
+  const setSoundChanges = sc.setSoundChanges;
+  const setHistories = sc.setHistories;
 
-  const runScWithCaching = useScCaching(runSoundChanges);
+  useEffect(() => {
+    setSoundChanges(changes);
+  }, [changes, setSoundChanges]);
+  useEffect(() => {
+    setHistories(inputs.map(emptyHistory));
+  }, [inputs, setHistories]);
 
   const heightInRem = 1.5 * changes.split("\n").length;
 
@@ -49,18 +42,18 @@ export default function ScExample({
               Sound Changes
             </Label.Root>
             <CodeEditor
-              initialCode={soundChanges}
-              onUpdateCode={setSoundChanges}
+              initialCode={changes}
+              onUpdateCode={onEditSoundChanges}
               height={`${heightInRem}rem`}
             />
-            <div id="status">{error ?? status}</div>
+            <div id="status">{sc.error ?? sc.status}</div>
           </div>
         </div>
         <HistoryTable
-          key={scRunToggle}
-          intermediateStageNames={intermediateStageNames}
-          histories={histories}
-          errors={runtimeErrors}
+          key={sc.scRunToggle}
+          intermediateStageNames={sc.intermediateStageNames}
+          histories={sc.histories}
+          errors={sc.runtimeErrors}
           setHistories={setHistories}
           showSwitches={false}
           heightInRem={heightInRem}
@@ -75,84 +68,14 @@ export default function ScExample({
         }}
       >
         <div className="buttons">
-          <button onClick={runSc}>Apply</button>
+          <button onClick={sc.runSc}>Apply</button>
         </div>
       </div>
     </div>
   );
 
-  async function runSc() {
-    setStatus("Running...");
-    const request: Scv1Request = {
-      changes: soundChanges,
-      inputWords: inputs,
-      traceWords: [],
-      startAt: null,
-      stopBefore: null,
-    };
-    try {
-      const result = await runScWithCaching(request);
-      const intermediateWords = toMap(result.intermediateWords ?? {});
-      const traces = toMap(result.traces ?? {});
-      const errors = result.errors ?? [];
-      setError(null);
-      setScRunToggle(1 - scRunToggle);
-      setRuntimeErrors(errors);
-      if (hasElements(traces)) {
-        setIntermediateStageNames(
-          result.ruleNames.filter((ruleName) =>
-            values(traces).some((trace) =>
-              trace.some((step) => step.rule === ruleName)
-            )
-          )
-        );
-        setHistories(
-          histories.map((history, i) => ({
-            ...history,
-            outputWord: result.outputWords[i],
-            intermediates: new Map(
-              traces
-                .get(history.inputWord)
-                ?.map(({ rule, output }) => [rule, output])
-            ),
-          }))
-        );
-      } else {
-        setIntermediateStageNames(keys(intermediateWords));
-        setHistories(
-          histories.map((history, i) => ({
-            ...history,
-            outputWord: result.outputWords[i],
-            intermediates: new Map(
-              entries(intermediateWords).map(([stage, words]) => [
-                stage,
-                words[i],
-              ])
-            ),
-          }))
-        );
-      }
-    } catch (error: any) {
-      if (error.response) {
-        setError(toErrorMessage(error.response.data));
-      }
-    } finally {
-      setStatus("Ready");
-    }
+  function onEditSoundChanges(newSoundChanges: string) {
+    sc.setSoundChanges(newSoundChanges);
+    sc.requestValidation(newSoundChanges);
   }
-}
-
-async function runSoundChanges(inputs: Scv1Request): Promise<Scv1Response> {
-  const response = await axios.post<Scv1Response>("/api/services", inputs, {
-    params: { endpoint: "scv1" },
-  });
-  return response.data;
-}
-
-function toErrorMessage(error: any) {
-  let message = error.message;
-  if (error.lineNumber) {
-    message += ` (line ${error.lineNumber})`;
-  }
-  return message;
 }
