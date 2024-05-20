@@ -129,7 +129,8 @@ declare global {
         language: string,
         evolution: Evolution
       ): Chainable<void>;
-      goToScExamples(): Chainable<void>;
+      goToScExamples(exampleName?: string): Chainable<void>;
+      scExampleUrlHas(exampleName: string): Chainable<void>;
       goToInflectPublic(): Chainable<void>;
       runInflect(inputs: UserInflectInputs): Chainable<void>;
       inflectedFormsAre(forms: string[]): Chainable<void>;
@@ -706,8 +707,17 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add("goToScExamples", () => {
-  cy.visit("/sc/examples");
+Cypress.Commands.add("goToScExamples", (exampleName?: string) => {
+  const url = exampleName
+    ? `/sc/examples?id=${languages.getId(exampleName)}`
+    : "/sc/examples";
+  cy.visit(url);
+});
+
+Cypress.Commands.add("scExampleUrlHas", (exampleName: string) => {
+  cy.url().should(
+    (url) => expect(url.endsWith(languages.getId(exampleName))).to.be.true
+  );
 });
 
 Cypress.Commands.add("goToInflectPublic", () => {

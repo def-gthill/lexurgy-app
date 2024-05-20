@@ -12,6 +12,7 @@ import {
 } from "@radix-ui/react-icons";
 import * as Label from "@radix-ui/react-label";
 import * as Select from "@radix-ui/react-select";
+import { useRouter } from "next/router";
 import {
   ForwardedRef,
   Fragment,
@@ -67,7 +68,7 @@ function ExampleSelect({
   worlds: ScExampleWorld[];
   onSelect: (evolution: Evolution) => void;
 }) {
-  const defaultValue = worlds[0].languages[0].id;
+  const router = useRouter();
   const [selectedLanguageId, setSelectedLanguageId] = useState<string | null>(
     null
   );
@@ -77,11 +78,38 @@ function ExampleSelect({
       evolutionsByLanguageId[language.id] = language.evolution;
     }
   }
+  const defaultValue = getDefaultId();
   useEffect(() => {
     if (selectedLanguageId === null) {
       onSelect(evolutionsByLanguageId[defaultValue]);
     }
   });
+  useEffect(() => {
+    setSelectedLanguageId(defaultValue);
+  }, [defaultValue]);
+  useEffect(() => {
+    if (selectedLanguageId !== null && router.query.id !== selectedLanguageId) {
+      router.replace(`/sc/examples?id=${selectedLanguageId}`);
+    }
+  }, [selectedLanguageId, router]);
+
+  function getIdFromRouter(): string | null {
+    const idFromRouter = router.query.id;
+    return typeof idFromRouter === "string" ? idFromRouter : null;
+  }
+
+  function getDefaultId(): string {
+    const idFromRouter = getIdFromRouter();
+    if (
+      idFromRouter === null ||
+      !Object.hasOwn(evolutionsByLanguageId, idFromRouter)
+    ) {
+      return worlds[0].languages[0].id;
+    } else {
+      return idFromRouter;
+    }
+  }
+
   return (
     <div>
       <Label.Root htmlFor="chooseExample">Choose Example</Label.Root>

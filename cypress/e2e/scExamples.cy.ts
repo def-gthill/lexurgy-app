@@ -27,6 +27,28 @@ describe("the SC examples page", () => {
     cy.contains("Example 2").click();
     cy.contains("a => o");
   });
+
+  it("goes to a specific example if given an id query parameter", () => {
+    cy.goToScExamples("Example 2");
+    cy.contains("a => o");
+  });
+
+  it("replaces the URL with the example-specific URL if none specified", () => {
+    cy.goToScExamples();
+    cy.scExampleUrlHas("Example 1");
+  });
+
+  it("replaces the URL with the example-specific URL if it's invalid", () => {
+    cy.visit("/sc/examples?id=nonsense");
+    cy.scExampleUrlHas("Example 1");
+  });
+
+  it("replaces the URL with the example-specific URL when switching examples", () => {
+    cy.goToScExamples();
+    cy.get("#chooseExample").click();
+    cy.contains("Example 2").click();
+    cy.scExampleUrlHas("Example 2");
+  });
 });
 
 export {};
