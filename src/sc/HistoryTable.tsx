@@ -19,7 +19,7 @@ export default function HistoryTable({
   errors,
   setHistories,
   showSwitches = true,
-  heightInRem = 28,
+  heightInRem = 27,
 }: {
   intermediateStageNames?: string[];
   histories: WordHistory[];

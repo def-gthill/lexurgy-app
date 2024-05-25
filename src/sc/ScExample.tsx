@@ -25,7 +25,11 @@ export default function ScExample({
     setHistories(inputs.map(emptyHistory));
   }, [inputs, setHistories]);
 
-  const heightInRem = 1.5 * changes.split("\n").length;
+  const changeLines = changes.split("\n").length;
+  const heightInRem = Math.max(
+    1.4 * (changeLines + 1.5),
+    1.5 * (inputs.length + 1)
+  );
 
   return (
     <div className="card">
