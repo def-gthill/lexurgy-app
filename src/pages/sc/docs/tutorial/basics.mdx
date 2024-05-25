@@ -15,59 +15,288 @@ import ScExample from "@/sc/ScExample";
 
 ## Basic Rules|basic
 
-<ScExample changes={"lot-thought-merger:\n  ɔ => ɑ"} inputs={["θɔt"]} />
+The simplest kind of sound change rule looks like this:
+
+<ScExample changes={"lot-thought-merger:\n  ɔ => ɑ"} inputs={["θɔt", "bɔt"]} />
+
+The first thing you see is the rule's name, `lot-thought-merger`, followed by a colon. Giving your rules descriptive names helps keep your sound changes organized. Rule names can't contain spaces, but you can separate words with hyphens.
+
+After the rule's name comes an expression describing what you want the rule to do. In this case, `ɔ => ɑ` tells Lexurgy to replace any `ɔ` character it finds with `ɑ`. The example shows the effect on the words `θɔt` ("thought") and `bɔt` ("bought"), making them rhyme with "lot".
 
 ## Conditions|conditions
 
+Changing _all_ instances of one sound into another can only do so much. More interesting is when a sound change depends on neighbouring sounds.
+
+Take this rule:
+
+<ScExample
+  changes={"k-before-a:\n  k => ʃ / _ a"}
+  inputs={["kat", "kot", "vaka", "vak"]}
+/>
+
+The sound `k` changes to `ʃ`, but only before `a`; the `k`s before other vowels or at the end of a word are unaffected. The underscore in the condition represents the sound matched by the rule: `/ _ a` means "only before `a`", while `/ a _` means "only after `a`". You can even put conditions on both sides: `/ a _ a` means "only between two `a`s".
+
 ## Exceptions|exceptions
+
+You can also specify conditions under which the change _doesn't_ happen:
+
+<ScExample
+  changes={"k-not-before-a:\n  k => ʃ // _ a"}
+  inputs={["kat", "kot", "vaka", "vak"]}
+/>
+
+Now `k` only changes to `ʃ` when it _isn't_ before `a`.
+
+You can put a condition and an exception on the same rule:
+
+<ScExample
+  changes={"k-not-before-a:\n  k => ʃ / _ a // ŋ _"}
+  inputs={["kat", "kot", "vaka", "vaŋka"]}
+/>
 
 ## Multi-Character Symbols|symbols
 
+If you want to use digraphs in your rules, you can declare _symbols_ above your rules:
+
+<ScExample
+  changes={"symbol ts, dz\n\nt-frication:\n  t => θ\n\nd-frication:\n  d => ð"}
+  inputs={["tata", "tsatsa", "dada", "dzadza"]}
+/>
+
+Notice that the `ts` and `dz` sequences are unaffected by the changes applied to `t` and `d`; Lexurgy considers `ts` to be a completely different sound from `t` or `s`.
+
 ## Special Characters|escapes
+
+Lexurgy works in Unicode, so it can seamlessly handle IPA characters and other special characters. You just need a way to enter them: either copy them from a site like [this interactive IPA chart](https://www.ipachart.com/), or install an [IPA keyboard layout like this one](https://keyman.com/ipa/).
+
+While Lexurgy handles exotic characters with ease, it'll have trouble if you try to write rules using characters like `+`, `$`, `!`, and other characters that mean something special to Lexurgy. If you need to use one of these characters as a phonetic symbol (say you're making a click language and want to use `!`), you have to put a backslash in front of it to tell Lexurgy that you mean a literal [!]:
+
+<ScExample changes={`click-loss:\n  \\! => t`} inputs={["!a!a"]} />
 
 ## Comments|comments
 
-## Word Edges|word-edges
+Any line that starts with `#` is a comment, and Lexurgy will ignore it. Comments can help you remember why you wrote your sound changes a certain way, especially if you had to use a complicated rule that's hard to understand just by looking at it.
 
-## Interactions Between Words|between-words
+You can put comments on their own, inside rules, or even at the ends of lines:
 
-## Inserting and Deleting Sounds|nulls
+<ScExample
+  changes={`# These rules palatalize k to s before i in three steps.\npalatalization-1:\n  k => tʃ / _ i\npalatalization-2:\n  # This is step 2!\n  tʃ => ʃ\npalatalization-3:\n  ʃ => s # This is step 3!`}
+  inputs={["kiki"]}
+/>
 
 ## Alternative Lists|alternatives
 
+Often, several sounds are affected by a change, or trigger it. You could write a bunch of separate rules listing each possibility, but to make this faster and easier, Lexurgy provides _alternative lists_.
+
+For example, it's common to have a change happen only between vowels. In a language with the classic five-vowel system, that would be 25 combinations, which would be very tedious to write out in full. Instead of listing them out, you use alternative lists, like this:
+
+<ScExample
+  changes={`rhotacization:\n  s => r /\n    {a, e, i, o, u} _ {a, e, i, o, u}`}
+  inputs={["flos", "floses"]}
+/>
+
+You can also use alternative lists in the input and output parts of the rule. If only the input is an alternative list, all of the sounds in it will change into the single new sound:
+
+<ScExample
+  changes={`debuccalization:\n  {p, t, k} => ʔ /\n    {a, e, i, o, u} _ {a, e, i, o, u}`}
+  inputs={["kiki", "papa"]}
+/>
+
+If both are alternative lists, they must be the same length, and each sound in the old list will change into the corresponding sound in the new list:
+
+<ScExample
+  changes={`voicing:\n  {p, t, k} => {b, d, ɡ} /\n    {a, e, i, o, u} _ {a, e, i, o, u}`}
+  inputs={["kiki", "papa"]}
+/>
+
+You can also use alternative lists to specify multiple _environments_. For example, this rule converts stops into fricatives both between vowels and before other stops:
+
+<ScExample
+  changes={`frication:\n  {p, t, k} => {f, θ, x} /\n    {{a, e, i, o, u} _ {a, e, i, o, u}, _ {p, t, k}}`}
+  inputs={["kiki", "kikti", "papa", "papka"]}
+/>
+
 ## Sound Classes|classes
+
+If you find yourself using the same alternative lists over and over again, you can give them convenient names using sound classes:
+
+<ScExample
+  changes={`class vowel {a, e, i, o, u}\nclass unvcdstop {p, t, k}\nclass vcdstop {b, d, ɡ}\n\nvoicing:\n  @unvcdstop => @vcdstop / @vowel _ @vowel`}
+  inputs={["kiki", "papa"]}
+/>
+
+Be sure to include the `@` character; `vowel` without the `@` character means the literal sounds /vowel/!
+
+<ScExample
+  changes={`class vowel {a, e, i, o, u}\nclass unvcdstop {p, t, k}\nclass vcdstop {b, d, ɡ}\n\nvoicing:\n  @unvcdstop => @vcdstop / vowel _ vowel`}
+  inputs={["kiki", "papa", "vowelpvowel"]}
+/>
+
+You can use the names of previously defined classes in your class definitions:
+
+<ScExample
+  changes={`class unvcdstop {p, t, k}\nclass vcdstop {b, d, ɡ}\nclass stop {@unvcdstop, @vcdstop}\n\nfrication:\n  @stop => {f, θ, x, v, ð, ɣ} / _ @stop`}
+  inputs={["kiki", "kikti", "bouba", "boubɡa"]}
+/>
+
+The `stop` class includes all the sounds from `unvcdstop` and `vcdstop`, in order. You can use this to build up larger and larger classes of sounds without repeating yourself.
+
+## Word Edges|word-edges
+
+You can specify that a rule only applies at the beginning or end of a word by marking the edge of the word with a dollar sign:
+
+<ScExample
+  changes={`aspirate-initial-stop:\n  {p, t, k} => {pʰ, tʰ, kʰ} / $ _\nfinal-vowel-to-schwa:\n  {a, e, i, o, u} => ə / _ $`}
+  inputs={["kiki", "papa"]}
+/>
+
+## Inserting and Deleting Sounds|nulls
+
+If you want to delete a sound entirely, put an asterisk after the arrow:
+
+<ScExample
+  changes={`drop-final-vowel:\n  {a, e, i, o, u} => * / _ $`}
+  inputs={["kiki", "papa"]}
+/>
+
+Similarly, you can add epenthetic sounds by putting an asterisk before the arrow and specifying the environment where the sound should appear:
+
+<ScExample
+  changes={`epenethetic-e:\n  * => e / _ s {p, t, k}`}
+  inputs={["spaɲol", "skwela"]}
+/>
+
+But watch out; if you forget the condition, the sound will get inserted _everywhere_!
+
+<ScExample
+  changes={`epenethetic-e-oops:\n  * => e`}
+  inputs={["spaɲol", "skwela"]}
+/>
+
+## Interactions Between Words|between-words
+
+If you write multiple words on a line in the input (separated by spaces), each will be treated as a separate word:
+
+<ScExample changes={`drop-final-t:\n  t => * / _ $`} inputs={["sit amet"]} />
+
+You can also match and manipulate the spaces between words using `$$`. You can use this to stick words together:
+
+<ScExample changes={`glomination:\n  $$ => *`} inputs={["sit amet"]} />
+
+Break them apart:
+
+<ScExample changes={`splitination:\n  * => $$ / t _ a`} inputs={["sitamet"]} />
+
+And apply sound changes that cross word boundaries (_sandhi_ rules):
+
+<ScExample
+  changes={`lenition-mutation:\n  {p, t, k, b, d, ɡ} => {f, h, x, v, j, ɣ} /\n    {a, e, i, o, u} $$ _ {a, e, i, o, u}`}
+  inputs={["a kiki", "e bouba"]}
+/>
 
 ## Wildcards|wildcards
 
+The symbol `[]` matches any single sound. It's often useful for “skipping” a certain number of sounds. For example, the following rule applies umlaut only across an intervening sound:
+
+<ScExample
+  changes={`umlaut:\n  {a, e, o, u} => {e, i, ø, y} / _ [] i`}
+  inputs={["kaki", "baiba"]}
+/>
+
 ## Sequences|sequences
+
+A rule can affect a sequence of consecutive sounds at the same time. For example, this rule implements compensatory lengthening when a coda stop consonant is lost:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n}\n\ncoda-stop-drop-and-lengthen:\n  {a, e, i, o, u} {p, t, k} =>\n    {aː, eː, iː, oː, uː} * /\n    _ @consonant`}
+  inputs={["kakti", "popsa"]}
+/>
+
+Lexurgy lines up `{a, e, i, o, u}` with `{aː, eː, iː, oː, uː}` and `{p, t, k}` with `*`, and applies both changes.
+
+In most cases, the number of elements must be the same on each side of the `=>`. If a change adds or deletes some of the sounds, fill in the missing spaces with asterisks.
 
 ## Optional and Repeated Segments|repeaters
 
+You can mark part of the environment optional by putting a question mark after it:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n}\n\nlast-syllable-reduction:\n  {a, e, i, o, u} => ə / _ @consonant? $`}
+  inputs={["kiki", "papap"]}
+/>
+
+This rule reduces the last vowel in a word to a schwa, even if there's a consonant after it.
+
+If the language has a more complex syllable structure though, this won't be enough:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n}\n\nlast-syllable-reduction:\n  {a, e, i, o, u} => ə / _ @consonant? $`}
+  inputs={["kikist", "papampt"]}
+/>
+
+Instead, use the repeater `*`:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n}\n\nlast-syllable-reduction:\n  {a, e, i, o, u} => ə / _ @consonant* $`}
+  inputs={["kikist", "papampt"]}
+/>
+
+If the rule only applies if there's at least _one_ copy, use the one-or-more repeater `+`:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n}\n\nlast-closed-syllable-reduction:\n  {a, e, i, o, u} => ə / _ @consonant+ $`}
+  inputs={["kiki", "kikis", "kikist"]}
+/>
+
+If you want to use one of these operators on a _sequence_ of sounds, you have to put the sequence in parentheses:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n}\nclass vowel {a, e, i, o, u}\n\nlast-syllable-reduction:\n  @vowel => ə / _ (@consonant @vowel)? $`}
+  inputs={["kikiki", "papapa"]}
+/>
+
 ## Copying Sounds|captures
+
+Sometimes it's useful to copy sounds from one place to another. For example, you might want to apply _gemination_ (duplication of a sound) or _metathesis_ (switching of sounds).
+
+To copy a sound, put a capture variable immediately after the pattern that matches it. A capture variable looks like a dollar sign followed by a number: `$1`, `$2`, etc. Once a sound has been captured, you can use the capture variable alone to produce or recognize a copy of the sound.
+
+This rule applies gemination in stop-stop clusters, turning the first stop into a copy of the second:
+
+<ScExample
+  changes={`class stop {p, t, k}\n\ngemination:\n  @stop @stop$1 => $1 $1`}
+  inputs={["kikti", "pakpa"]}
+/>
+
+This rule applies metathesis to stop-fricative sequences:
+
+<ScExample
+  changes={`class stop {p, t, k}\nclass fricative {f, s}\n\nmetathesis:\n  @stop$1 @fricative$2 => $2 $1`}
+  inputs={["kiksi", "papfa"]}
+/>
+
+This rule uses a capture variable in the environment to recognize a geminate:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\n\ngeminate-epenthesis:\n  * => e / $ _ @consonant$1 $1`}
+  inputs={["kiki", "kkiki", "knapa", "nnapa"]}
+/>
+
+This rule uses a bare capture variable on the left side of the rule to remove gemination (_degemination_):
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\n\ndegemination:\n  @consonant$1 $1 => $1 *`}
+  inputs={["kikki", "knappa"]}
+/>
 
 ## "And" Rules|intersections
 
-## Negation|negation
+You can force Lexurgy to match multiple criteria on the same segment using an "and" rule (or _intersection_), joining the criteria with the `&` symbol. You can use this, for example, to match only the segments in common between two classes:
 
-## Nested Environments|environment-elements
-
-Blah
-
-de
-
-blah
-
-de
-
-blah
-
-de
-
-blah
-
-de
-
-blah
+<ScExample
+  changes={`class obstruent {p, t, k, b, d, ɡ, s, z}\nclass voiced {b, d, ɡ, z, m, n}\n\nvoicing-assimilation:\n  {p, t, k, s} => {b, d, ɡ, z} /\n    _ @voiced&@obstruent`}
+  inputs={["kikdi", "kitzi", "kipti", "kisni"]}
+/>
 
 export default function MdxPage({ children }) {
   return <MdxLayout>{children}</MdxLayout>;

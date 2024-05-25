@@ -17,6 +17,16 @@
 
 .md-main {
   width: 70%;
+  max-width: 900px;
   margin-left: 25%;
   margin-right: 5%;
+}
+
+.md-main code {
+  background-color: var(--card-background);
+}
+
+.md-main p a,
+.md-main li a {
+  text-decoration: underline;
 }
