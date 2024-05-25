@@ -183,6 +183,11 @@ textarea.export-preview {
   border-bottom-left-radius: 4px;
 }
 
+.cm-editor .cm-content,
+.cm-editor .cm-gutters {
+  font-size: 1rem;
+}
+
 label {
   padding: 4px;
 }
