@@ -216,3 +216,26 @@ file(
     )
   )
 )
+
+# Structured syllable pattern
+
+syllables:
+  s ?: p :: i :: n
+
+==>
+
+file(
+  SyllableDecl(
+    SyllableKw,
+    SyllableExpression(
+      SyllablePattern(
+        StructuredPattern(
+          RuleElement(Text(Name)),
+          RuleElement(Text(Name)),
+          RuleElement(Text(Name)),
+          RuleElement(Text(Name))
+        )
+      )
+    )
+  )
+)

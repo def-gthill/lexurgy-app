@@ -34,14 +34,20 @@ SymbolDecl { SymbolKw ws Text ~symbol (("," ws? Text ~symbol)* | ws Matrix) }
 SymbolKw { @specialize<Name, "Symbol"> | @specialize<Name, "symbol"> }
 
 SyllableDecl {
-  SyllableKw ":" (newline KeywordPattern | (~pattern newline SyllablePattern)+ ~pattern)
+  SyllableKw ":" (newline KeywordPattern | (~pattern newline SyllableExpression)+ ~pattern)
 }
 KeywordPattern {
   @specialize<Name, "Explicit"> | @specialize<Name, "explicit"> |
   @specialize<Name, "Clear"> | @specialize<Name, "clear">
 }
 SyllableKw { @specialize<Name, "Syllables"> | @specialize<Name, "syllables"> }
-SyllablePattern { RuleElement (ws? "=>" (newline | ws)? Matrix)? ~pattern compoundEnvironment? }
+SyllableExpression { SyllablePattern (ws? "=>" (newline | ws)? Matrix)? ~pattern compoundEnvironment? }
+SyllablePattern { StructuredPattern | RuleElement ~structured }
+StructuredPattern {
+  (RuleElement ~structured ws? "?:" ws?)?
+  RuleElement ws? "::" ws? RuleElement ~structured
+  (ws? "::" ws? RuleElement)?
+}
 
 Deromanizer { DeromanizerKw (ws LiteralKw)? ":" newline Block }
 DeromanizerKw { @specialize<Name, "Deromanizer"> | @specialize<Name, "deromanizer"> }
@@ -145,6 +151,8 @@ newline { singleNewline+ }
   Number { $[0-9]+ }
   @precedence { singleNewline, ws, Name, OtherText }
   @precedence { "<Syl>", "<syl>", OtherText, ">" }
+  "::"
+  "?:"
   "("
   ")"
   "["

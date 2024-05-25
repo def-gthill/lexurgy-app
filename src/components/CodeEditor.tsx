@@ -69,7 +69,7 @@ export default function CodeEditor({
           Anchor: tags.operator,
           InterfixType: tags.operator,
           "RepeaterType!": tags.operator,
-          '=> "/" "//" "!"': tags.operator,
+          '=> "/" "//" "!" :: ?:': tags.operator,
           "( ) [ ] { } , :": tags.punctuation,
         }),
       ],
