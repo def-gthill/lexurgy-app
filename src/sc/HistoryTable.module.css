@@ -1,3 +1,11 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+
+  --tracing-column-width: 6rem;
+}
+
 .stickyHeader {
   position: sticky;
   top: 0;
@@ -16,7 +24,7 @@
 
 .stickySecondColumnHeader {
   position: sticky;
-  left: 4em;
+  left: var(--tracing-column-width);
   background-color: var(--card-background);
   z-index: 1;
 }
@@ -27,6 +35,12 @@
 
 .stickyHeader.stickySecondColumnHeader {
   z-index: 2;
+}
+
+.traceHeader {
+  min-width: var(--tracing-column-width);
+  display: flex;
+  gap: 4px;
 }
 
 .cell {

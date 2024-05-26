@@ -5,20 +5,6 @@ import Scv1Response from "@/sc/Scv1Response";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-// Workaround for JSDOM bug: see https://github.com/jsdom/jsdom/issues/3002
-Range.prototype.getClientRects = () => ({
-  item: () => null,
-  length: 0,
-  [Symbol.iterator]: jest.fn(),
-});
-
-// Workaround for another JSDOM deficiency: see https://stackoverflow.com/questions/68679993/referenceerror-resizeobserver-is-not-defined
-window.ResizeObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
-}));
-
 describe("an SC runner", () => {
   function renderScRunner({
     evolution = { soundChanges: "", testWords: [] },

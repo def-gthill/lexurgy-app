@@ -39,7 +39,7 @@ export default function HistoryTable({
     : styles.stickyColumnHeader;
 
   return (
-    <div style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+    <div className={styles.root}>
       <div
         style={{
           flexGrow: 1,
@@ -89,7 +89,24 @@ export default function HistoryTable({
                       <th
                         className={`${styles.stickyHeader} ${styles.stickyColumnHeader}`}
                       >
-                        <div style={{ minWidth: "4em" }}>Trace</div>
+                        <div className={styles.traceHeader}>
+                          <div>Trace</div>
+                          <Checkbox
+                            id="trace-all"
+                            ariaLabel="Trace All"
+                            checked={myHistories.every(
+                              (history) => history.tracing
+                            )}
+                            onCheckedChange={(checked) => {
+                              mySetHistories(
+                                myHistories.map((history) => ({
+                                  ...history,
+                                  tracing: checked,
+                                }))
+                              );
+                            }}
+                          />
+                        </div>
                       </th>
                     )}
                     <th
