@@ -7,7 +7,7 @@ import { EditorView, keymap, lineNumbers } from "@codemirror/view";
 import { classHighlighter, styleTags, tags } from "@lezer/highlight";
 import { useEffect, useRef } from "react";
 
-export default function CodeEditor({
+export default function ScCodeEditor({
   initialCode,
   onUpdateCode,
   height,

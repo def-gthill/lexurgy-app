@@ -1,6 +1,6 @@
-import CodeEditor from "@/components/CodeEditor";
 import SplitPane from "@/components/SplitPane";
 import HistoryTable from "@/sc/HistoryTable";
+import ScCodeEditor from "@/sc/ScCodeEditor";
 import { emptyHistory } from "@/sc/WordHistory";
 import { getRuleNames, runSoundChanges } from "@/sc/api";
 import useScState from "@/sc/useScState";
@@ -45,7 +45,7 @@ export default function ScExample({
             <Label.Root style={{ fontWeight: "bold" }}>
               Sound Changes
             </Label.Root>
-            <CodeEditor
+            <ScCodeEditor
               initialCode={changes}
               onUpdateCode={onEditSoundChanges}
               height={`${heightInRem}rem`}

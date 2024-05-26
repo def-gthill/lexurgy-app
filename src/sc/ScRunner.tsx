@@ -1,4 +1,3 @@
-import CodeEditor from "@/components/CodeEditor";
 import ExportButton from "@/components/ExportButton";
 import ImportButton from "@/components/ImportButton";
 import LabelledSwitch from "@/components/LabelledSwitch";
@@ -7,6 +6,7 @@ import SplitPane from "@/components/SplitPane";
 import Evolution from "@/sc/Evolution";
 import HistoryExporter from "@/sc/HistoryExporter";
 import HistoryTable from "@/sc/HistoryTable";
+import ScCodeEditor from "@/sc/ScCodeEditor";
 import Scv1Request from "@/sc/Scv1Request";
 import Scv1Response from "@/sc/Scv1Response";
 import ShareButton from "@/sc/ShareButton";
@@ -78,7 +78,7 @@ export default function ScRunner({
             <Label.Root style={{ fontWeight: "bold" }}>
               Sound Changes
             </Label.Root>
-            <CodeEditor
+            <ScCodeEditor
               initialCode={initialSoundChanges}
               onUpdateCode={onEditSoundChanges}
               height="27rem"
