@@ -23,6 +23,19 @@ The first thing you see is the rule's name, `lot-thought-merger`, followed by a 
 
 After the rule's name comes an expression describing what you want the rule to do. In this case, `ɔ => ɑ` tells Lexurgy to replace any `ɔ` character it finds with `ɑ`. The example shows the effect on the words `θɔt` ("thought") and `bɔt` ("bought"), making them rhyme with "lot".
 
+## Multiple Rules
+
+The history of a language involves many sound changes. Normally, you'll write these one after the other, giving each its own name:
+
+<ScExample
+  changes={"lot-thought-merger:\n  ɔ => ɑ\n\nlot-fronting:\n  ɑ => a"}
+  inputs={["θɔt", "bɔt"]}
+/>
+
+Lexurgy executes rules in order, from top to bottom. At the beginning, there are no instances of `ɑ` for the `lot-fronting` rule to apply to; but since the `lot-thought-merger` rule happens first, the original `ɔ` vowels have already been converted to `ɑ` by the time the `lot-fronting` rule applies, giving it something to apply to. The word `θɔt` becomes `θɑt` because of the first rule, and then `θat` because of the second rule.
+
+You can use the "Trace Changes" switch to see how each input word changes as it flows through each rule. When creating your own sound changes, if the results aren't what you expect, turning on "Trace Changes" can help you quickly narrow down where the problem is.
+
 ## Conditions|conditions
 
 Changing _all_ instances of one sound into another can only do so much. More interesting is when a sound change depends on neighbouring sounds.

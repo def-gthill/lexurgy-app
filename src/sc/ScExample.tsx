@@ -1,3 +1,4 @@
+import LabelledSwitch from "@/components/LabelledSwitch";
 import SplitPane from "@/components/SplitPane";
 import HistoryTable from "@/sc/HistoryTable";
 import ScCodeEditor from "@/sc/ScCodeEditor";
@@ -22,13 +23,15 @@ export default function ScExample({
     setSoundChanges(changes);
   }, [changes, setSoundChanges]);
   useEffect(() => {
-    setHistories(inputs.map(emptyHistory));
+    setHistories(
+      inputs.map(emptyHistory).map((history) => ({ ...history, tracing: true }))
+    );
   }, [inputs, setHistories]);
 
   const changeLines = changes.split("\n").length;
-  const heightInRem = Math.max(
-    1.4 * (changeLines + 1.5),
-    1.5 * (inputs.length + 1)
+  const heightInRem = Math.min(
+    Math.max(1.4 * (changeLines + 1.5), 1.5 * (inputs.length + 1)),
+    20
   );
 
   return (
@@ -74,6 +77,14 @@ export default function ScExample({
         <div className="buttons">
           <button onClick={sc.runSc}>Apply</button>
         </div>
+        {sc.ruleNames.length > 1 && (
+          <LabelledSwitch
+            id="trace-changes"
+            label="Trace Changes"
+            checked={sc.tracing}
+            onCheckedChange={sc.setTracing}
+          />
+        )}
       </div>
     </div>
   );

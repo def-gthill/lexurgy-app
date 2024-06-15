@@ -53,7 +53,7 @@ function isHeading(node) {
     typeof node === "object" &&
     node.type === "element" &&
     "tagName" in node &&
-    typeof node.tagName === "string" &&
+    ["h1", "h2", "h3", "h4", "h5", "h6"].includes(node.tagName) &&
     "properties" in node &&
     typeof node.properties === "object" &&
     "children" in node

@@ -1,5 +1,6 @@
 import MdxLayout from "@/components/MdxLayout";
 import Breadcrumb from "@/components/Breadcrumb";
+import ScExample from "@/sc/ScExample";
 
 <Breadcrumb
   baseUrl="/sc"
@@ -10,6 +11,88 @@ import Breadcrumb from "@/components/Breadcrumb";
 />
 
 # Lexurgy Sound Changer How To
+
+## Stress Assignment|stress-assignment
+
+Stress is usually best expressed as a [syllable-level feature](/sc/docs/tutorial/syllables#features) with a ["before" diacritic](/sc/docs/tutorial/features#diacritics). Then you can use an ordinary rule to assign stress:
+
+<ScExample
+  changes={
+    "feature (syllable) +stress\ndiacritic ˈ (before) [+stress]\nclass vowel {a, e, i, o, u}\nclass cons {p, t, k, s, m, n, l, r}\n\nsyllables:\n  @cons? :: @vowel :: @cons?\n\nstress-last-syllable:\n  <syl> => [+stress] / _ $"
+  }
+  inputs={["kiki", "sanitsa", "miskopun"]}
+/>
+
+In this case, the stress rule is simple—always stress the last syllable—so the stress assignment rule is also simple.
+
+For more complex stress rules, one approach is:
+
+1. Use [syllable-level feature assignment](/sc/docs/tutorial/syllables#assigning-features) to assign temporary weight features to each syllable.
+2. Use [hierarchical blocks](/sc/docs/reference#blocks) to assign stress based on the weight features.
+3. Remove the weight features and reset the syllable structure.
+
+Suppose that you want a word to be stressed on the last long vowel if one exists; otherwise on the last closed syllable if one exists; otherwise on the last syllable. You can write this as follows:
+
+<ScExample
+  changes={
+    "feature +long\nfeature (syllable) +stress\nfeature (syllable) +longsyl\nfeature (syllable) +codasyl\ndiacritic ˈ (before) [+stress]\ndiacritic ː (floating) [+long]\ndiacritic • [+longsyl]\ndiacritic ≈ [+codasyl]\nclass vowel {a, e, i, o, u}\nclass cons {p, t, k, s, m, n, l}\n\nsyllables:\n  @cons? :: @vowel&[+long] :: @cons? =>\n    [+longsyl]\n  @cons? :: @vowel :: @cons =>\n    [+codasyl]\n  @cons? :: @vowel\n\nassign-stress:\n  <syl>&[+longsyl] => [+stress] /\n    _ (<syl>&[-longsyl])* $\n  else:\n  <syl>&[+codasyl] => [+stress] /\n    _ (<syl>&[-codasyl])* $\n  else:\n  <syl> => [+stress] / _ $\n\nremove-weight:\n  [+longsyl] => [-longsyl]\n  [+codasyl] => [-codasyl]\n\nsyllables:\n  @cons? :: @vowel :: @cons?"
+  }
+  inputs={["saːnitsa", "sanitsa", "sanisa"]}
+/>
+
+## Romanizations Without Declarations|literal-romanization
+
+TODO
+
+## Breaking the Rules|turing-completeness
+
+Lexurgy is meant for simulating how natural languages evolve, so its features are tailored to that use case. But Lexurgy is also [Turing complete](https://en.wikipedia.org/wiki/Turing_completeness); with the right rules, it can perform arbitrary computations. Even if your sound changes are highly unusual, Lexurgy can represent them.
+
+Suppose that you want to change all instances of `a` into `e`, but only in words with an odd number of phonemes. This is probably impossible in human languages, but maybe it makes sense for your project. Lexurgy has no built-in way to count the number of phonemes in a word, but you can still write a rule that does this:
+
+<ScExample
+  changes={`feature +oddpos\ndiacritic ^ [+oddpos]\n\nadd-oddpos:\n  [] => [+oddpos] / $ _\n  then ltr:\n  [] => [+oddpos] / [+oddpos] [] _\n\nkeep-only-odds:\n  [+oddpos] => [-oddpos] // _ $\n\na-to-e:\n  a^ => e^\n  a => e / _ []* [+oddpos]\n\nremove-oddpos:\n  [+oddpos] => [-oddpos]`}
+  inputs={["haha", "haaha", "hahat", "hahahahaha", "hahahaahaha"]}
+/>
+
+This works as follows:
+
+1. Add a temporary diacritic `^` to the first sound in the word.
+2. Scanning from left to right, add a `^` _two sounds to the right_ of each existing `^`. This puts a `^` on _every second_ sound, starting with the first.
+3. Remove all `^` _except_ on the last segment of the word. Since `^` occurs only on sounds in an odd position, it can only occur on the last sound if the word has an odd number of sounds.
+4. Change `a` to `e` only in words that have a `^` in them.
+5. Remove all `^` diacritics.
+
+Make sure to use "Trace Changes" if you find this confusing. This rule removes all the temporary diacritics to cover its tracks, but "Trace Changes" reveals exactly what they're doing.
+
+As this example shows, the key is usually to add _temporary symbols_ (often diacritics) and use Lexurgy's iterative constructs (`propagate`, `ltr`, and `rtl`).
+
+Just to show how powerful this can be, here are some Lexurgy rules that _perform addition_:
+
+<ScExample
+  changes={`class digit {\\0, \\1, \\2, \\3, \\4, \\5, \\6, \\7, \\8, \\9}\nclass inc {\\1, \\2, \\3, \\4, \\5, \\6, \\7, \\8, \\9, '\\0}\n\nline-up-digits propagate:\n  | @digit$1 \\+ @digit$2 => $2 | $1 \\+ / _ @digit\n  then:\n  @digit$1 \\+ @digit$2 * * => \\+ $2 | $1 \\+ / _ @digit // | _\n\nadd-one-digit propagate:\n  @digit \\+ @inc => @inc \\+ @digit\n  \\+0 => *\n\nremove-signs:\n  {|, \\+} => *\n\ncarry propagate:\n  @digit ' => @inc *\n  ' => \\1 / $ _`}
+  inputs={[
+    "1+1",
+    "2+9",
+    "3+3",
+    "3+0",
+    "11+5",
+    "15+6",
+    "11+12",
+    "15+16",
+    "52+87",
+    "100+25",
+    "25+100",
+    "111+222",
+    "216+729",
+    "1111+2222",
+    "2468+8642",
+    "31415+27182",
+    "88888+11112",
+  ]}
+/>
+
+Again, use "Trace Changes" if you find this confusing.
 
 export default function MdxPage({ children }) {
   return <MdxLayout>{children}</MdxLayout>;

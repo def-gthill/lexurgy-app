@@ -1,5 +1,6 @@
 import MdxLayout from "@/components/MdxLayout";
 import Breadcrumb from "@/components/Breadcrumb";
+import ScExample from "@/sc/ScExample";
 
 <Breadcrumb
   baseUrl="/sc"
@@ -14,25 +15,218 @@ import Breadcrumb from "@/components/Breadcrumb";
 
 ## Simultaneous Expressions|simultaneous
 
+Recall that Lexurgy applies rules one after the other, from top to bottom:
+
+<ScExample
+  changes={
+    "class nasal {m, n, ŋ}\n\npost-nasal-lenition-1:\n  {p, t, k} => {b, d, ɡ} / @nasal _\n\npost-nasal-lenition-2:\n  {b, d, ɡ} => {m, n, ŋ} / @nasal _"
+  }
+  inputs={["ampa", "imbi"]}
+/>
+
+The first rule changes the `p` in `ampa` to a `b`, and then the second rule changes it all the way to `m`, so both words end up containing `mm`.
+
+But f you write these two expressions in the same rule, Lexurgy will run them _simultaneously_. Later expressions don't see the effects of earlier expressions:
+
+<ScExample
+  changes={
+    "class nasal {m, n, ŋ}\n\npost-nasal-lenition:\n  {p, t, k} => {b, d, ɡ} / @nasal _\n  {b, d, ɡ} => {m, n, ŋ} / @nasal _"
+  }
+  inputs={["ampa", "imbi"]}
+/>
+
+Now the first expression matches `ampa` and changes it to `amba`, while the second expression matches `imbi` and changes it to `immi`. The second expression never gets a chance to apply to `amba`.
+
+Since the expressions run simultaneously, their order often doesn't matter. But if two expressions try to change the same part of the word, the first expression takes precedence. This can be useful for making rules that do one thing in most cases, and another thing in some exceptional case:
+
+<ScExample
+  changes={"k-shift:\n  k => s / _ {e, i}\n  k => h / $ _"}
+  inputs={["kiki", "koko"]}
+/>
+
 ## Multi-Step Rules|sequential
 
-## Hierarchical Rules|hierarchical
+You may also want to combine rules _without_ making them run simultaneously; this can make it clearer that you think of all the expressions as really being part of the same sound change. You do this by putting `then:` between the expressions:
+
+<ScExample
+  changes={
+    "palatalization:\n  k => tʃ / _ i\n  then:\n  tʃ => ʃ\n  then:\n  ʃ => s"
+  }
+  inputs={["kiki", "koko"]}
+/>
 
 ## Filters|filters
 
+Sometimes, you only care about certain kinds of sounds, and want to ignore anything else. For example, this umlaut rule will apply across any number of intervening consonants:
+
+<ScExample
+  changes={`class vowel {a, e, i, ø, y, o, u}\n\numlaut @vowel:\n  {a, e, o, u} => {e, i, ø, y} / _ i`}
+  inputs={["kaki", "baiba", "bapski", "bapaski"]}
+/>
+
+Anything that isn't in the `@vowel` class is ignored when determining which sounds are adjacent. Even though the condition is `_ i`, i.e. "when immediately before an `i`", the rule applies to the `a` in `bapski`, because that `a` is immediately before the `i` if you ignore all the non-vowels. But the first `a` in `bapaski` is unaffected, since there's another vowel between it and the `i`.
+
 ## Propagation|propagation
 
-## Controlling Application Direction|ltr-rtl
+You may find that a change creates more opportunities for the same change to apply. Suppose you have a language that has just deleted a lot of word-internal consonants:
+
+<ScExample
+  changes={`class vowel {a, i, u}\n\nconsonant-loss:\n  {p, t, k, b, d, ɡ, h} => * / @vowel _ @vowel`}
+  inputs={["kiki", "buba"]}
+/>
+
+This creates many sequences of vowels in hiatus. You may want to simplify these sequences by combining them according to a chart:
+
+<ScExample
+  changes={`class vowel {a, i, u}\n\nconsonant-loss:\n  {p, t, k, b, d, ɡ, h} => * / @vowel _ @vowel\n\nhiatus-simplification:\n  {aa, ai, au} => {a, aj, aw}\n  {ia, ii, iu} => {ja, i, ju}\n  {ua, ui, uu} => {wa, wi, u}`}
+  inputs={["kiki", "buba"]}
+/>
+
+But what if there are several dropped consonants in a row?
+
+<ScExample
+  changes={`class vowel {a, i, u}\n\nconsonant-loss:\n  {p, t, k, b, d, ɡ, h} => * / @vowel _ @vowel\n\nhiatus-simplification:\n  {aa, ai, au} => {a, aj, aw}\n  {ia, ii, iu} => {ja, i, ju}\n  {ua, ui, uu} => {wa, wi, u}`}
+  inputs={["kikiki", "bubababi"]}
+/>
+
+Now there are still vowels in hiatus. The hiatus simplification rule matched the first `ii` in `kiii` and the `aa` in `buaai`, changed that, and stopped.
+
+But if you mark the rule with the `propagate` modifier, it keeps going until there's nothing more to match:
+
+<ScExample
+  changes={`class vowel {a, i, u}\n\nconsonant-loss:\n  {p, t, k, b, d, ɡ, h} => * / @vowel _ @vowel\n\nhiatus-simplification propagate:\n  {aa, ai, au} => {a, aj, aw}\n  {ia, ii, iu} => {ja, i, ju}\n  {ua, ui, uu} => {wa, wi, u}`}
+  inputs={["kikiki", "bubababi"]}
+/>
+
+## Controlling Propagation Direction|ltr-rtl
+
+Propagation is very powerful, but sometimes you want propagation to go in one direction only. Take this example:
+
+<ScExample
+  changes={`class vowel {a, i, u}\n\nconsonant-loss:\n  {p, t, k, b, d, ɡ, h} => * / @vowel _ @vowel\n\nhiatus-simplification propagate:\n  {aa, ai, au} => {a, aj, aw}\n  ii => i\n  {ia, iu} => {ja, ju} // {w, j} _\n  uu => u\n  {ua, ui} => {wa, wi} // {w, j} _`}
+  inputs={["kukikuki"]}
+/>
+
+You're trying to get `kwiwi`, but it comes out as `kujui`. That's because the `iu => ju` part of the hiatus simplification rule has a higher priority than the `ui => wi` part, so the rule finds the `iu` in the middle first and changes it, blocking anything else from changing.
+
+If you replace `propagate` with `ltr` ("Left To Right") though:
+
+<ScExample
+  changes={`class vowel {a, i, u}\n\nconsonant-loss:\n  {p, t, k, b, d, ɡ, h} => * / @vowel _ @vowel\n\nhiatus-simplification ltr:\n  {aa, ai, au} => {a, aj, aw}\n  ii => i\n  {ia, iu} => {ja, ju} // {w, j} _\n  uu => u\n  {ua, ui} => {wa, wi} // {w, j} _`}
+  inputs={["kukikuki"]}
+/>
+
+You get the intended result. The rule now starts at the beginning of the word and sweeps to the right, applying changes as it goes. So it finds the first `ui` first and changes it to `wi`, which blocks the unwanted `iu => ju` change. Then it finds the second `ui` and changes that to `wi` too.
+
+The `ltr` modifier is also useful for rules like vowel harmony, which spread from one end of the word to the other:
+
+<ScExample
+  changes={`class front {æ, ø, y}\nclass back {ɑ, o, u}\nclass vowel {e, i, @front, @back}\n\nharmony @vowel ltr:\n  @back => @front / @front _`}
+  inputs={["kykɑnobu", "bubɑnobu"]}
+/>
+
+For propagation from the end of the word to the beginning, use the `rtl` modifier:
+
+<ScExample
+  changes={`class front {æ, ø, y}\nclass back {ɑ, o, u}\nclass vowel {e, i, @front, @back}\n\nharmony @vowel rtl:\n  @back => @front / _ @front`}
+  inputs={["ɑnobukyk", "ɑnobubub"]}
+/>
 
 ## Reusable Elements|elements
 
+If you find yourself repeating part of an expression across many rules, consider declaring it as an `element`.
+
+Element declarations are similar to class declarations, but they can contain anything that you could find in an expression. Once declared, you reference elements using the same `@` syntax as referencing classes:
+
+<ScExample
+  changes={`class stop {p, t, k}\n\nelement scluster s @stop\n\nepenthetic-e:\n  * => e / _ @scluster\n\ndecluster-s:\n  @scluster => * @stop`}
+  inputs={["spaɲol", "skwela"]}
+/>
+
 ## Reusable Rules|deferred
+
+If you find yourself applying the same sound changes at several stages of your language's evolution, consider turning them into deferred rules. A deferred rule isn't applied where it's declared; instead, you apply it later as part of other rules.
+
+For example, suppose you have a nasal assimilation rule:
+
+<ScExample
+  changes={`class nasal {m, n, ŋ}\n\nnasal-assimilation:\n  @nasal => m / _ {p, b}\n  @nasal => n / _ {t, d}\n  @nasal => ŋ / _ {k, g}`}
+  inputs={["anpa"]}
+/>
+
+Then you go on developing your language, and at some point you have a vowel deletion rule:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, o, i, u}\n\ndelete-pretonic-mid-vowels:\n  {e, o} => * /\n    @vowel @consonant _ (@consonant* @vowel)*2 $`}
+  inputs={["anepato"]}
+/>
+
+But this reintroduces nasal-stop clusters at different places of articulation. To fix this, you apply the nasal assimilation rule _again_. Now you have these sound changes:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, o, i, u}\nclass nasal {m, n, ŋ}\n\nnasal-assimilation:\n  @nasal => m / _ {p, b}\n  @nasal => n / _ {t, d}\n  @nasal => ŋ / _ {k, g}\n\ndelete-pretonic-mid-vowels:\n  {e, o} => * /\n    @vowel @consonant _ (@consonant* @vowel)*2 $\n\nnasal-assimilation-again:\n  @nasal => m / _ {p, b}\n  @nasal => n / _ {t, d}\n  @nasal => ŋ / _ {k, g}`}
+  inputs={["anpa", "anepato"]}
+/>
+
+That works, but it's annoying; this entire rule appears twice, cluttering up your sound changes. It also means that if you later find a mistake in this rule, you have to remember to fix the mistake in both places. And this will only get worse if you later have to apply the nasal assimilation rule a _third time_...
+
+You can get rid of this repetition by declaring nasal assimilation as a deferred rule:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, o, i, u}\nclass nasal {m, n, ŋ}\n\nnasal-assimilation defer:\n  @nasal => m / _ {p, b}\n  @nasal => n / _ {t, d}\n  @nasal => ŋ / _ {k, g}\n\ninitial-nasal-assimilation:\n  :nasal-assimilation\n\ndelete-pretonic-mid-vowels:\n  {e, o} => * /\n    @vowel @consonant _ (@consonant* @vowel)*2 $\n\nnasal-assimilation-again:\n  :nasal-assimilation`}
+  inputs={["anpa", "anepato"]}
+/>
+
+Deferred rules aren't applied at the point where they're declared; you trigger them by referencing them from other rules. Here, the `initial-nasal-assimilation` and `nasal-assimilation-again` rules both reference the deferred `nasal-assimilation` rule.
 
 ## Cleanup Rules|cleanup
 
+Sometimes you don't need the precision of a deferred rule; you want something like nasal assimilation to apply after _every_ rule, to clean up any illicit clusters. You can do this by declaring `nasal-assimilation` to be a cleanup rule:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, o, i, u}\nclass nasal {m, n, ŋ}\n\nnasal-assimilation cleanup:\n  @nasal => m / _ {p, b}\n  @nasal => n / _ {t, d}\n  @nasal => ŋ / _ {k, g}\n\ndelete-pretonic-mid-vowels:\n  {e, o} => * /\n    @vowel @consonant _ (@consonant* @vowel)*2 $`}
+  inputs={["anpa", "anepato"]}
+/>
+
+Cleanup rules run once when declared, and then again after every subsequent named rule.
+
+If you want a cleanup rule to stop applying at some point, you can turn it off:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, o, i, u}\nclass nasal {m, n, ŋ}\n\nnasal-assimilation cleanup:\n  @nasal => m / _ {p, b}\n  @nasal => n / _ {t, d}\n  @nasal => ŋ / _ {k, g}\n\ndelete-pretonic-mid-vowels:\n  {e, o} => * /\n    @vowel @consonant _ (@consonant* @vowel)*2 $\n\nnasal-assimilation:\n  off\n\nunpossible:\n  m => n / _ p`}
+  inputs={["anpa", "anepato"]}
+/>
+
 ## Romanization|romanization
 
+It's a good idea to do all the sound changes in phonetic notation (e.g. IPA). But you probably do most of the work for your languages in their romanization systems. Lexurgy has conventions for converting between IPA and romanizations so that you don't confuse romanization rules with actual sound changes.
+
+If the input language has a romanization system, the first rule should be called `deromanizer` and contain all of the rules for converting from the input language's romanization to phonetic notation.
+
+<ScExample
+  changes={`deromanizer:\n  {sh, zh} => {ʃ, ʒ}\n  ng => ŋ`}
+  inputs={["ashang", "azhang"]}
+/>
+
+Similarly, if the output language has a romanization system, the last rule should be called `romanizer` and contain all of the rules for converting from phonetic language to the output language's romanization.
+
+<ScExample
+  changes={`romanizer:\n  {ʃ, ʒ} => {sh, zh}\n  ŋ => ng`}
+  inputs={["aʃaŋ", "aʒaŋ"]}
+/>
+
 ## Intermediate Romanizers|intermediate
+
+If you want to preserve the history of the language at several stages, you can use intermediate romanizers. Any rule whose name starts with `romanizer-` will be treated as an intermediate romanizer.
+
+Intermediate romanizers differ from ordinary rules in an important way: subsequent rules don't see the changes they make. Instead, their results are included in the output along with the final form of the word. Let's revisit the three-stage palatalization rule, but put in some intermediate romanizers:
+
+<ScExample
+  changes={`palatalization-1:\n  k => tʃ / _ i\n\nromanizer-old-examplish:\n  tʃ => ch\n\npalatalization-2:\n  tʃ => ʃ\n\nromanizer-middle-examplish:\n  ʃ => sh\n\npalatalization-3:\n  ʃ => s`}
+  inputs={["kiki"]}
+/>
+
+Even though the `romanizer-old-examplish` rule changes all `tʃ` into `ch`, the following `palatalization-2` rule still sees `tʃ`, as if the `romanizer-old-examplish` rule wasn't there.
 
 export default function MdxPage({ children }) {
   return <MdxLayout>{children}</MdxLayout>;
