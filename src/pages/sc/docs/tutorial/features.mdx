@@ -1,5 +1,6 @@
 import MdxLayout from "@/components/MdxLayout";
 import Breadcrumb from "@/components/Breadcrumb";
+import ScExample from "@/sc/ScExample";
 
 <Breadcrumb
   baseUrl="/sc"
@@ -12,27 +13,180 @@ import Breadcrumb from "@/components/Breadcrumb";
 
 # Lexurgy Sound Changer Tutorial — Using Features
 
+Everything so far has treated sounds as indivisible units. But Lexurgy also lets you break down sounds into the _features_ that describe them, allowing certain kinds of complex sound changes to be written more efficiently and robustly.
+
 ## When to Use Features|when-features
+
+Features can take quite a bit of effort to set up, so it's usually best to start a project _without_ using features. Bring features in when:
+
+- You want to use IPA diacritics.
+- You need to deal with suprasegmentals like tone, stress, or vowel length, or secondary articulations like palatalization.
+- You have several assimilation or dissimilation rules that are bulky and hard to read.
 
 ## Binary Features|binary
 
+Let's look at an example of a simple vowel space defined using _binary features_, as used in [distinctive feature theory](http://www.sfu.ca/~mcrobbie/Ling221/Lecture%233%20.pdf):
+
+<ScExample
+  changes={`feature low, high\nfeature front, back\nsymbol a [+low -high -front -back]\nsymbol e [-low -high +front -back]\nsymbol i [-low +high +front -back]\nsymbol o [-low -high -front +back]\nsymbol u [-low +high -front +back]\n\nfinal-vowel-raising:\n  [-low -high] => [+high] / _ $`}
+  inputs={["kike", "boubo"]}
+/>
+
+This example defines four _features_: `low`, `high`, `front`, and `back`, representing the position of the tongue in the mouth when making that vowel. Each of these features has two _values_: `low` has the value `+low` for low vowels like [a], and the value `-low` for non-low vowels. It then defines a symbol for each vowel in the language, and gives each vowel a _feature matrix_, showing which feature values that vowel has. Now, anytime Lexurgy encounters an [e] in a word, it knows that that [e] is a front vowel, but not a low, high, or back vowel.
+
+The `final-vowel-raising` rule uses these features to change all mid vowels (which are `-low -high`) to the _corresponding_ high vowel. The matrix `[+high]` on the result side of the rule means that the high feature, and _only_ the high feature, will be changed to `+high`, while all other features (like the front and back features) are left unchanged.
+
 ## Absent Values|absent
+
+Binary features actually have a `third` value: _absent_, written with a `*` before the feature name. (This makes the name "binary" rather suspect... linguistic terminology can be confusing sometimes!) So the absence of the low feature is written `*low` and the absence of the back feature is written `*back`. Any character that you haven't explicitly given a value for the low feature automatically has `*low`. This would most likely be the case with any consonant sounds, where the low feature is irrelevant.
+
+You can use absent features in rules just like any other feature value:
+
+<ScExample
+  changes={`feature low, high\nfeature front, back\nsymbol a [+low -high -front -back]\nsymbol e [-low -high +front -back]\nsymbol i [-low +high +front -back]\nsymbol o [-low -high -front +back]\nsymbol u [-low +high -front +back]\n\nfinal-consonant-dropping:\n  [*low] => * / _ $`}
+  inputs={["kiki", "bouba", "kikin", "boubat"]}
+/>
+
+Any characters in an input word that don't match symbols are considered to lack all features, so they'll only match matrices consisting entirely of absent features, like `[*low *front]`, or the wildcard `[]`.
 
 ## Univalent Features|univalent
 
+You can also define _univalent_ features, which only have _two_ values: present and absent.
+
+<ScExample
+  changes={`feature low, high\nfeature front, back\nfeature +nasalized\nsymbol a [+low -high -front -back]\nsymbol e [-low -high +front -back]\nsymbol i [-low +high +front -back]\nsymbol o [-low -high -front +back]\nsymbol u [-low +high -front +back]\nsymbol ã [+low -high -front -back +nasalized]\nsymbol ẽ [-low -high +front -back +nasalized]\nsymbol ĩ [-low +high +front -back +nasalized]\nsymbol õ [-low -high -front +back +nasalized]\nsymbol ũ [-low +high -front +back +nasalized]\n\nnasalized-vowel-lowering:\n  [+high +nasalized] => [-high]\n\nfinal-vowel-raising:\n  [-low -high -nasalized] => [+high] / _ $`}
+  inputs={["kikĩ", "bũbo"]}
+/>
+
+The feature `nasalized` has only the two values `+nasalized` and `-nasalized`. Any sound that isn't explicitly defined to be `+nasalized` is automatically `-nasalized`. There's no separate `*nasalized` value—`*nasalized` is just another way of writing `-nasalized`.
+
 ## Multivalent Features|multivalent
+
+Lexurgy also allows features with _any_ number of values. For example, you can recreate part the IPA consonant chart like this:
+
+<ScExample
+  changes={`feature voicing(voiceless, voiced)\nfeature place(labial, dental, alveolar, velar, glottal)\nfeature manner(stop, fricative, nasal, approximant)\n\nsymbol p [voiceless labial stop]\nsymbol b [voiced labial stop]\nsymbol t [voiceless dental stop]\nsymbol d [voiced dental stop]\nsymbol k [voiceless velar stop]\nsymbol ɡ [voiced velar stop]\nsymbol f [voiceless labial fricative]\nsymbol v [voiced labial fricative]\nsymbol ð [voiced dental fricative]\nsymbol s [voiceless alveolar fricative]\nsymbol z [voiced alveolar fricative]\nsymbol x [voiceless velar fricative]\nsymbol ɣ [voiced velar fricative]\nsymbol h [voiceless glottal fricative]\nsymbol m [labial nasal]\nsymbol n [alveolar nasal]\nsymbol l [alveolar approximant]\nclass vowel {a, e, i, o, u}\n\nintervocalic-lenition:\n    [voiceless stop] => [voiced] / @vowel _ @vowel\n    [voiced stop] => [fricative] / @vowel _ @vowel\n    h => * / @vowel _ @vowel\n    [voiceless fricative] => h / @vowel _ @vowel`}
+  inputs={["kiki", "bouba", "sasahi"]}
+/>
+
+This defines three features: `voicing`, `place`, and `manner`. With multivalent features, each value has a name; rather than writing `[+place]` or `[-manner]`, which wouldn't make sense, you have to use the names, like `[labial nasal]`.
+
+Just like binary and univalent features, multivalent features always have an absent value. In this example, we didn't specify a voicing for [m], [n], and [l], so they automatically have the absent value `*voicing`.
 
 ## Naming the Absent Value|absent-name
 
+You can give the absent value of any multivalent feature a name. The above example could also be written:
+
+<ScExample
+  changes={`feature voicing(*voiceless, voiced)\nfeature place(labial, dental, alveolar, velar, glottal)\nfeature manner(stop, fricative, nasal, approximant)\n\nsymbol p [labial stop]\nsymbol b [voiced labial stop]\nsymbol t [dental stop]\nsymbol d [voiced dental stop]\nsymbol k [velar stop]\nsymbol ɡ [voiced velar stop]\nsymbol f [labial fricative]\nsymbol v [voiced labial fricative]\nsymbol ð [voiced dental fricative]\nsymbol s [alveolar fricative]\nsymbol z [voiced alveolar fricative]\nsymbol x [velar fricative]\nsymbol ɣ [voiced velar fricative]\nsymbol h [glottal fricative]\nsymbol m [labial nasal]\nsymbol n [alveolar nasal]\nsymbol l [alveolar approximant]\nclass vowel {a, e, i, o, u}\n\nintervocalic-lenition:\n  [voiceless stop] => [voiced] / @vowel _ @vowel\n  [voiced stop] => [fricative] / @vowel _ @vowel\n  h => * / @vowel _ @vowel\n  [voiceless fricative] => h / @vowel _ @vowel`}
+  inputs={["kiki", "bouba", "sasahi"]}
+/>
+
+Then all sounds are automatically `voiceless` unless you explicitly declare them to be `voiced`.
+
 ## Feature Variables|variables
+
+Languages often undergo _assimilation_, where one sound becomes more like a nearby sound. Lexurgy provides _feature variables_ to make assimilation rules easier to write. Feature variables copy a feature value from one sound to another:
+
+<ScExample
+  changes={`feature type(*vowel, consonant)\nfeature place(labial, alveolar, velar, glottal)\nfeature manner(stop, fricative, nasal, approximant)\n\nsymbol p [labial stop consonant]\nsymbol t [alveolar stop consonant]\nsymbol k [velar stop consonant]\nsymbol s [alveolar fricative consonant]\nsymbol m [labial nasal consonant]\nsymbol n [alveolar nasal consonant]\nsymbol ŋ [velar nasal consonant]\nsymbol l [alveolar approximant consonant]\n\nnasal-assimilation:\n  [nasal] => [$place] / _ [consonant $place]`}
+  inputs={["amta", "anka", "aŋpa"]}
+/>
+
+The `[consonant $place]` matrix in the environment matches any consonant, but captures the value of that consonant's `place` feature. This feature value is copied into the matching `$place` in the output matrix.
+
+Beware of matrices containing only feature variables! The matrix `[$place]` matches _any sound_ and blithely copies its `place` feautre, even if its value is `*place`. This can easily lead to errors:
+
+<ScExample
+  changes={`feature type(*vowel, consonant)\nfeature place(labial, alveolar, velar, glottal)\nfeature manner(stop, fricative, nasal, approximant)\n\nsymbol p [labial stop consonant]\nsymbol t [alveolar stop consonant]\nsymbol k [velar stop consonant]\nsymbol s [alveolar fricative consonant]\nsymbol m [labial nasal consonant]\nsymbol n [alveolar nasal consonant]\nsymbol ŋ [velar nasal consonant]\nsymbol l [alveolar approximant consonant]\n\nnasal-assimilation:\n  [nasal] => [$place] / _ [$place]`}
+  inputs={["amta", "anka", "aŋpa", "amata"]}
+/>
+
+Since vowels aren't declared to have a `place`, the rule copies `*place` from the `a` in `amata` onto the `m`, obliterating its place of articulation and producing the non-existent sound `[nasal consonant]`.
 
 ## Negated Values|negation
 
+You can match any sound that _doesn't_ have a given feature by putting `!` before the feature value.
+
+This is often useful if there are gaps in the symbol chart. Suppose you want to voice fricatives between vowels, and write these rules:
+
+<ScExample
+  changes={`feature voicing(voiceless, voiced)\nfeature place(labial, dental, alveolar, velar, glottal)\nfeature manner(stop, fricative, nasal, approximant)\n\nsymbol p [voiceless labial stop]\nsymbol b [voiced labial stop]\nsymbol t [voiceless dental stop]\nsymbol d [voiced dental stop]\nsymbol k [voiceless velar stop]\nsymbol ɡ [voiced velar stop]\nsymbol f [voiceless labial fricative]\nsymbol v [voiced labial fricative]\nsymbol s [voiceless alveolar fricative]\nsymbol z [voiced alveolar fricative]\nsymbol h [voiceless glottal fricative]\nsymbol m [labial nasal]\nsymbol n [alveolar nasal]\nsymbol l [alveolar approximant]\n\nclass vowel {a, e, i, o, u}\n\nintervocalic-voicing:\n  [voiceless fricative] => [voiced] / @vowel _ @vowel`}
+  inputs={["kifi", "bousa", "haha"]}
+/>
+
+This causes an error, since [h] has no voiced counterpart. To fix this, you can indicate that only _non-glottal_ fricatives voice:
+
+<ScExample
+  changes={`feature voicing(voiceless, voiced)\nfeature place(labial, dental, alveolar, velar, glottal)\nfeature manner(stop, fricative, nasal, approximant)\n\nsymbol p [voiceless labial stop]\nsymbol b [voiced labial stop]\nsymbol t [voiceless dental stop]\nsymbol d [voiced dental stop]\nsymbol k [voiceless velar stop]\nsymbol ɡ [voiced velar stop]\nsymbol f [voiceless labial fricative]\nsymbol v [voiced labial fricative]\nsymbol s [voiceless alveolar fricative]\nsymbol z [voiced alveolar fricative]\nsymbol h [voiceless glottal fricative]\nsymbol m [labial nasal]\nsymbol n [alveolar nasal]\nsymbol l [alveolar approximant]\n\nclass vowel {a, e, i, o, u}\n\nintervocalic-voicing:\n  [voiceless !glottal fricative] => [voiced] / @vowel _ @vowel`}
+  inputs={["kifi", "bousa", "haha"]}
+/>
+
 ## Diacritics|diacritics
+
+The IPA indicates some features explicitly using diacritics: [ʰ] indicates aspiration, [ː] makes a vowel long, [ ̥ ] makes a sound voiceless, and so on.
+
+You can define such diacritics in Lexurgy like this:
+
+<ScExample
+  changes={`feature +aspirated, voiced\ndiacritic ʰ [+aspirated]\ndiacritic  ̥ [-voiced]\n\ninitial-aspiration:\n  {p, t, k} => [+aspirated] / $ _\n\nnasal-devoicing:\n  h {m, n} => * [-voiced]`}
+  inputs={["kiki", "hnouba"]}
+/>
+
+If the base symbol has a feature matrix defined, the diacritic will overwrite any conflicting values, while leaving all other values intact:
+
+<ScExample
+  changes={`feature voiced\nfeature place(labial, alveolar)\nfeature manner(stop, nasal)\ndiacritic  ̥ [-voiced]\nsymbol b [+voiced labial stop]\nsymbol p [-voiced labial stop]\nsymbol d [+voiced alveolar stop]\nsymbol t [-voiced alveolar stop]\nsymbol m [+voiced labial nasal]\nsymbol n [+voiced alveolar nasal]\n\nnasal-devoicing:\n  h [nasal] => * [-voiced]\n\ninitial-denasalization:\n  [nasal] => [stop] / $ _`}
+  inputs={["niki", "hniki", "mouba", "hmouba"]}
+/>
+
+Notice that Lexurgy only uses diacritics when necessary: it uses the `-voiced` diacritic to represent voiceless nasals, but doesn't try to represent `[-voiced labial stop]` as `p̥`, since `b` is already defined with that matrix.
+
+You can also choose how diacritics are attached to their base symbol: `(before)` makes the diacritic go _before_ the base symbol, while `(first)` makes it go after the _first character_ of the base symbol.
+
+<ScExample
+  changes={`feature +prenasalized, +hightone\ndiacritic ⁿ (before) [+prenasalized]\ndiacritic  ́ (first) [+hightone]\n\nsymbol aj, aw\n\nclass vowel {a, e, i, o, u, aj, aw}\n\nprenasalizing:\n  n d => * [+prenasalized]\n\ntonogenesis:\n  @vowel => [+hightone] / {p, t, k} _`}
+  inputs={["kajki", "ndouba"]}
+/>
 
 ## Floating Diacritics|floating
 
-## Ignoring Floating Diacritics in Captures|inexact
+By default, diacritics create an entirely new sound. In this example, the aspirated stops are unaffected by the `intervocalic-voicing` rule:
+
+<ScExample
+  changes={`feature +aspirated\n\nclass vowel {a, e, i, o, u}\n\nintervocalic-voicing:\n  {p, t, k} => {b, d, ɡ} / @vowel _ @vowel`}
+  inputs={["kiki", "boupa", "kikʰi", "boupʰa"]}
+/>
+
+But some features are more superficial. You'd normally expect [á] ([a] with a high tone) and [aː] ([a] held for longer) to follow the same sound changes as plain [a]. To indicate this, mark the diacritics as `(floating)`:
+
+<ScExample
+  changes={`feature +hightone, +long\ndiacritic  ́ (floating) [+hightone]\ndiacritic ː (floating) [+long]\n\nclass vowel {a, e, i, ø, y, o, u}\n\numlaut @vowel:\n  {a, e, o, u} => {e, i, ø, y} / _ i`}
+  inputs={["kaki", "báiba", "baːpski", "bapáːski"]}
+/>
+
+If you _want_ a particular rule to only affect plain [a], put `!` after it:
+
+<ScExample
+  changes={`feature +hightone, +long\ndiacritic  ́ (floating) [+hightone]\ndiacritic ː (floating) [+long]\n\nclass vowel {a, e, i, ø, y, o, u}\n\numlaut @vowel:\n  {a!, e!, o!, u!} => {e, i, ø, y} / _ i`}
+  inputs={["kaki", "báiba", "baːpski", "bapáːski"]}
+/>
+
+## Ignoring Floating Diacritics in Capture Variables|inexact
+
+Capture variables normally don't pay attention to features—they copy entire sounds. But that means they won't match sounds that differ only by floating diacritics:
+
+<ScExample
+  changes={`feature +hightone, +long\ndiacritic  ́ (floating) [+hightone]\ndiacritic ː (floating) [+long]\n\nclass vowel {a, e, i, o, u}\n\nvowel-combining:\n  @vowel$1 => [+long] / _ $1\n  then:\n  @vowel$1 $1 => $1 *`}
+  inputs={["kiiki", "búuba"]}
+/>
+
+You can fix this with an _inexact_ capture variable, marked with `~$` instead of `$`:
+
+<ScExample
+  changes={`feature +hightone, +long\ndiacritic  ́ (floating) [+hightone]\ndiacritic ː (floating) [+long]\n\nclass vowel {a, e, i, o, u}\n\nvowel-combining:\n  @vowel$1 => [+long] / _ ~$1\n  then:\n  @vowel$1 ~$1 => $1 *`}
+  inputs={["kiiki", "búuba"]}
+/>
 
 export default function MdxPage({ children }) {
   return <MdxLayout>{children}</MdxLayout>;
