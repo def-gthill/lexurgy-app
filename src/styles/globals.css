@@ -3,7 +3,9 @@
   --foreground: hsl(0, 0%, 0%);
   --foreground-muted: hsl(0, 0%, 20%);
   --card-background: hsl(0, 0%, 80%);
-  --editor1-background: hsl(50, 25%, 80%);
+  --highlight1-background: hsl(0, 0%, 75%);
+  --highlight2-background: hsl(0, 0%, 70%);
+  --editor1-background: hsl(60, 33%, 1%);
   --editor2-background: hsl(140, 25%, 75%);
   --editor3-background: hsl(230, 25%, 75%);
   --editor4-background: hsl(320, 25%, 75%);
@@ -47,6 +49,8 @@
     --foreground: hsl(0, 0%, 100%);
     --foreground-muted: hsl(0, 0%, 80%);
     --card-background: hsl(0, 0%, 20%);
+    --highlight1-background: hsl(0, 0%, 25%);
+    --highlight2-background: hsl(0, 0%, 30%);
     --editor1-background: hsl(50, 25%, 20%);
     --editor2-background: hsl(140, 25%, 25%);
     --editor3-background: hsl(230, 25%, 25%);
@@ -132,6 +136,34 @@ h6 {
   overflow-wrap: break-word;
   margin-block-start: 0.67em;
   margin-block-end: 0.67em;
+}
+
+table {
+  border-spacing: 0;
+}
+
+thead tr th {
+  background-color: var(--highlight1-background);
+}
+
+tbody tr:nth-child(even) td {
+  background-color: var(--highlight1-background);
+}
+
+tbody tr:nth-child(odd) td {
+  background-color: var(--highlight2-background);
+}
+
+table th,
+table td {
+  border-right: 1px solid var(--foreground-muted);
+  border-top: none;
+  border-bottom: none;
+}
+
+table th:last-child,
+table td:last-child {
+  border-right: none;
 }
 
 img,

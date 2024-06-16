@@ -27,6 +27,7 @@
 }
 
 .md-main p a,
-.md-main li a {
+.md-main li a,
+.md-main td a {
   text-decoration: underline;
 }

@@ -1,0 +1,8 @@
+.root {
+  width: 100%;
+}
+
+.root td {
+  padding-left: 10px;
+  padding-right: 10px;
+}

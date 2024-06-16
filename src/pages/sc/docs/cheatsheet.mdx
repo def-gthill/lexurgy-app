@@ -1,6 +1,6 @@
 import MdxLayout from "@/components/MdxLayout";
 import Breadcrumb from "@/components/Breadcrumb";
-import ScExample from "@/sc/ScExample";
+import CheatSheet from "@/sc/CheatSheet";
 
 <Breadcrumb
   baseUrl="/sc"
@@ -12,11 +12,19 @@ import ScExample from "@/sc/ScExample";
 
 # Lexurgy Sound Changer Cheat Sheet
 
-## Basic Rules|basic
+This is a quick reference for Lexurgy syntax. Check the linked sections of the tutorial for more explanation and interactive examples.
 
-Change sounds to the left of the arrow into sounds to the right of the arrow.
-
-<ScExample changes={"rule:\n  a => i"} inputs={["bad", "banana"]} />
+<CheatSheet
+  examples={[
+    {
+      name: "Comment",
+      link: "basics#comments",
+      example: "# This is a comment",
+      explanation:
+        "Ignored by Lexurgy. Use them to remind yourself what a rule is for.",
+    },
+  ]}
+/>
 
 export default function MdxPage({ children }) {
   return <MdxLayout>{children}</MdxLayout>;
