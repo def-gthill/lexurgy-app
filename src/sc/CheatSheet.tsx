@@ -17,9 +17,9 @@ export default function CheatSheet({
     <table className={styles.root}>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Example</th>
-          <th>Explanation</th>
+          <th className={styles.nameHeader}>Name</th>
+          <th className={styles.exampleHeader}>Example</th>
+          <th className={styles.explanationHeader}>Explanation</th>
         </tr>
       </thead>
       <tbody>

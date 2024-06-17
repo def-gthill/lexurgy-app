@@ -1,5 +1,14 @@
 .root {
   width: 100%;
+  table-layout: fixed;
+}
+
+.nameHeader {
+  width: 20%;
+}
+
+.exampleHeader {
+  width: 30%;
 }
 
 .root td {
