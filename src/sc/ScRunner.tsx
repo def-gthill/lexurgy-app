@@ -40,7 +40,7 @@ export default function ScRunner({
   const [initialSoundChanges, setInitialSoundChanges] = useState("");
   const [exporting, setExporting] = useState(false);
 
-  const sendEvolution = useDebounced(updateEvolution, 500);
+  const sendEvolution = useDebounced(updateEvolution, 1000);
 
   const sc = useScState(getRuleNames, runSoundChanges);
   const setSoundChanges = sc.setSoundChanges;

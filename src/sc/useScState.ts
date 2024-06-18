@@ -60,7 +60,7 @@ export default function useScState(
 
   const inputWords = histories.map((history) => history.inputWord);
 
-  const requestValidation = useDebounced(validate, 500);
+  const requestValidation = useDebounced(validate, 1000);
   const runScWithCaching = useScCaching(runSoundChanges);
 
   return {
