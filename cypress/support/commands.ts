@@ -118,6 +118,7 @@ declare global {
       scInsertFreeInputWord(word: string, index: number): Chainable<void>;
       scEnterSoundChanges(soundChanges: string): Chainable<void>;
       scStartAt(ruleName: string): Chainable<void>;
+      scToggleTracing(): Chainable<void>;
       scInputWordsAre(expectedWords: string[]): Chainable<void>;
       scOutputWordsAre(expectedWords: string[]): Chainable<void>;
       scIntermediateWordsAre(
@@ -592,7 +593,7 @@ Cypress.Commands.add("runSc", (inputs: UserSoundChangeInputs) => {
   cy.scEnterInputWords(inputs.inputWords);
   cy.scEnterSoundChanges(inputs.changes);
   if (inputs.traceWords) {
-    cy.contains("Trace Changes").click();
+    cy.scToggleTracing();
     for (const traceWord of inputs.traceWords) {
       const index = inputs.inputWords.indexOf(traceWord);
       cy.get(`#tracing-${index}`).click();
@@ -646,6 +647,10 @@ Cypress.Commands.add("scEnterSoundChanges", (soundChanges: string) => {
 Cypress.Commands.add("scStartAt", (ruleName: string) => {
   cy.get("#start-at-enabled").click();
   cy.get("#start-at").select(ruleName);
+});
+
+Cypress.Commands.add("scToggleTracing", () => {
+  cy.contains("Trace Changes").click();
 });
 
 Cypress.Commands.add("scInputWordsAre", (expectedWords: string[]) => {

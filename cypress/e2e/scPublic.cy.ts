@@ -97,6 +97,26 @@ describe("the public sound changer page", () => {
     cy.scNoIntermediates();
   });
 
+  it.only("doesn't trace any words if tracing is turned on and then back off", () => {
+    cy.goToScPublic();
+    cy.runSc({
+      inputWords: ["aaa", "bbb", "ccc"],
+      changes: "a-to-b:\n a => b\n\nb-to-c:\n b => c\n\nc-to-d:\n c => d",
+      traceWords: ["aaa", "ccc"],
+    });
+    cy.scOutputWordsAre(["ddd", "ddd", "ddd"]);
+    cy.scIntermediateWordsAre([
+      ["A To B", ["bbb", "", ""]],
+      ["B To C", ["ccc", "", ""]],
+      ["C To D", ["ddd", "", "ddd"]],
+    ]);
+    cy.scToggleTracing();
+    cy.intercept("/api/services?endpoint=scv1*").as("runSc");
+    cy.startSc();
+    cy.wait("@runSc");
+    cy.scNoIntermediates();
+  });
+
   it("shows the correct names of special stages", () => {
     cy.goToScPublic();
     cy.runSc({
