@@ -28,8 +28,6 @@ export default function useScCaching(
     const lastInputWords = new Set(lastRun?.request?.inputWords ?? []);
     const lastTraceWords = new Set(lastRun?.request?.traceWords ?? []);
     const newTraceWords = new Set(request.traceWords);
-    console.log(lastTraceWords);
-    console.log(newTraceWords);
     const filteredRequest = {
       ...request,
       inputWords: request.inputWords.filter(
