@@ -1,5 +1,6 @@
 import MdxLayout from "@/components/MdxLayout";
 import Breadcrumb from "@/components/Breadcrumb";
+import ScExample from "@/sc/ScExample";
 
 <Breadcrumb
   baseUrl="/sc"
@@ -12,25 +13,51 @@ import Breadcrumb from "@/components/Breadcrumb";
 
 # Lexurgy Sound Changer Tutorial — Using Syllables
 
+Lexurgy understands that words can be broken down into syllables. It offers two approaches for working with syllables: [manual syllables](#manual) and [automatic syllables](#automatic)
+
 ## Manual Syllables|manual
+
+The IPA uses the period (`.`) to mark syllable breaks. You can put `.` characters in your input words to show where the syllable breaks are. But by default, Lexurgy treats `.` as a sound like any other:
+
+<ScExample
+  changes={`class vowel {a, e, i, o, u}\n\nvoicing:\n  {p, t, k} => {b, d, ɡ} / @vowel _ @vowel`}
+  inputs={["kiki", "papa", "ki.ki", "pa.pa"]}
+/>
+
+The words with the `.` characters in them aren't affected by the `voicing` rule, since the "sound" before the stop is `.`, not a vowel.
+
+But as soon as you provide a `syllables` rule, this changes:
+
+<ScExample
+  changes={`class vowel {a, e, i, o, u}\n\nsyllables:\n  explicit\n\nvoicing:\n  {p, t, k} => {b, d, ɡ} / @vowel _ @vowel`}
+  inputs={["kiki", "papa", "ki.ki", "pa.pa"]}
+/>
+
+This sets syllables to `explicit` (i.e. manual) mode. Now the `.` characters are treated as syllable breaks, not sounds, which means they no longer disrupt adjacency.
+
+Once you're done with syllables, you can `clear` them:
+
+<ScExample
+  changes={`class vowel {a, e, i, o, u}\n\nsyllables:\n  explicit\n\nvoicing:\n  {p, t, k} => {b, d, ɡ} / @vowel _ @vowel\n\nsyllables:\n  clear`}
+  inputs={["ki.ki", "pa.pa"]}
+/>
+
+### Inserting and Deleting Syllable Breaks|changing-breaks
 
 ## Matching Syllable Breaks|matching-breaks
 
-## Inserting and Deleting Syllable Breaks|changing-breaks
-
 ## Matching Entire Syllables|matching-syllables
-
-## Automatic Syllables|automatic
-
-## Changing Syllable Structure|changing-structure
 
 ## Syllable-Level Features|features
 
-## Automatically Assigning Syllable-Level Features|assigning-features
+## Automatic Syllables|automatic
+
+### Changing Syllable Structure|changing-structure
+
+### Automatically Assigning Syllable-Level Features|assigning-features
 
 ## Capturing Syllable Information|captures
 
 export default function MdxPage({ children }) {
   return <MdxLayout>{children}</MdxLayout>;
-
 }
