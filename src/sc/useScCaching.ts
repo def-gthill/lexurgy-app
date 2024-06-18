@@ -3,7 +3,7 @@ import Scv1Response from "@/sc/Scv1Response";
 import _ from "lodash";
 import { useState } from "react";
 
-interface ScRun {
+export interface ScRun {
   request: Scv1Request;
   result: Scv1Response;
 }
@@ -13,61 +13,73 @@ export default function useScCaching(
 ) {
   const [lastRun, setLastRun] = useState<ScRun | null>(null);
 
-  return async function runScWithCaching(
+  return async function runScWithCacheFromLastRun(
     request: Scv1Request
   ): Promise<Scv1Response> {
-    if (
-      lastRun?.request?.changes !== request.changes ||
-      lastRun?.request?.startAt !== request.startAt ||
-      lastRun?.request?.stopBefore !== request.stopBefore
-    ) {
-      const result = await runSc(request);
-      setLastRun({ request, result });
-      return result;
-    }
-    const lastInputWords = new Set(lastRun?.request?.inputWords ?? []);
-    const lastTraceWords = new Set(lastRun?.request?.traceWords ?? []);
-    const newTraceWords = new Set(request.traceWords);
-    const filteredRequest = {
-      ...request,
-      inputWords: request.inputWords.filter(
-        (word) =>
-          !lastInputWords.has(word) ||
-          lastTraceWords.has(word) !== newTraceWords.has(word)
-      ),
-    };
-    const result = await runSc(filteredRequest);
-    if (lastRun) {
-      const combiner = new OutputWordCombiner({
-        savedInputWords: lastRun.request.inputWords,
-        newInputWords: filteredRequest.inputWords,
-        allInputWords: request.inputWords,
-      });
-      result.outputWords = combiner.combineOutputWords({
-        savedOutputWords: lastRun.result.outputWords,
-        newOutputWords: result.outputWords,
-      });
-      if (lastRun.result.intermediateWords) {
-        result.intermediateWords = _.mapValues(
-          result.intermediateWords,
-          (words, stageName) =>
-            combiner.combineOutputWords({
-              savedOutputWords: lastRun.result.intermediateWords![stageName],
-              newOutputWords: words,
-            })
-        );
-      }
-      if (result.traces && lastRun.result.traces) {
-        result.traces = _.merge(result.traces, lastRun.result.traces);
-      }
-      result.errors = [
-        ...(result.errors ?? []),
-        ...(lastRun.result.errors ?? []),
-      ];
-    }
+    const result = await runScWithCaching(request, lastRun, runSc);
     setLastRun({ request, result });
     return result;
   };
+}
+
+export async function runScWithCaching(
+  request: Scv1Request,
+  lastRun: ScRun | null,
+  runSc: (request: Scv1Request) => Promise<Scv1Response>
+): Promise<Scv1Response> {
+  if (
+    lastRun?.request?.changes !== request.changes ||
+    lastRun?.request?.startAt !== request.startAt ||
+    lastRun?.request?.stopBefore !== request.stopBefore
+  ) {
+    return await runSc(request);
+  }
+  const lastInputWords = new Set(lastRun?.request?.inputWords ?? []);
+  const lastTraceWords = new Set(lastRun?.request?.traceWords ?? []);
+  const newTraceWords = new Set(request.traceWords);
+  const filteredRequest = {
+    ...request,
+    inputWords: request.inputWords.filter(
+      (word) =>
+        !lastInputWords.has(word) ||
+        lastTraceWords.has(word) !== newTraceWords.has(word)
+    ),
+  };
+  const result = await runSc(filteredRequest);
+  if (lastRun) {
+    const combiner = new OutputWordCombiner({
+      savedInputWords: lastRun.request.inputWords,
+      newInputWords: filteredRequest.inputWords,
+      allInputWords: request.inputWords,
+    });
+    result.outputWords = combiner.combineOutputWords({
+      savedOutputWords: lastRun.result.outputWords,
+      newOutputWords: result.outputWords,
+    });
+    if (lastRun.result.intermediateWords) {
+      result.intermediateWords = _.mapValues(
+        result.intermediateWords,
+        (words, stageName) =>
+          combiner.combineOutputWords({
+            savedOutputWords: lastRun.result.intermediateWords![stageName],
+            newOutputWords: words,
+          })
+      );
+    }
+    if (result.traces || lastRun.result.traces) {
+      result.traces = _.merge(result.traces ?? {}, lastRun.result.traces ?? {});
+      for (const word in result.traces) {
+        if (!newTraceWords.has(word)) {
+          delete result.traces[word];
+        }
+      }
+    }
+    result.errors = [
+      ...(result.errors ?? []),
+      ...(lastRun.result.errors ?? []),
+    ];
+  }
+  return result;
 }
 
 class OutputWordCombiner {

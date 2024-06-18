@@ -97,7 +97,7 @@ describe("the public sound changer page", () => {
     cy.scNoIntermediates();
   });
 
-  it.only("doesn't trace any words if tracing is turned on and then back off", () => {
+  it("doesn't trace any words if tracing is turned on and then back off", () => {
     cy.goToScPublic();
     cy.runSc({
       inputWords: ["aaa", "bbb", "ccc"],
