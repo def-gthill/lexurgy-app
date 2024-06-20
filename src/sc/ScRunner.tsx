@@ -25,6 +25,7 @@ export default function ScRunner({
   importButton = defaultImportButton,
   getRuleNames = api.getRuleNames,
   runSoundChanges = api.runSoundChanges,
+  validationIntervalSeconds = 1,
 }: {
   baseUrl: string | null;
   evolution: Evolution;
@@ -36,13 +37,16 @@ export default function ScRunner({
   ) => ReactElement;
   getRuleNames?: (changes: string) => Promise<string[]>;
   runSoundChanges?: (inputs: Scv1Request) => Promise<Scv1Response>;
+  validationIntervalSeconds?: number;
 }) {
   const [initialSoundChanges, setInitialSoundChanges] = useState("");
   const [exporting, setExporting] = useState(false);
 
   const sendEvolution = useDebounced(updateEvolution, 1000);
 
-  const sc = useScState(getRuleNames, runSoundChanges);
+  const sc = useScState(getRuleNames, runSoundChanges, {
+    validationIntervalSeconds,
+  });
   const setSoundChanges = sc.setSoundChanges;
   const setHistories = sc.setHistories;
 

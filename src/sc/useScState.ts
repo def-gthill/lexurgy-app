@@ -40,7 +40,12 @@ export interface ScState {
 
 export default function useScState(
   getRuleNames: (changes: string) => Promise<string[]>,
-  runSoundChanges: (request: Scv1Request) => Promise<Scv1Response>
+  runSoundChanges: (request: Scv1Request) => Promise<Scv1Response>,
+  {
+    validationIntervalSeconds = 1,
+  }: {
+    validationIntervalSeconds?: number;
+  } = {}
 ): ScState {
   const [soundChanges, setSoundChanges] = useState("");
   const [histories, setHistories] = useState<WordHistory[]>([]);
@@ -60,7 +65,10 @@ export default function useScState(
 
   const inputWords = histories.map((history) => history.inputWord);
 
-  const requestValidation = useDebounced(validate, 1000);
+  const requestValidation = useDebounced(
+    validate,
+    validationIntervalSeconds * 1000
+  );
   const runScWithCaching = useScCaching(runSoundChanges);
 
   return {

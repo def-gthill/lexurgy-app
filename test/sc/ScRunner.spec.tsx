@@ -45,6 +45,7 @@ describe("an SC runner", () => {
         )}
         getRuleNames={getRuleNames}
         runSoundChanges={runSoundChanges}
+        validationIntervalSeconds={0.1}
       ></ScRunner>
     );
   }
@@ -54,6 +55,14 @@ describe("an SC runner", () => {
       ruleNames: ["foo"],
       outputWords: inputs.inputWords.map((input) => input.toUpperCase()),
     }));
+  }
+
+  async function toggleTracingOfWord(word: string) {
+    await userEvent.click(
+      within(
+        screen.getByRole("cell", { name: word }).closest("tr")!
+      ).getByLabelText("Trace")
+    );
   }
 
   async function clickApply() {
@@ -177,9 +186,12 @@ describe("an SC runner", () => {
       runSoundChanges,
     });
 
+    await userEvent.click(screen.getByLabelText("Trace Changes"));
+    await toggleTracingOfWord("Foo");
     await clickApply();
     expect(screen.getByText("foo")).toBeVisible();
     await userEvent.type(screen.getByLabelText("Input Words"), "\nBar");
+    await toggleTracingOfWord("Bar");
     await clickApply();
     expect(screen.getByText("foo")).toBeVisible();
     expect(screen.getByText("bar")).toBeVisible();
@@ -231,9 +243,7 @@ describe("an SC runner", () => {
     await clickApply();
     expectRequestSent(runSoundChanges, "", ["foo", "bar"]);
     await userEvent.click(screen.getByLabelText("Trace Changes"));
-    await userEvent.click(
-      within(screen.getByText("foo").closest("tr")!).getByLabelText("Trace")
-    );
+    await toggleTracingOfWord("foo");
     await clickApply();
     expectRequestSent(runSoundChanges, "", ["foo"]);
   });

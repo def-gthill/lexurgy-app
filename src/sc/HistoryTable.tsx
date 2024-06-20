@@ -65,7 +65,17 @@ export default function HistoryTable({
                 }}
                 onChange={(event) => {
                   const inputWords = event.target.value.split(/\r?\n/);
-                  mySetHistories(inputWords.map(emptyHistory));
+                  const newHistories = inputWords.map(emptyHistory);
+                  for (const newHistory of newHistories) {
+                    if (
+                      histories.find(
+                        (history) => history.inputWord === newHistory.inputWord
+                      )?.tracing
+                    ) {
+                      newHistory.tracing = true;
+                    }
+                  }
+                  mySetHistories(newHistories);
                 }}
                 value={myHistories
                   .map((history) => history.inputWord)
