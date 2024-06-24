@@ -1,0 +1,22 @@
+# Contributing to Lexurgy
+
+## What can I contribute to?
+
+At this point, please contribute only to the public Lexurgy SC interface (based at src/sc/scPublicPage.tsx).
+
+If you want to contribute to the SC language itself, go to the [main Lexurgy repo](https://github.com/def-gthill/lexurgy).
+
+## I fixed a bug
+
+- Make sure you have a test case covering the fix, one that failed before the fix but now passes.
+- Make sure all the existing tests pass.
+- Make sure you've run Prettier on your changes.
+- Open a pull request explaining the bug and how you fixed it.
+
+## I want to add a feature
+
+- It's best if you open an issue first to gauge support for your feature or find out if there's already a way to do what you want. New features aren't free, even if you've already written the code: they make maintenance more complicated, and they can clutter the UI.
+- Make sure you have test cases covering your feature.
+- Make sure all the existing tests pass.
+- Make sure you've run Prettier on your changes.
+- Open a pull request explaining the feature and what it's useful for. Link to the issue requesting the feature if there is one.
