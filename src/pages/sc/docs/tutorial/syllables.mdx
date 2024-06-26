@@ -44,19 +44,192 @@ Once you're done with syllables, you can `clear` them:
 
 ### Inserting and Deleting Syllable Breaks|changing-breaks
 
+When working with syllables manually, sound changes can easily mess up the syllables. Take this rule that deletes a final vowel:
+
+<ScExample
+  changes={`class vowel {a, e, i, o, u}\n\nsyllables:\n  explicit\n\ndrop-final-vowel:\n  @vowel => * / _ $`}
+  inputs={["ki.ki.ki", "bou.ba.ba"]}
+/>
+
+Realistically, this would produce `ki.kik` and `bou.bab`, but Lexurgy leaves the syllable breaks where they were, resulting in `ki.ki.k` and `bou.ba.b`.
+
+To fix this, you can remove the extra syllable break the same way you remove sounds:
+
+<ScExample
+  changes={`class vowel {a, e, i, o, u}\nclass consonant {p, t, k, b, d, ɡ, s, m, n, l}\n\nsyllables:\n  explicit\n\ndrop-final-vowel:\n  @vowel => * / _ $\n  then:\n  . => * / _ @consonant+ $`}
+  inputs={["ki.ki.ki", "bou.ba.ba"]}
+/>
+
+Similarly, you can insert syllable breaks with `* => .` rules:
+
+<ScExample
+  changes={`epenethetic-e:\n  * => e / $ _ s {p, t, k}\n  then:\n  * => . / $ e s _ {p, t, k}`}
+  inputs={["spa.ɲol", "skwe.la"]}
+/>
+
 ## Matching Syllable Breaks|matching-breaks
+
+You can use the . character in rules to match syllable breaks. For example, it's common for a rule to affect only coda consonants. This rule nasalizes vowels before a coda nasal:
+
+<ScExample
+  changes={`feature +nasalized\ndiacritic ̃  (floating) [+nasalized]\nclass vowel {a, e, i, o, u}\nclass nasal {m, n}\n\nsyllables:\n  explicit\n\nnasalization:\n  @vowel => [+nasalized] / _ @nasal .`}
+  inputs={["ban.ta", "ton", "ba.na.na"]}
+/>
 
 ## Matching Entire Syllables|matching-syllables
 
+If you want to match an entire syllable, use `<syl>` in the rule. This rule deletes the second-last syllable:
+
+<ScExample
+  changes={`syllables:\n  explicit\n\ndelete-second-last-syllable:\n  <syl> => * / _ <syl> $`}
+  inputs={["ki.ke.ka", "bou.bo.ba"]}
+/>
+
 ## Syllable-Level Features|features
+
+You can declare [features](/sc/docs/tutorial/features) that operate on entire syllables, rather than individual sounds. This is most often used to represent _stress_:
+
+<ScExample
+  changes={`feature (syllable) +stress\ndiacritic ˈ [+stress]\n\nsyllables:\n  explicit\n\nstressed-mid-vowel-raising:\n  {e, o}&[+stress] => {i, u}`}
+  inputs={["keˈ.ko", "ke.koˈ"]}
+/>
+
+As this example shows, if you define a diacritic to mark a syllable-level feature, that diacritic will attach to the end of the entire syllable. Of course, normally the IPA stress symbol is written at the _beginning_ of the syllable, not the end; you can enforce this with the `(before)` modifier:
+
+<ScExample
+  changes={`feature (syllable) +stress\ndiacritic ˈ (before) [+stress]\n\nsyllables:\n  explicit\n\nstressed-mid-vowel-raising:\n  {e, o}&[+stress] => {i, u}`}
+  inputs={["ˈke.ko", "ke.ˈko"]}
+/>
+
+You can assign a syllable-level feature to a syllable in a rule by changing any sound in the syllable to a matrix containing the feature:
+
+<ScExample
+  changes={`feature (syllable) +stress\ndiacritic ˈ (before) [+stress]\n\nsyllables:\n  explicit\n\nstress-first:\n  [] => [+stress] / $ _`}
+  inputs={["ki.ki", "bou.ba"]}
+/>
+
+Or you can assign it to the entire syllable:
+
+<ScExample
+  changes={`feature (syllable) +stress\ndiacritic ˈ (before) [+stress]\n\nsyllables:\n  explicit\n\nstress-first:\n  <syl> => [+stress] / $ _`}
+  inputs={["ki.ki", "bou.ba"]}
+/>
 
 ## Automatic Syllables|automatic
 
+Instead of manually inserting and managing syllable breaks, you can have Lexurgy automatically divide words into syllables by describing the shapes of valid syllables. Here's a syllable rule that allows only syllables with a consonant followed by a vowel:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant :: @vowel`}
+  inputs={["kiki", "papa"]}
+/>
+
+The `::` symbol separates the syllable _onset_ (usually its initial consonants) from the syllable _nucleus_ (usually its vowel).
+
+Some languages also allow a syllable _coda_—consonants after the vowel. You can specify a coda after another `::` symbol:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant :: @vowel :: @consonant`}
+  inputs={["kiskin", "pampat"]}
+/>
+
+Both of these examples make the consonants _mandatory_:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant :: @vowel :: @consonant`}
+  inputs={["kiski", "apat"]}
+/>
+
+But in most languages the onset and coda are optional. You can mark them optional with `?`, just like in ordinary rules:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant? :: @vowel :: @consonant?`}
+  inputs={["kiski", "apat"]}
+/>
+
+Notice that `apat` becomes `a.pat`, not `ap.at`. In general, Lexurgy tries to put as many sounds as possible into the onset of a syllable, rather than the coda of the previous syllable.
+
+Most of the syntax available in ordinary rules can also be used in syllable rules, allowing for complex restrictions on syllable shapes:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  {s @consonant&!s, @consonant}? :: @vowel {j, w}? :: {mp, nt, @consonant}?`}
+  inputs={["skiki", "ajpant", "ssiki", "ajpast"]}
+/>
+
 ### Changing Syllable Structure|changing-structure
+
+Syllable rules are automatically re-applied after every named rule:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant? :: @vowel :: @consonant?\n\ndrop-stop-after-nasal:\n  {p, t, k} => * / {m, n} _`}
+  inputs={["kiskin", "pampat"]}
+/>
+
+Deleting the second `p` from `pam.pat` would result in `pam.at`, but the syllable rule adjusts this to `pa.mat`. You can see the syllable rule getting re-applied if you trace changes.
+
+But sometimes sound changes alter the syllable structure. Suppose you add a vowel-deletion change to the language with only open syllables:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant? :: @vowel\n\nsyncope:\n  @vowel => * / $ <syl> @consonant _ @consonant`}
+  inputs={["kiseki", "pamopa"]}
+/>
+
+Now these words have consonant clusters, which the syllable rule disallows. To solve this, add a new syllable rule after the syncope rule:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant? :: @vowel\n\nsyncope:\n  @vowel => * / $ <syl> @consonant _ @consonant\n\nsyllables:\n  @consonant? :: @vowel :: @consonant?`}
+  inputs={["kiseki", "pamopa"]}
+/>
+
+You can also switch back to manual syllables at any time using `explicit`:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant? :: @vowel\n\nsyncope:\n  @vowel => * / $ <syl> @consonant _ @consonant\n\nsyllables:\n  explicit`}
+  inputs={["kiseki", "pamopa"]}
+/>
+
+Or you can remove syllable breaks entirely using `clear`:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant? :: @vowel\n\nsyncope:\n  @vowel => * / $ <syl> @consonant _ @consonant\n\nsyllables:\n  clear`}
+  inputs={["kiseki", "pamopa"]}
+/>
 
 ### Automatically Assigning Syllable-Level Features|assigning-features
 
+You can also assign syllable-level features directly in the syllabification rules. The following uses the syllabifier to distinguish "heavy" syllables (with a long vowel or coda) from "light" syllables (all others):
+
+<ScExample
+  changes={`feature (syllable) +heavy, +long\ndiacritic ² [+heavy]\ndiacritic ː (floating) [+long]\nclass consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant? :: @vowel&[+long] => [+heavy]\n  @consonant? :: @vowel :: @consonant => [+heavy]\n  @consonant? :: @vowel`}
+  inputs={["kiːki", "papat"]}
+/>
+
 ## Capturing Syllable Information|captures
+
+By default, [captures](/sc/docs/tutorial/basics#captures) copy only sounds, not syllable information. Take this rule:
+
+<ScExample
+  changes={`feature (syllable) +stress\ndiacritic ˈ (before) [+stress]\nclass cons {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  explicit\n\nvowel-swap:\n  @vowel$1 @cons$2 @vowel$3 => $3 $2 $1`}
+  inputs={["ˈma.ku"]}
+/>
+
+The stress stays on the first syllable instead of moving with the captured `a` to the second syllable.
+
+If you want to copy syllable information, you can put a `.` between the `$` and the capture number on the output side:
+
+<ScExample
+  changes={`feature (syllable) +stress\ndiacritic ˈ (before) [+stress]\nclass cons {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  explicit\n\nvowel-swap:\n  @vowel$1 @cons$2 @vowel$3 => $.3 $2 $.1`}
+  inputs={["ˈma.ku"]}
+/>
+
+This can be useful if you want to move around whole chunks of words:
+
+<ScExample
+  changes={`feature (syllable) +stress\ndiacritic ˈ (before) [+stress]\n\nsyllables:\n  explicit\n\nswap-and-glom:\n  ([]+)$1 $$ ([]+)$2 => $.2 . $.1`}
+  inputs={["kan ˈki.ki"]}
+/>
+
+Using ordinary captures would yield the bizarre `kiki.ˈka.n` instead, as the rule tried to graft the original syllable structure onto the new sounds.
 
 export default function MdxPage({ children }) {
   return <MdxLayout>{children}</MdxLayout>;

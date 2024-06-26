@@ -311,6 +311,13 @@ You can force Lexurgy to match multiple criteria on the same segment using an "a
   inputs={["kikdi", "kitzi", "kipti", "kisni"]}
 />
 
+You can use `&!` to match only sounds that match the first criterion but _don't_ match the second:
+
+<ScExample
+  changes={`class obstruent {p, t, k, b, d, ɡ, s, z}\nclass voiced {b, d, ɡ, z, m, n}\n\nvoicing-assimilation:\n  {p, t, k, s} => {b, d, ɡ, z} /\n    _ @voiced&!@obstruent`}
+  inputs={["kikdi", "kitzi", "kipti", "kisni"]}
+/>
+
 export default function MdxPage({ children }) {
   return <MdxLayout>{children}</MdxLayout>;
 }
