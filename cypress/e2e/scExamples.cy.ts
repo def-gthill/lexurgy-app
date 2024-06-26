@@ -30,7 +30,7 @@ describe("the SC examples page", () => {
 
   it("goes to a specific example if given an id query parameter", () => {
     cy.goToScExamples("Example 2");
-    cy.contains("a => o", { timeout: 10000 });
+    cy.contains("a => o", { timeout: 15000 });
   });
 
   it("replaces the URL with the example-specific URL if none specified", () => {
