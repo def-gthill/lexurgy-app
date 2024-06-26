@@ -111,7 +111,7 @@ describe("the public sound changer page", () => {
       ["C To D", ["ddd", "", "ddd"]],
     ]);
     cy.scToggleTracing();
-    cy.intercept("/api/services?endpoint=scv1*").as("runSc");
+    cy.intercept("/api/services?endpoint=scv1").as("runSc");
     cy.startSc();
     cy.wait("@runSc");
     cy.scNoIntermediates();
