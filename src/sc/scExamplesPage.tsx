@@ -1,6 +1,6 @@
 import Header from "@/components/Header";
 import PageInfo from "@/components/PageInfo";
-import Evolution, { emptyEvolution } from "@/sc/Evolution";
+import { emptyEvolution } from "@/sc/Evolution";
 import ScExampleWorld from "@/sc/ScExampleWorld";
 import ScRunner from "@/sc/ScRunner";
 import styles from "@/sc/scExamplesPage.module.css";
@@ -25,12 +25,11 @@ import {
 const baseUrl = "www.lexurgy.com";
 
 export default function ScExamples() {
-  const [evolution, setEvolution] = useState(emptyEvolution());
   const worldCollection = useReadOnlyPersistentCollection<ScExampleWorld>(
     "/api/scExampleWorlds"
   );
 
-  const worldDropdown = worldCollection.fold({
+  const examples = worldCollection.fold({
     onLoading: () => <div>Loading examples...</div>,
     onError: () => <div>Error loading examples</div>,
     onReady: (worlds) => {
@@ -41,7 +40,7 @@ export default function ScExamples() {
       for (const world of worlds) {
         world.languages.sort((a, b) => a.name.localeCompare(b.name));
       }
-      return <ExampleSelect worlds={worlds} onSelect={setEvolution} />;
+      return <Examples worlds={worlds} />;
     },
   });
 
@@ -54,114 +53,96 @@ export default function ScExamples() {
       <Header />
       <main>
         <h1>Sound Changer Examples</h1>
-        {worldDropdown}
-        <ScRunner baseUrl={baseUrl} evolution={evolution} />
+        {examples}
       </main>
     </>
   );
 }
 
-function ExampleSelect({
-  worlds,
-  onSelect,
-}: {
-  worlds: ScExampleWorld[];
-  onSelect: (evolution: Evolution) => void;
-}) {
+function Examples({ worlds }: { worlds: ScExampleWorld[] }) {
   const router = useRouter();
-  const [selectedLanguageId, setSelectedLanguageId] = useState<string | null>(
-    null
-  );
-  const evolutionsByLanguageId: Record<string, Evolution> = {};
-  for (const world of worlds) {
-    for (const language of world.languages) {
-      evolutionsByLanguageId[language.id] = language.evolution;
-    }
-  }
-  const defaultValue = getDefaultId();
+  const [evolution, setEvolution] = useState(emptyEvolution());
+
+  const exampleId = getIdFromRouter();
+
   useEffect(() => {
-    if (selectedLanguageId === null) {
-      onSelect(evolutionsByLanguageId[defaultValue]);
+    const defaultLanguageId = worlds[0].languages[0].id;
+    if (exampleId === null) {
+      router.replace(`/sc/examples?id=${defaultLanguageId}`);
+    } else {
+      for (const world of worlds) {
+        for (const language of world.languages) {
+          if (language.id === exampleId) {
+            setEvolution(language.evolution);
+            return;
+          }
+        }
+      }
+      router.replace(`/sc/examples?id=${defaultLanguageId}`);
     }
-  });
-  useEffect(() => {
-    setSelectedLanguageId(defaultValue);
-  }, [defaultValue]);
-  useEffect(() => {
-    if (selectedLanguageId !== null && router.query.id !== selectedLanguageId) {
-      router.replace(`/sc/examples?id=${selectedLanguageId}`);
-    }
-  }, [selectedLanguageId, router]);
+  }, [router, exampleId, worlds]);
 
   function getIdFromRouter(): string | null {
     const idFromRouter = router.query.id;
     return typeof idFromRouter === "string" ? idFromRouter : null;
   }
 
-  function getDefaultId(): string {
-    const idFromRouter = getIdFromRouter();
-    if (
-      idFromRouter === null ||
-      !Object.hasOwn(evolutionsByLanguageId, idFromRouter)
-    ) {
-      return worlds[0].languages[0].id;
-    } else {
-      return idFromRouter;
-    }
-  }
-
-  return (
-    <div>
-      <Label.Root htmlFor="chooseExample">Choose Example</Label.Root>
-      <Select.Root
-        defaultValue={defaultValue}
-        value={selectedLanguageId ?? defaultValue}
-        onValueChange={(languageId) => {
-          setSelectedLanguageId(languageId);
-          onSelect(evolutionsByLanguageId[languageId]);
-        }}
-      >
-        <Select.Trigger
-          id="chooseExample"
-          className={styles.SelectTrigger}
-          aria-label="Examples"
+  return exampleId ? (
+    <>
+      <div>
+        <Label.Root htmlFor="chooseExample">Choose Example</Label.Root>
+        <Select.Root
+          defaultValue={exampleId}
+          value={exampleId}
+          onValueChange={(languageId) => {
+            router.replace(`/sc/examples?id=${languageId}`);
+          }}
         >
-          <Select.Value />
-          <Select.Icon className={styles.SelectIcon}>
-            <ChevronDownIcon />
-          </Select.Icon>
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Content className={styles.SelectContent}>
-            <Select.ScrollUpButton className={styles.SelectScrollButton}>
-              <ChevronUpIcon />
-            </Select.ScrollUpButton>
-            <Select.Viewport className={styles.SelectViewport}>
-              {worlds.map((world, i) => (
-                <Fragment key={world.id}>
-                  {i > 0 && (
-                    <Select.Separator className={styles.SelectSeparator} />
-                  )}
-                  <Select.Group>
-                    <Select.Label className={styles.SelectLabel}>
-                      {world.name}
-                    </Select.Label>
-                    {world.languages.map((language) => (
-                      <SelectItem key={language.id} value={language.id}>
-                        {language.name}
-                      </SelectItem>
-                    ))}
-                  </Select.Group>
-                </Fragment>
-              ))}
-            </Select.Viewport>
-            <Select.ScrollDownButton className={styles.SelectScrollButton}>
+          <Select.Trigger
+            id="chooseExample"
+            className={styles.SelectTrigger}
+            aria-label="Examples"
+          >
+            <Select.Value />
+            <Select.Icon className={styles.SelectIcon}>
               <ChevronDownIcon />
-            </Select.ScrollDownButton>
-          </Select.Content>
-        </Select.Portal>
-      </Select.Root>
-    </div>
+            </Select.Icon>
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Content className={styles.SelectContent}>
+              <Select.ScrollUpButton className={styles.SelectScrollButton}>
+                <ChevronUpIcon />
+              </Select.ScrollUpButton>
+              <Select.Viewport className={styles.SelectViewport}>
+                {worlds.map((world, i) => (
+                  <Fragment key={world.id}>
+                    {i > 0 && (
+                      <Select.Separator className={styles.SelectSeparator} />
+                    )}
+                    <Select.Group>
+                      <Select.Label className={styles.SelectLabel}>
+                        {world.name}
+                      </Select.Label>
+                      {world.languages.map((language) => (
+                        <SelectItem key={language.id} value={language.id}>
+                          {language.name}
+                        </SelectItem>
+                      ))}
+                    </Select.Group>
+                  </Fragment>
+                ))}
+              </Select.Viewport>
+              <Select.ScrollDownButton className={styles.SelectScrollButton}>
+                <ChevronDownIcon />
+              </Select.ScrollDownButton>
+            </Select.Content>
+          </Select.Portal>
+        </Select.Root>
+      </div>
+      <ScRunner baseUrl={baseUrl} evolution={evolution} />
+    </>
+  ) : (
+    <div>Loading example...</div>
   );
 }
 

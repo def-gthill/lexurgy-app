@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import styles from "./Breadcrumb.module.css";
 
 export default function Breadcrumb({
@@ -17,12 +18,12 @@ export default function Breadcrumb({
   return (
     <nav className={styles.root}>
       {links.map(({ name, url }, i) => (
-        <>
-          <Link key={name} className={styles.link} href={url}>
+        <Fragment key={name}>
+          <Link className={styles.link} href={url}>
             {name}
           </Link>
           {i < links.length - 1 && <div>»</div>}
-        </>
+        </Fragment>
       ))}
     </nav>
   );

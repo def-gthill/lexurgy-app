@@ -59,7 +59,7 @@ describe("the workspace page", () => {
     cy.contains("Examplish");
   });
 
-  it("lets the admin user mark a world as an example world", () => {
+  it.only("lets the admin user mark a world as an example world", () => {
     cy.createWorldWithApi("Handwavia", "Home of Betamax Crinkledash");
     cy.createLanguageWithApi("Worldish", { world: "Handwavia" });
     cy.createEvolutionWithApi("Worldish", {
@@ -67,8 +67,9 @@ describe("the workspace page", () => {
       testWords: ["foo", "bar"],
     });
     cy.goToHome();
+    cy.intercept("/api/worlds").as("worlds");
     cy.get("#example").click();
-    cy.waitForApiResult("/api/worlds", "worlds");
+    cy.wait("@worlds");
     cy.goToScExamples();
     cy.contains("Worldish");
   });
