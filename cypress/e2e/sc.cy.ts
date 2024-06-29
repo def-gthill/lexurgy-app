@@ -23,18 +23,20 @@ describe("a sound changer page", () => {
 
   it("persists the sound changes and test words", () => {
     cy.scEnterSoundChanges("my-rule:\n o => a");
+    cy.intercept("POST", "/api/evolutions*").as("postEvolution");
     cy.scEnterInputWords(["foo", "bar"]);
-    cy.waitForApiResult("/api/evolutions*", "postEvolution");
+    cy.wait("@postEvolution");
     cy.reload();
     cy.startSc();
     cy.scOutputWordsAre(["faa", "bar"]);
   });
 
   it("persists the test words if the user edited the sound changes last", () => {
+    cy.intercept("POST", "/api/evolutions*").as("postEvolution");
     cy.scEnterInputWords(["foo", "bar"]);
     cy.scEnterSoundChanges("my-rule:\n o => a");
     cy.startSc();
-    cy.waitForApiResult("/api/evolutions*", "postEvolution");
+    cy.wait("@postEvolution");
     cy.reload();
     cy.startSc();
     cy.scOutputWordsAre(["faa", "bar"]);
