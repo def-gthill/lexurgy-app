@@ -24,4 +24,10 @@ describe("the toNiceName function", () => {
 
     expect(result).toBe("Syllables");
   });
+
+  it("converts a cleanup rule name to 'Cleanup' plus the name", () => {
+    const result = toNiceName("<cleanup>/<initial>/some-name");
+
+    expect(result).toBe("Some Name (Cleanup)");
+  });
 });

@@ -1,9 +1,16 @@
 export function toNiceName(name: string): string {
-  const nameWithoutDetail = name.split("/")[0];
+  const [nameWithoutDetail, ...detail] = name.split("/");
   const words = nameWithoutDetail.split("-");
   words[0] = removeAngleBrackets(words[0]);
-  const result = words.map(uppercaseFirstLetter).join(" ");
-  return result;
+  if (words[0] === "cleanup") {
+    return `${detail[1]
+      .split("-")
+      .map(uppercaseFirstLetter)
+      .join(" ")} (Cleanup)`;
+  } else {
+    const result = words.map(uppercaseFirstLetter).join(" ");
+    return result;
+  }
 }
 
 function removeAngleBrackets(word: string): string {
