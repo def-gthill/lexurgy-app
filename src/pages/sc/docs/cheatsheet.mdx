@@ -14,244 +14,595 @@ import CheatSheet from "@/sc/CheatSheet";
 
 This is a quick reference for Lexurgy syntax. Check the linked sections of the tutorial for more explanation and interactive examples.
 
+## Basics|basics
+
 <CheatSheet
   examples={[
     {
       name: "Comment",
-      link: "basics#comments",
+      link: "tutorial/basics#comments",
       example: "# This is a comment",
       explanation:
         "Everything after the # is ignored by Lexurgy. Use them to remind yourself what a rule is for.",
     },
     {
       name: "Simple change",
-      link: "basics#basic",
+      link: "tutorial/basics#basic",
       example: "ɔ => ɑ",
       explanation:
         "Every time the sound on the left of the arrow appears in a word, it gets replaced with the sound on the right.",
     },
     {
       name: "Condition",
-      link: "basics#conditions",
+      link: "tutorial/basics#conditions",
       example: "k => ʃ / a _ a",
       explanation:
         "The change only happens when certain other sounds are adjacent.",
     },
     {
       name: "Exception",
-      link: "basics#exceptions",
+      link: "tutorial/basics#exceptions",
       example: "k => ʃ // a _ a",
       explanation:
         "The change only happens when certain other sounds are NOT adjacent.",
     },
     {
       name: "Condition and exception",
-      link: "basics#exceptions",
+      link: "tutorial/basics#exceptions",
       example: "k => ʃ / _ a // a _",
       explanation:
         "The change only happens when the sounds after / are adjacent AND the sounds after // are NOT adjacent.",
     },
     {
       name: "Word beginning",
-      link: "basics#word-edges",
+      link: "tutorial/basics#word-edges",
       example: "k => kʰ / $ _",
       explanation: "The change only happens at the beginning of a word.",
     },
     {
       name: "Word end",
-      link: "basics#word-edges",
+      link: "tutorial/basics#word-edges",
       example: "a => ə / _ $",
       explanation: "The change only happens at the end of a word.",
     },
     {
       name: "Insertion",
-      link: "basics#nulls",
+      link: "tutorial/basics#nulls",
       example: "* => e / $ _ s",
       explanation:
         "The sound on the right of the arrow is inserted between the specified sounds.",
     },
     {
       name: "Deletion",
-      link: "basics#nulls",
+      link: "tutorial/basics#nulls",
       example: "h => *",
       explanation: "The sound on the left of the arrow is deleted.",
     },
     {
       name: "Collapsing alternatives",
-      link: "basics#alternatives",
+      link: "tutorial/basics#alternatives",
       example: "{p, t, k} => ʔ",
       explanation:
         "Each of the sounds on the left changes into the sound on the right.",
     },
     {
       name: "Corresponding alternatives",
-      link: "basics#alternatives",
+      link: "tutorial/basics#alternatives",
       example: "{p, t, k} => {b, d, ɡ}",
       explanation:
         "Each of the sounds on the left changes into the corresponding sound on the right.",
     },
     {
       name: "Alternative environments",
-      link: "basics#alternatives",
+      link: "tutorial/basics#alternatives",
       example: "k => ʃ / {_ a, a _}",
       explanation:
         "The change happens when nearby sounds match any of the conditions.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Sound class",
+      link: "tutorial/basics#classes",
+      example: "class stop {p, t, k}\nrule:\n  @stop => ʔ",
+      explanation:
+        "References to the class are replaced with the declared list of sounds.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Corresponding sound classes",
+      link: "tutorial/basics#classes",
+      example:
+        "class stop {p, t, k}\nclass fricative {f, θ, x}\nrule:\n  @stop => @fricative",
+      explanation:
+        "Each sound in the left class turns into the corresponding sound in the right class.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Wildcard",
+      link: "tutorial/basics#wildcards",
+      example: "[] => x",
+      explanation: (
+        <span>
+          The <code>[]</code> matches any single sound
+        </span>
+      ),
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Multi-character symbol",
+      link: "tutorial/basics#symbols",
+      example: "Symbol ts, dz",
+      explanation: "These character sequences are treated as single sounds.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Escape",
+      link: "tutorial/basics#escapes",
+      example: String.raw`\*`,
+      explanation: (
+        <span>
+          The character after the <code>\</code> is treated as a sound, not part
+          of Lexurgy syntax.
+        </span>
+      ),
+    },
+  ]}
+/>
+
+## Combining Elements|combining
+
+<CheatSheet
+  examples={[
+    {
+      name: "Sequence",
+      link: "tutorial/basics#sequences",
+      example: "n k => ŋ ɡ",
+      explanation:
+        "The sequences of adjacent sounds on the left change into the sounds on the right.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Optional element",
+      link: "tutorial/basics#repeaters",
+      example: "a => ə / _ @consonant? $",
+      explanation: (
+        <span>
+          The rule applies whether the element marked with <code>?</code> is
+          present or not.
+        </span>
+      ),
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Grouping",
+      link: "tutorial/basics#repeaters",
+      example: "(@consonant @vowel)?",
+      explanation:
+        "The operator applies to all the elements in parentheses as a whole.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Repeated element, any number",
+      link: "tutorial/basics#repeaters",
+      example: "@consonant*",
+      explanation:
+        "This matches any number of copies of the specified element, including zero.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Repeated element, one or more",
+      link: "tutorial/basics#repeaters",
+      example: "@consonant+",
+      explanation:
+        "This matches any number of copies of the specified element, but at least one copy must be present.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Repeated element, exact number",
+      link: "reference#repeaters",
+      example: "@consonant*2",
+      explanation:
+        "This matches exactly the specified number of copies, no more, no less.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Repeated element, range",
+      link: "reference#repeaters",
+      example: "@consonant*(2-4)",
+      explanation:
+        "This matches any number of copies within the specified range, inclusive.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Repeated element, maximum number",
+      link: "reference#repeaters",
+      example: "@consonant*(-4)",
+      explanation:
+        "This matches any number of copies up to and including the specified maximum",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Repeated element, minimum number",
+      link: "reference#repeaters",
+      example: "@consonant*(2-)",
+      explanation:
+        "This matches any number of copies at or above the specified minimum.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Capture",
+      link: "tutorial/basics#captures",
+      example: "@consonant$1 => * / _ $1",
+      explanation: (
+        <span>
+          The sounds matched by the element before <code>$</code> are saved and
+          can be referenced elsewhere in the rule using the same number.
+        </span>
+      ),
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Negation",
+      link: "reference#negation",
+      example: "!@consonant",
+      explanation: (
+        <span>
+          The rule doesn't apply if the element after <code>!</code> is present.
+        </span>
+      ),
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Intersection",
+      link: "tutorial/basics#intersections",
+      example: "@stop&@alveolar",
+      explanation: "Sounds must match both criteria at the same time.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Negated intersection",
+      link: "tutorial/basics#intersections",
+      example: "@stop&!@alveolar",
+      explanation:
+        "Sounds must match the first element but not the second element.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Unchanged",
+      link: "reference#dummy",
+      example: "rule:\n  unchanged",
+      explanation: (
+        <span>
+          This expression does nothing. Use this if the syntax requires an
+          expression—e.g. before a <code>then</code> block with modifiers—but
+          there are no actual changes to make.
+        </span>
+      ),
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Word boundary",
+      link: "basics#between-words",
+      example: "$$ => *",
+      explanation: (
+        <span>
+          The <code>$$</code> matches the space between words.
+        </span>
+      ),
+    },
+  ]}
+/>
+
+## Control Flow|controlflow
+
+<CheatSheet
+  examples={[
+    {
+      name: "Simultaneous expression",
+      link: "tutorial/controlflow#simultaneous",
+      example: "rule:\n  ɔ => ɑ\n  ɑ => a",
+      explanation:
+        "The expressions apply simultaneously rather than one by one from top to bottom. Later expressions can't see the output of earlier ones.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Simultaneous expression precedence",
+      link: "tutorial/controlflow#simultaneous",
+      example: "rule:\n  k => s / _ {e, i}\n  k => h / $ _",
+      explanation:
+        "Earlier expressions take precedence over later ones if they try to change the same sounds.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Sequential block",
+      link: "tutorial/controlflow#sequential",
+      example: "rule:\n  ɔ => ɑ\n  then:\n  ɑ => a",
+      explanation:
+        "The expressions apply one by one from top to bottom, as if they were written in separate rules.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Hierarchical block",
+      link: "reference#hierarchical",
+      example:
+        "rule:\n  @vowel => [+hightone] / {p, t, k} _\n  else:\n  @vowel => [+hightone] / $ @consonant _",
+      explanation:
+        "Later expressions apply only if all earlier expressions fail to match anything in the word at all.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Propagating rule",
+      link: "tutorial/controlflow#propagation",
+      example: "rule propagate:\n  aa => a",
+      explanation: "The rule repeatedly applies until the word stops changing.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Left-to-right rule",
+      link: "tutorial/controlflow#ltr-rtl",
+      example: "rule ltr:\n  ea => e",
+      explanation:
+        "The rule tries to apply once at each character, from the beginning of the word to the end, with later applications seeing the effects of earlier ones.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Right-to-left rule",
+      link: "tutorial/controlflow#ltr-rtl",
+      example: "rule rtl:\n  ae => e",
+      explanation:
+        "The rule tries to apply once at each character, from the end of the word to the beginning, with later applications seeing the effects of earlier ones.",
     },
     {
-      name: "",
-      link: "",
-      example: "",
-      explanation: "",
+      name: "Filter",
+      link: "tutorial/controlflow#filters",
+      example: "rule @vowel:\n  a => e / _ i",
+      explanation:
+        "The rule pretends that only sounds that match the filter exist. Adjacency passes through non-matching sounds.",
+    },
+    {
+      name: "Reusable element",
+      link: "tutorial/controlflow#elements",
+      example: "element scluster s @stop\nrule:\n  * => e / _ @scluster",
+      explanation:
+        "References to the element are replaced with the specified expression structure.",
+    },
+    {
+      name: "Deferred rule",
+      link: "tutorial/controlflow#deferred",
+      example: "assim:\n  @nasal => m / _ {p, b}\nrule:\n  :assim",
+      explanation:
+        "The rule doesn't apply when declared, but can be applied later as part of other rules",
+    },
+    {
+      name: "Cleanup rule",
+      link: "tutorial/controlflow#cleanup",
+      example: "assim cleanup:\n  @nasal => m / _ {p, b}",
+      explanation:
+        "The rule applies once when declared, then again after every subsequent rule",
+    },
+    {
+      name: "Cleanup off",
+      link: "tutorial/controlflow#cleanup",
+      example: "assim:\n  off",
+      explanation:
+        "The specified cleanup rule no longer runs after subsequent rules. It runs for the last time immediately before the cleanup-off rule.",
+    },
+    {
+      name: "Deromanizer",
+      link: "tutorial/controlflow#romanization",
+      example: "deromanizer:\n  kh => x",
+      explanation:
+        "This rule converts the romanization system into phonetic notation before any rules are applied.",
+    },
+    {
+      name: "Literal deromanizer",
+      link: "reference#literal",
+      example: "deromanizer literal:\n  ʼ => ʔ\n  then:\n  k => kʼ",
+      explanation: (
+        <span>
+          Any expressions before the first <code>then:</code> operate on literal
+          text characters, ignoring all declarations. Use this if the
+          romanization system uses characters in a way that conflicts with the
+          declarations.
+        </span>
+      ),
+    },
+    {
+      name: "Romanizer",
+      link: "tutorial/controlflow#romanization",
+      example: "romanizer:\n  x => kh",
+      explanation:
+        "This rule converts phonetic notation into the romanization system after all rules are applied.",
+    },
+    {
+      name: "Literal romanizer",
+      link: "reference#literal",
+      example: "romanizer literal:\n  kʼ => k\n  then:\n  ʔ => ʼ",
+      explanation: (
+        <span>
+          Any expressions after the last <code>then:</code> operate on literal
+          text characters, ignoring all declarations. Use this if the
+          romanization system uses characters in a way that conflicts with the
+          declarations.
+        </span>
+      ),
+    },
+    {
+      name: "Intermediate romanizer",
+      link: "tutorial/controlflow#intermediate",
+      example: "romanizer-some-name:\n  x => kh",
+      explanation:
+        "This rule preserves an intermediate stage of the language's evolution after applying the specified changes. Subsequent rules don't see those changes.",
+    },
+  ]}
+/>
+
+## Features|features
+
+<CheatSheet
+  examples={[
+    {
+      name: "Binary feature",
+      link: "tutorial/features#binary",
+      example: "feature low, high\nrule:\n  [-low -high] => [+high] / _ $",
+      explanation: (
+        <span>
+          These features can either be plus (<code>+</code>), minus (
+          <code>-</code>), or absent (<code>*</code>), and are absent by
+          default.
+        </span>
+      ),
+    },
+    {
+      name: "Univalent feature",
+      link: "tutorial/features#univalent",
+      example: "feature +lateral\nrule:\n  [+lateral] => [-lateral] / _ $",
+      explanation: (
+        <span>
+          These features can either be plus (<code>+</code>) or minus (
+          <code>-</code>), and are minus by default.
+        </span>
+      ),
+    },
+    {
+      name: "Multivalent feature",
+      link: "tutorial/features#multivalent",
+      example:
+        "feature place(labial, alveolar, velar)\nrule:\n  [labial] => [alveolar] / _ $",
+      explanation: "These features can have any number of named values.",
+    },
+    {
+      name: "Feature variable",
+      link: "tutorial/features#variables",
+      example: "[stop] => [$voicing] / _ [stop $voicing]",
+      explanation:
+        "The value of the specified feature is saved and can be referenced elsewhere in the rule using the same feature name.",
+    },
+    {
+      name: "Named absent value",
+      link: "tutorial/features#absent-name",
+      example: "feature tone(*lowtone, hightone)",
+      explanation: (
+        <span>
+          The default value of the feature can be referenced using the name
+          marked with <code>*</code>
+        </span>
+      ),
+    },
+    {
+      name: "Negated value",
+      link: "tutorial/features#negation",
+      example: "[!labial]",
+      explanation:
+        "The feature matrix matches only sounds that don't have the specified feature value.",
+    },
+    {
+      name: "Diacritic",
+      link: "tutorial/features#diacritics",
+      example: "Diacritic ˈ [+ejective]",
+      explanation:
+        "The specified symbol is treated as part of the sound immediately before it, and adds the specified feature values to it.",
+    },
+    {
+      name: "Diacritic, before",
+      link: "tutorial/features#diacritics",
+      example: "Diacritic ⁿ [+prenasalized]",
+      explanation: "This diacritic is written before the sound it modifies.",
+    },
+    {
+      name: "Diacritic, after first",
+      link: "tutorial/features#diacritics",
+      example: "Diacritic  ́ (first) [+hightone]",
+      explanation:
+        "This diacritic is written after the first character of the sound it modifies.",
+    },
+    {
+      name: "Floating diacritic",
+      link: "tutorial/features#floating",
+      example: "Diacritic  ́ (floating) [+hightone]",
+      explanation:
+        "Sound matchers without the diacritic match sounds with it, and automatically carry it over to the output sound.",
+    },
+    {
+      name: "Exact match",
+      link: "tutorial/features#floating",
+      example: "e!",
+      explanation:
+        "This sound must match exactly, with no exception for floating diacritics.",
+    },
+    {
+      name: "Inexact capture reference",
+      link: "tutorial/features#inexact",
+      example: "~$1",
+      explanation:
+        "This matches copies of `$1` that differ only by having different floating diacritics.",
+    },
+  ]}
+/>
+
+## Syllables|syllables
+
+<CheatSheet
+  examples={[
+    {
+      name: "Explicit syllables",
+      link: "tutorial/syllables#manual",
+      example: "syllables:\n  explicit",
+      explanation: (
+        <span>
+          In subsequent rules, any <code>.</code> characters are treated as
+          syllable breaks rather than sounds.
+        </span>
+      ),
+    },
+    {
+      name: "Syllable boundary",
+      link: "tutorial/syllables#matching-breaks",
+      example: "n => * / _ .",
+      explanation: (
+        <span>
+          The rule only applies if there is a syllable break at the{" "}
+          <code>.</code>
+        </span>
+      ),
+    },
+    {
+      name: "Negated syllable boundary",
+      link: "tutorial/syllables#matching-breaks",
+      example: "i => j / _ !. @vowel",
+      explanation: (
+        <span>
+          The rule only applies if there is <em>no</em> syllable break at the{" "}
+          <code>!.</code>.
+        </span>
+      ),
+    },
+    {
+      name: "Syllable element",
+      link: "tutorial/syllables#matching-syllables",
+      example: "<syl> => * / _ <syl> $",
+      explanation: (
+        <span>
+          The <code>&lt;syl&gt;</code> matches an entire syllable.
+        </span>
+      ),
+    },
+    {
+      name: "Simple automatic syllables",
+      link: "reference#simple-syllables",
+      example: "syllables:\n  @cons? @vowel @cons?",
+      explanation:
+        "Words are automatically split into syllables matching the specified patterns, immediately and after each subsequent rule. Ambiguity is resolved by making syllables as short as possible.",
+    },
+    {
+      name: "Structured automatic syllables",
+      link: "tutorial/syllables#automatic",
+      example: "syllables:\n  @cons? :: @vowel :: @cons?",
+      explanation:
+        "Words are automatically split into syllables matching the specified onset, nucleus, and (optionally) coda patterns, immediately and after each subsequent rule. Ambiguity is resolved by making nuclei as long as possible and codas as short as possible.",
+    },
+    {
+      name: "Reluctant onset",
+      link: "tutorial/syllables#automatic",
+      example: "syllables:\n  @cons? ?: @cons? :: @vowel :: @cons?",
+      explanation:
+        "The reluctant onset matches as little as possible, even if it makes the coda of the preceding syllable longer.",
+    },
+    {
+      name: "Clearing syllables",
+      link: "tutorial/syllables#manual",
+      example: "syllables:\n  clear",
+      explanation:
+        "All syllable information is removed, and any automatic syllable rules no longer apply.",
+    },
+    {
+      name: "Syllable-level feature",
+      link: "tutorial/syllables#features",
+      example: "feature (syllable) +stress",
+      explanation:
+        "This feature is assigned to an entire syllable, not just a single sound.",
+    },
+    {
+      name: "Automatic feature assignment",
+      link: "tutorial/syllables#assigning-features",
+      example: "syllables:\n  @cons? :: @vowel :: @cons => [+heavy]",
+      explanation:
+        "Syllables matching this pattern are automatically assigned the specified syllable-level feature.",
     },
   ]}
 />

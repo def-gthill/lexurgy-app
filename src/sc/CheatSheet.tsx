@@ -5,7 +5,7 @@ export interface CheatSheetExample {
   name: string;
   link: string;
   example: string;
-  explanation: string;
+  explanation: any;
 }
 
 export default function CheatSheet({
@@ -26,12 +26,10 @@ export default function CheatSheet({
         {examples.map((example) => (
           <tr key={example.name}>
             <td>
-              <Link href={`/sc/docs/tutorial/${example.link}`}>
-                {example.name}
-              </Link>
+              <Link href={`/sc/docs/${example.link}`}>{example.name}</Link>
             </td>
             <td>
-              <code>{example.example}</code>
+              <pre>{example.example}</pre>
             </td>
             <td>{example.explanation}</td>
           </tr>

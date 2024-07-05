@@ -69,7 +69,7 @@ You can put a condition and an exception on the same rule:
 
 ## Multi-Character Symbols|symbols
 
-If you want to use digraphs in your rules, you can declare _symbols_ above your rules:
+If you want to use a sequence of characters to represent one sound in your rules, you can declare _symbols_ above your rules:
 
 <ScExample
   changes={"symbol ts, dz\n\nt-frication:\n  t => θ\n\nd-frication:\n  d => ð"}
@@ -260,6 +260,8 @@ If the rule only applies if there's at least _one_ copy, use the one-or-more rep
   changes={`class consonant {p, t, k, s, m, n}\n\nlast-closed-syllable-reduction:\n  {a, e, i, o, u} => ə / _ @consonant+ $`}
   inputs={["kiki", "kikis", "kikist"]}
 />
+
+Lexurgy supports a few [more kinds of repeaters](/sc/docs/reference#repeaters) with more precise limits on the number of copies they match.
 
 If you want to use one of these operators on a _sequence_ of sounds, you have to put the sequence in parentheses:
 

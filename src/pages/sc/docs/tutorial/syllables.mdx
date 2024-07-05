@@ -69,11 +69,18 @@ Similarly, you can insert syllable breaks with `* => .` rules:
 
 ## Matching Syllable Breaks|matching-breaks
 
-You can use the . character in rules to match syllable breaks. For example, it's common for a rule to affect only coda consonants. This rule nasalizes vowels before a coda nasal:
+You can use the `.` character in rules to match syllable breaks. For example, it's common for a rule to affect only coda consonants. This rule nasalizes vowels before a coda nasal:
 
 <ScExample
   changes={`feature +nasalized\ndiacritic ̃  (floating) [+nasalized]\nclass vowel {a, e, i, o, u}\nclass nasal {m, n}\n\nsyllables:\n  explicit\n\nnasalization:\n  @vowel => [+nasalized] / _ @nasal .`}
   inputs={["ban.ta", "ton", "ba.na.na"]}
+/>
+
+You can also use `!.` to match a syllable _interior_, i.e. to only apply the rule if there is _no_ syllable break at the specified location:
+
+<ScExample
+  changes={`class vowel {a, e, i, o, u}\n\nsyllables:\n  explicit\n\ngliding:\n  {i, u} => {j, w} / _ !. @vowel`}
+  inputs={["ki.kia", "ki.ki.a"]}
 />
 
 ## Matching Entire Syllables|matching-syllables
@@ -148,6 +155,13 @@ But in most languages the onset and coda are optional. You can mark them optiona
 />
 
 Notice that `apat` becomes `a.pat`, not `ap.at`. In general, Lexurgy tries to put as many sounds as possible into the onset of a syllable, rather than the coda of the previous syllable.
+
+In cases where you don't want maximal onsets, add a _reluctant onset_ before the normal onset, separated from it by `?:`:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant? ?: @consonant? :: @vowel :: @consonant?`}
+  inputs={["kiski", "skapat"]}
+/>
 
 Most of the syntax available in ordinary rules can also be used in syllable rules, allowing for complex restrictions on syllable shapes:
 

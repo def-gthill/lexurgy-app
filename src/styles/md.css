@@ -20,6 +20,18 @@
   max-width: 900px;
   margin-left: 25%;
   margin-right: 5%;
+  margin-bottom: 5rem;
+}
+
+/* So that following a section link doesn't hide the section
+header behind the page banner, see
+https://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header */
+.md-main [id]::before {
+  content: "";
+  display: block;
+  height: 6rem;
+  margin-top: -6rem;
+  visibility: hidden;
 }
 
 .md-main code {
