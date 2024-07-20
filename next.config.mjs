@@ -83,7 +83,7 @@ const withMdx = createMDX({
     rehypePlugins: [
       stableHeadingIds,
       wrap,
-      [toc, { headings: ["h2"], position: "beforebegin" }],
+      [toc, { headings: ["h2", "h3"], position: "beforebegin" }],
       [rehypeAutolinkHeadings, { behavior: "wrap" }],
     ],
   },

@@ -1,5 +1,6 @@
 import MdxLayout from "@/components/MdxLayout";
 import Breadcrumb from "@/components/Breadcrumb";
+import ScExample from "@/sc/ScExample";
 
 <Breadcrumb
   baseUrl="/sc"
@@ -11,31 +12,593 @@ import Breadcrumb from "@/components/Breadcrumb";
 
 # Lexurgy Sound Changer Reference
 
+This is an in-depth explanation of the Lexurgy SC
+rules language. For a gentler introduction, see [the tutorial](/sc/docs/tutorial)
+
 ## Overall Structure|file-structure
 
+Lexurgy sound changes consist of any number of _declarations_
+followed by any number of _rules_.
+
+Declarations define
+concepts that can be used in the rest of the file: [features](#feature-declarations), [symbols](#symbol-declarations), [diacritics](#diacritic-declarations), [classes](#class-declarations), and [elements](#element-declarations).
+
+Most rules define how
+_input words_ change into _output words_. Each word
+in the input lexicon is passed through all rules in
+the order they're declared, transforming it one step
+at a time into an output word. There are also a few special rule types that alter the program behaviour rather than directly transforming words: [deferred rules](#deferred), [cleanup rules](#cleanup), [syllable rules](#syllables), and [intermediate romanizers](#intermediate).
+
+### Comments|comments
+
+The `#` character indicates the start of a _comment_. Lexurgy ignores everything between the `#` and the end of the line (including other `#` characters).
+
+### Escapes|escapes
+
+The characters `\ , = > ( ) [ ] { } * + ? / - _ : ! $ @ # &`, as well as the digits `0` to `9`, are part of Lexurgy's syntax, and can't be used as sounds by themselves. If you want to use one of these as a sound, you have to put a backslash (`\`) in front of it:
+
+<ScExample
+  changes={`special:\n  \\( => \\)\n  \\1 => \\4\n  \\$ => \\\\`}
+  inputs={["((((", "1111", "$$$$"]}
+/>
+
+### Whitespace|whitespace
+
+Whitespace is _sometimes_ significant in the SC rules language.
+
+Lexurgy generally ignores blank lines, indentation, and trailing whitespace:
+
+<ScExample
+  changes={
+    "\n      palatalization:\n\nk => tʃ / _ i\n  then:           # Trailing whitespace!\n         tʃ => ʃ\n\n\n  then:\n  ʃ => s\n\n\n# I'm down here!"
+  }
+  inputs={["kiki", "koko"]}
+/>
+
+(Lexurgy can tell where one rule ends and another begins because rule names must end with a colon.)
+
+However, line breaks are significant. Wrapping a line at an arbitrary point is likely to cause a syntax error:
+
+<ScExample changes={"feature\n+broken"} inputs={[]} />
+
+Line wrapping is allowed after the `=>`, `/`, and `//` operators:
+
+<ScExample
+  changes={"my-rule:\n  i =>\n  a /\n  k _ //\n  _ k"}
+  inputs={["kiki"]}
+/>
+
+### Names|names
+
+There are several kinds of structures in Lexurgy that you have to _name_, including rules, features, and classes.
+
+For most structure types, the name must consist entirely of plain Latin letters and numbers (uppercase or lowercase), and must have at least one letter. So `x`, `eEeEeE`, `l3xur9y`, and `4EVA` are valid names, while `12`, `my_rule`, and `bõò` are not.
+
+Rule names follow the above restrictions, except that they _also_ allow any number of non-consecutive hyphens between the letters and numbers. So `my-rule`, `a-b-c-d-e`, and `easy-as-1-2-3` are valid rule names, while `my--rule`, `-abcde-`, and `1-2-3` are not. These hyphens are meant to be used as word separators—indeed, the web interface replaces them with spaces in the output table.
+
+### Case Sensitivity|case-sensitivity
+
+Generally, Lexurgy is case-sensitive: `a` and `A` are different sounds, and you can have a rule called `lenition` followed by another rule called `Lenition`. However, all keywords can be written either with an initial capital or all lowercase, with no change in meaning: classes can be declared with `class` or `Class`, syllables can be set to `explicit` or `Explicit`, and so on.
+
 ## Declarations|declarations
+
+### Feature Declarations|feature-declarations
+
+Features allow breaking down sounds into simpler components, which rules can manipulate separately. A feature declaration consists of the keyword `feature` followed by a definition of one or more features.
+
+A feature represents a _dimension_ across which sounds can vary; individual sounds must be assigned a single _value_ for each feature. For example, you might declare a feature called `height`, representing the vertical location of the tongue within the mouth when pronouncing a vowel. Then you might assign the sound /a/ the value `low` for its `height` feature, and the sound /i/ the value `high` for its `height` feature.
+
+#### Simple Features|binary-features
+
+Binary features are declared using just their name: `feature b` declares a binary feature called `b`. Binary features have three values: plus (written `+b`), minus (written `-b`), and absent (written `*b`). Any sound that isn't explicitly assigned a value for binary feature `b` has the value `*b` by default.
+
+Univalent features are declared using a plus sign before the name: `feature +u` declares a univalent feature called `u`. Univalent features have only two values: plus (written `+u`) and minus (written either `-u` or `*u`). Any sound that isn't explicitly assigned a value for univalent feature `u` has the value `-u` by default.
+
+Multiple binary or univalent features can be declared on the same line, separated by commas. For example, `feature a, +b, c` declares two binary features `a` and `c`, and a univalent feature `b`. This has the same meaning as declaring them on separate lines, it's just more compact.
+
+#### Multivalent Features|multivalent-features
+
+Multivalent features can have any number of values. They're declared by writing the feature's name, followed by a comma-separated list of the feature's values in parentheses: `feature m(v1, v2, v3)` declares a multivalent feature called `m` with the three values `v1`, `v2`, `v3`.
+
+Multivalent features also always have an absent value, written as the feature name with an asterisk in front of it. So the feature above actually has four values: `v1`, `v2`, `v3`, and `*m`. Any sound that isn't explicitly assigned a value for multivalent feature `m` has the value `*m` by default.
+
+While you can't disable the absent value, you can give it a name: after `feature a(*v1, v2, v3)`, the feature `a` has only the three values `v1`, `v2`, and `v3`. It's still valid to write `*a`, but this means the same thing as `v1`. Since `v1` is the absent value, it's also the default value for sounds that don't have a different value for `a` assigned.
+
+Unlike binary and univalent features, each multivalent feature must be declared on its own line.
+
+#### Syllable-Level Features
+
+A _syllable-level_ feature is assigned to an entire syllable, rather than only one sound. This can be used to model phenomena that operate on syllables, like stress and syllable weight.
+
+Any feature can be marked as a syllable-level feature by adding the keyword `(syllable)` before the feature definition. So `feature (syllable) a` declares a binary syllable-level feature, while `feature (syllable) b(v1, v2, v3)` declares a multivalent syllable-level feature.
+
+Note that the `(syllable)` modifier only applies to the _immediately following_ definition: `feature (syllable) a, b, c` declares one syllable-level feature `a` and two ordinary features `b` and `c`. To declare three syllable-level features, you need to use `feature (syllable) a, (syllable) b, (syllable) c`.
+
+### Symbol Declarations|symbol-declarations
+
+By default, Lexurgy treats each character in a word as a separate sound, with all features set to their default values. You can change this behaviour with symbol declarations.
+
+#### Multi-Character Symbols|multicharacter-symbols
+
+A multi-character symbol declaration tells Lexurgy to treat a particular sequence of characters as a single sound. For example, if `symbol tʃ` is declared, any `tʃ` found in input words is unaffected by rules that change `t` or `ʃ` alone, and rules that count sounds count `tʃ` as one sound.
+
+Several multi-character symbols can be declared in one line by separating them with commas: `symbol tʃ, dʒ` declares both `tʃ` and `dʒ` as symbols.
+
+Note that Lexurgy doesn't automatically _combine_ adjacent characters that match a symbol declaration when they appear as the result of rules:
+
+<ScExample
+  changes={
+    "symbol ts\n\ninitial-devoicing:\n  d => t / $ _\n\nvoicing-assimilation:\n  z => s / t _\n\nts-frication:\n  ts => θ"
+  }
+  inputs={["tata", "tsatsa", "dada", "dzadza"]}
+/>
+
+The `ts-frication` rule applies to `tsatsa`, whose initial `ts` sequences were interpreted as the sound `ts`. But `dzadza` only acquires a `ts` sequence piecemeal, by the `d` becoming a `t` and then the `z` becoming an `s`, so Lexurgy still sees it as starting with a `t` sound followed by an `s` sound. If you want arbitrary sequences of a `t` and an `s` to become the sound `ts`, you have to add a rule that does that:
+
+<ScExample
+  changes={
+    "symbol ts\n\ninitial-devoicing:\n  d => t / $ _\n\nvoicing-assimilation:\n  z => s / t _\n\nts-combining:\n  t s => ts\n\nts-frication:\n  ts => θ"
+  }
+  inputs={["tata", "tsatsa", "dada", "dzadza"]}
+/>
+
+When breaking up input words into sounds, Lexurgy always chooses the _longest_ possible symbols, moving from left to right. For example, if `ts` and `sh` are both declared as symbols, `tsh` will be treated as `ts` followed by `h`, not `t` followed by `sh`.
+
+#### Feature Matrix Symbols|matrix-symbols
+
+A feature matrix symbol declaration assigns feature values to a sound. For example, `symbol e [mid front vowel]` assigns the three feature values `mid`, `front`, and `vowel` to the sound `e`. Naturally, all values used in the feature matrix have to be declared in `feature` declarations first!
+
+If the symbol contains multiple characters, the declaration will _also_ act as a multi-character symbol declaration: `symbol ts [-voiced alveolar affricate]` simultaneously makes `ts` a single sound and assigns it the values `-voiced`, `alveolar`, and `affricate`.
+
+### Diacritic Declarations|diacritic-declarations
+
+Like a feature matrix symbol declaration, a diacritic declaration assigns feature values to characters. But diacritics _modify_ other symbols; once a character is declared as a diacritic, it can't stand on its own.
+
+A basic diacritic declaration looks like a feature matrix symbol declaration, but with the `diacritic` keyword instead of the symbol keyword. The declaration `diacritic ʼ [+ejective]` makes `ʼ` a diacritic that gives the preceding symbol the `+ejective` value; so if `t` is declared as `[-voiced alveolar stop]`, `tʼ` automatically gets the feature matrix `[-voiced alveolar stop +ejective]`.
+
+Diacritic feature values overwrite any values of the same features on their host symbol. For example, if a diacritic defined as `[-voiced]` is applied to a sound defined as `[+voiced alveolar stop]`, the result is `[-voiced alveolar stop]`.
+
+Diacritics can be attached to sounds that don't have feature matrices, in which case the resulting sound has only the diacritic's features. So if the above `[-voiced]` diacritic is attached to a `t`, but `t` doesn't have a symbol declaration, the result is a `t` with the `-voiced` value attached to it.
+
+#### Diacritic Order|diacritic-order
+
+If multiple diacritics are attached to the same sound, they're always displayed in the order they're declared. In this example, the declaration order of the diacritics causes long nasal vowels to display weirdly:
+
+<ScExample
+  changes={
+    "feature +long, +nasalized\ndiacritic ː [+long]\ndiacritic  ̃ [+nasalized]"
+  }
+  inputs={["bũːbãː"]}
+/>
+
+Switching the two declarations fixes the problem:
+
+<ScExample
+  changes={
+    "feature +long, +nasalized\ndiacritic  ̃ [+nasalized]\ndiacritic ː [+long]\nsymbol ou"
+  }
+  inputs={["bũːbãː"]}
+/>
+
+#### Diacritic Position|diacritic-position
+
+By default, diacritics are written _after_ their host symbols:
+
+<ScExample
+  changes={
+    "feature +long\ndiacritic ː [+long]\nsymbol ou\n\nlengthen:\n  {a, ou} => [+long]"
+  }
+  inputs={["bouba"]}
+/>
+
+You can change this by adding a position modifier to the diacritic declaration. A diacritic marked `(before)` is written _before_ its host symbol:
+
+<ScExample
+  changes={
+    "feature +long\ndiacritic ː (before) [+long]\nsymbol ou\n\nlengthen:\n  {a, ou} => [+long]"
+  }
+  inputs={["bouba"]}
+/>
+
+A diacritic marked `(first)` is written after the _first character_ of its host symbol:
+
+<ScExample
+  changes={
+    "feature +long\ndiacritic ː (first) [+long]\nsymbol ou\n\nlengthen:\n  {a, ou} => [+long]"
+  }
+  inputs={["bouba"]}
+/>
+
+#### Floating Diacritics|floating
+
+A diacritic marked with `(floating)` is interpreted as creating a superficial variant of the base sound, meaning rules that apply to the base sound should apply to the modified sound too. With an ordinary `hightone` diacritic, this rule affects `a` but not `á`:
+
+<ScExample
+  changes={`feature +hightone\ndiacritic  ́ [+hightone]\n\nmonophongization:\n  ai => e`}
+  inputs={["baiba", "báiba"]}
+/>
+
+But with a floating diacritic, both versions are considered to be types of `a`, so both are affected:
+
+<ScExample
+  changes={`feature +hightone\ndiacritic  ́ (floating) [+hightone]\n\nmonophongization:\n  ai => e`}
+  inputs={["baiba", "báiba"]}
+/>
+
+#### Syllable-Level Diacritics|syllable-diacritics
+
+If a diacritic is assigned syllable-level features, it's written in the designated position relative to the entire syllable:
+
+<ScExample
+  changes={
+    "feature (syllable) +a\nfeature (syllable) +b\nfeature (syllable) +c\ndiacritic ᵃ (before) [+a]\ndiacritic ᵇ (first) [+b]\ndiacritic ᶜ [+c]\n\nsyllables:\n  explicit\n\nadd-diacritics:\n  [] => [+a +b +c]"
+  }
+  inputs={["bou.ba"]}
+/>
+
+It's an error to assign a mix of sound-level and syllable-level features to the same diacritic.
+
+### Class Declarations|class-declarations
+
+Classes group together similar sounds so that rules affect all of them together. A class declaration consists of the keyword `class`, the class name, and a list of sounds in the class. For example, `class nasal {m, n, ŋ}` creates a class called `nasal`, which contains the sounds `m`, `n`, and `ŋ`. Then the class can be [referenced from rules](#class-references) by putting a `@` character before the class name, e.g. `@nasal`.
+
+The order in which sounds appear in the class matters, since corresponding members of a class or [alternative list](#alternatives) are paired up:
+
+<ScExample
+  changes={`class unvcdstop {p, t, k}\nclass vcdstop {b, d, ɡ}\n\nvoicing:\n  @unvcdstop => @vcdstop`}
+  inputs={["kiki", "papa"]}
+/>
+
+The same sound can even appear multiple times in the same class to ensure alignment with other classes:
+
+<ScExample
+  changes={`class stop {p, t, k}\nclass palatalized {pʲ, tʃ, tʃ}\n\npalatalization:\n  @stop => @palatalized / _ i`}
+  inputs={["kiki", "titi", "pipi"]}
+/>
+
+A class definition can itself contain references to previously defined classes, in which case the sounds from the referenced classes are inserted into the class. So if `class stop {p, t, k}` and `class fricative {f, s}` are already defined, `class obstruent {@stop, @fricative}` defines the `obstruent` class as `{p, t, k, f, s}`.
 
 ### Element Declarations|element-declarations
 
 <i>New in 1.1.0</i>
 
+An element declaration defines a reusable [element](#elements) and gives it a name. Then, as with classes, the element can be [referenced from rules](#element-references) by putting a `@` character before the class name. When the sound changes run, the element reference is replaced by the element's definition.
+
+Element declarations are much more flexible than class declarations, allowing arbitrary element syntax. But classes have one special property that can't be replicated with elements: nested classes are _flattened_, while nested elements stay nested. The following works:
+
+<ScExample
+  changes={`class unvcdstop {p, t, k}\nclass vcdstop {b, d, ɡ}\nclass stop {@unvcdstop, @vcdstop}\nclass fricative {f, θ, x, v, ð, ɣ}\n\nfrication:\n  @stop => @fricative`}
+  inputs={["kiki", "papa"]}
+/>
+
+But replace the `stop` class with an identical element declaration, and you get an error:
+
+<ScExample
+  changes={`class unvcdstop {p, t, k}\nclass vcdstop {b, d, ɡ}\nelement stop {@unvcdstop, @vcdstop}\nclass fricative {f, θ, x, v, ð, ɣ}\n\nfrication:\n  @stop => @fricative`}
+  inputs={["kiki", "papa"]}
+/>
+
+The class reference `@stop` acts like `{p, t, k, b, d, ɡ}`, allowing it to line up with the six-element `fricative` class. But the element reference acts like `{{p, t, k}, {b, d, ɡ}}`, which doesn't line up.
+
 ## Rules|rules
 
-### Deferred Rules|deferred
+A normal rule consists of a rule name ending in a colon, followed by a nested structure of [blocks](#blocks). The innermost blocks contain one or more [expressions](#expressions), and each expression is made out of [elements](#elements).
+
+### Expressions|expressions
+
+Expressions are the key to Lexurgy rules. Each expression does a specific transformation on each input word.
+
+#### Input and Output|input-output
+
+At minimum, an expression consists of an _input pattern_, a `=>` symbol, and an _output pattern_. The input pattern describes which sounds are affected by the change, while the output pattern describes what changes need to be applied. Take this rule:
+
+<ScExample changes={`rule:\n  i => e`} inputs={["kiki"]} />
+
+The `i` is the input pattern, indicating that this expression only applies to the sound `i`. The `e` is the output pattern, indicating that any sounds matching the input pattern have to become `e`. The result is that all instances of `i` in each input word are replaced by `e`.
+
+#### Environments|environments
+
+An expression may also include an _environment_, statements that must be true of nearby sounds in order for the change to happen. The environment consists of a _condition_, an _exception_, or both. The condition starts with `/`, and gives a pattern that _must_ match nearby sounds; the exception starts with `//`, and gives a pattern that _must not_ match nearby sounds. This expression has a condition, so that the change applies only to `i` followed by `n`:
+
+<ScExample changes={`rule:\n  i => e / _ n`} inputs={["kinitin"]} />
+
+This expression has an exception, so that the change applies only to `i` _not_ preceded by `k`:
+
+<ScExample changes={`rule:\n  i => e // k _`} inputs={["kinitin"]} />
+
+This expression has both, so the change only applies to `i` that are both followed by `n` _and_ preceded by `k`:
+
+<ScExample changes={`rule:\n  i => e / _ n // k _`} inputs={["kinitin"]} />
+
+The underscore in a condition or exception marks where the sounds matched by the input pattern are in the word. The portion before the underscore is called the _before environment_, while the portion after is the _after environment_.
+
+#### Alternative Environments|alternative-environments
+
+Within a condition or exception, more than one environment can be listed, enclosed in braces (`{}`) and separated by commas.
+
+If multiple conditions are listed, the change will happen if _at least one_ of them is true:
+
+<ScExample changes={`rule:\n  i => e / {h _, _ n}`} inputs={["hikitin"]} />
+
+If multiple exceptions are listed, the change will only happen if _all_ of them are false:
+
+<ScExample changes={`rule:\n  i => e // {h _, _ n}`} inputs={["hikitin"]} />
+
+#### Evaluation Order|expression-order
+
+When evaluating an expression, Lexurgy always proceeds in the following order:
+
+1. It checks whether the **input pattern** matches at a specific location, working from left to right within the input pattern.
+2. It checks whether the **before environment** matches the sounds immediately before what the input pattern matched, working **from right to left**.
+3. It checks whether the **after environment** matches the sounds immediately after what the input pattern matched, working from left to right.
+4. It evaluates the **output pattern** from left to right to produce the output sounds.
+
+This matters for some kinds of elements. For example, [captures](#captures) must save sounds before they can copy sounds, so if Lexurgy encounters a capture reference before its capture binding, it will produce an error.
+
+#### Unchanged|dummy
+
+There is one special expression that doesn't follow the above form: `unchanged`. As the name suggests, `unchanged` never makes any changes, i.e. the output word is always the same as the input word.
+
+<ScExample changes={`rule:\n  unchanged`} inputs={["kiki", "bouba"]} />
+
+Use `unchanged` when Lexurgy's syntax demands an expression, but you don't actually want anything to happen to the words; for example:
+
+- When you've added a rule, but haven't decided what changes to apply yet.
+- When you need the first sub-block in a [sequential block](#sequential) to have modifiers.
+- When you want to dump out an [intermediate stage](#intermediate) exactly as it is.
+
+### Elements|elements
+
+Each part of an expression (input pattern, output pattern, before environment, and after environment) must be an _element_. There are many types of elements, some of which contain _other_ elements. This section gives a tour of all the different element types Lexurgy provides.
+
+Elements actually come in two flavours: _matchers_ and _emitters_. Matchers look for sounds with specific properties, while emitters apply transformations to matched sounds, or even create sounds out of thin air. Any element in the output pattern is treated as an emitter, while any element anywhere else is treated as a matcher.
+
+The difference is important because the same element type can have very different behaviour depending on whether it's a matcher or an emitter. Some element types are even _invalid_ if used as the wrong flavour.
+
+#### Symbol Elements|symbol-elements
+
+A symbol element consists of one or more characters that isn't [part of Lexurgy's syntax](#escapes). It represents literal sounds.
+
+As a matcher, a symbol element matches the exact sequence of sounds that it's made of; for example, `s` matches only the sound `s`, `ho` matches only the sound `h` followed by the sound `o`. The only exception is that sounds with _additional [floating diacritics](#floating)_ count as matches too: if `^` is declared as a floating diacritic, then `s` matches both the sound `s` and the sound `s^`.
+
+As an emitter, a symbol element emits the exact sequence of sounds that it's made of, regardless of what its corresponding matcher matched. The only exception is if the corresponding matcher is _also_ a symbol matcher, _and_ it found additional floating diacritics; in that case, the additional floating diacritics are copied to the output sound. For example, in the expression `s => h`, if `^` is declared as a floating diacritic, and the `s` matcher found a `s^`, then the `h` emitter will emit a `h^`.
+
+#### Exact Symbol Elements|exact-symbols
+
+An exact symbol element consists of a symbol element followed by `!`. It causes the element to treat all diacritics as non-[floating](#floating).
+
+As a matcher, an exact symbol element matches the exact sequence of sounds that it's made of, and only that exact sequence, regardless of any floating diacritics that might be declared. So `s!` matches only the sound `s`; even if `^` is declared as a floating diacritic, `s!` doesn't match `s^`.
+
+As an emitter, an exact symbol element emits the exact sequence of sounds that it's made of, regardless of any floating diacritics that might be declared. It refuses to copy any floating diacritics found by the corresponding matcher. So the expression `s => h!` will still affect `s^` if `^` is declared as a floating diacritic, but it will turn into `h`, not `h^`.
+
+#### Empty Elements|empty-elements
+
+An empty element, written as `*`, represents _no sounds at all_.
+
+As a matcher, an empty element matches the point between any two adjacent sounds. This allows the expression to _insert_ sounds at that point.
+
+As an emitter, an empty element emits zero sounds, regardless of what its corresponding matcher matched. This causes the expression to _delete_ all sounds matched by the corresponding matcher.
+
+#### Word Edges|word-edges
+
+A word edge element, written as `$`, represents the beginning or end of a word. It can be used in environments to apply specific changes only at the edges of the word.
+
+The placement of word edge elements is highly restricted. Word edge elements are always invalid in the input pattern and output pattern. Even in an environment, a word edge element can only appear at the _very beginning_ of the before environment (to match the beginning of a word), or at the _very end_ of the after environment (to match the end of a word). Any other usage of word edge elements causes errors.
+
+#### Word Boundaries|word-boundaries
+
+A word boundary element, written as `$$`, represents the space _between_ two words.
+
+As a matcher, a word boundary element matches the space between words. If connected to an emitter that _doesn't_ contain a word boundary element, the words get fused together.
+
+As an emitter, a word boundary element replaces whatever the corresponding matcher matched with a new space between words, i.e. the word gets split apart.
+
+#### Syllable Breaks|syllable-breaks
+
+A syllable break element, written as `.`, represents the edge of a syllable—either an actual syllable break, or the edge of a word. Note that syllable break elements only work if syllables are enabled (i.e. after a syllable rule, but before a clear-syllables rule); otherwise, `.` is just a (symbol element)[#symbol-elements].
+
+As a matcher, a syllable break element fails the match if there isn't a syllable edge at its location. If connected to an emitter that _doesn't_ contain a syllable break element, the syllable break at that location is _deleted_, merging the two adjacent syllables together.
+
+As an emitter, a syllable break element _inserts_ a syllable break at its location.
+
+Note that inserting and deleting syllable breaks is usually only helpful when using [manual syllables](#manual-syllables). If [automatic syllables](#automatic-syllables) are turned on, the syllable breaks are still inserted and deleted (which may affect subsequent expressions in a [sequential block](#sequential) or iterations in a [propagation](#propagation)), but those changes are swept away as soon as the rule finishes and the syllable rule is reapplied.
+
+#### Class References|class-references
+
+A class reference, written as `@` followed by the class name, invokes a [declared class](#class-declarations).
+
+As a matcher, a class reference matches any of the sounds in the class. As with [symbol elements](#symbol-elements), sounds with additional [floating diacritics](#floating) count as matches too.
+
+As an emitter, a class reference is only valid if paired up with another class matcher (or [alternative list](#alternatives)) of the same length. It transforms the matched sound into the sound at the same position in the emitter class. So the expression `{p, t, k} => {b, d, ɡ}` transforms a matched `p` into `b`, a matched `t` into `d`, and a matched `k` into `ɡ`. As with [symbol elements](#symbol-elements), additional [floating diacritics](#floating-diacritics) found by the matcher are copied to the output sound.
+
+#### Element References|element-references
+
+An element reference looks the same as a class reference—a `@` followed by the element name—but refers to a [declared element](#element-declarations).
+
+As a matcher or emitter, an element reference is replaced by the element's definition.
+
+#### Matrix Elements|matrix-elements
+
+A matrix element consists of a pair of square brackets (`[]`) containing zero or more [feature values](#feature-declarations), [feature variables](#feature-variables), or [negated feature values](#negated-values).
+
+As a matcher, a matrix element matches any single sound with _at least_ the listed feature values. Sounds with additional values count as matches; sounds with values that contradict those in the matrix don't count as matches. The case of zero values (i.e. an empty pair of brackets) is called a "wildcard", since it matches any sound.
+
+As an emitter, a matrix element _adds_ the listed features to all the sounds matched by the corresponding matcher, overwriting any contradictory values. If there _is_ no corresponding matcher, the matrix element produces the sound represented by the matrix itself.
+
+##### Feature Variables|feature-variables
+
+A feature variable consists of the name of the feature (not the value) with a `$` in front of it. Feature variables allow you to copy feature values from one sound to another.
+
+The first time a feature variable appears in a matcher, the value of the specified feature is saved. Then every subsequent use of the same feature variable in the same expression (whether in an emitter or another matcher) is replaced with the saved value.
+
+##### Negated Feature Values|negated-values
+
+A negated feature value consists of the name of the feature value with a `!` in front of it.
+
+A matrix matcher containing a negated feature value only matches sounds that _don't_ have that value.
+
+Negated feature values are _invalid_ in emitters.
+
+#### Captures|captures
+
+A capture consists of a `$` followed by any positive integer: `$1`, `$2`, `$3`, etc.
+
+If a capture is attached directly to a matcher (a _capture binding_), it saves whatever sounds that matcher matches. A capture can't be attached directly to an emitter in this way.
+
+If a capture on its own (a _capture reference_) is used as a matcher, it matches exactly the sounds saved by the matcher with the same number.
+
+If a capture on its own is used as an emitter, it _produces_ exactly the sounds saved by the matcher with the same number.
+
+Either way, if nothing has been saved by a capture binding with the same number, the rule fails with an error.
+
+##### Inexact Captures|inexact
+
+An inexact capture ignores floating diacritics when used as a matcher. It's written with a preceding `~`: `~$1`, `~$2`, `~$3`, etc.
+
+Inexact captures can't be used as emitters.
+
+##### Syllable Captures|syllable-captures
+
+Normal captures only copy _sounds_, not syllable information. To copy syllable information, you need a syllable capture, written with a `.` between the `$` and number: `$.1`, `$.2`, `$.3`, etc.
+
+As an emitter, a syllable capture produces exactly the sounds and syllable information saved by the capture binding with the same number.
+
+Syllable captures can't be used as matchers.
+
+#### Sequences|sequences
+
+A sequence combines several elements, expecting them to be adjacent in the word. It's written by putting spaces between the individual elements.
+
+As a matcher, a sequence checks each of its elements. The match only succeeds if _all_ of its elements succeed, on adjacent parts of the input word. Note that in the before environment, the elements are checked _from right to left_.
+
+What a sequence does as an emitter depends on its corresponding matcher.
+
+If the matcher is also a sequence, _and_ it has exactly the same number of elements, then the elements are paired off one to one, with each element of the emitter sequence transforming the corresponding element of the matcher sequence.
+
+Otherwise, all the elements of the emitter sequence will try to produce sounds out of thin air, with the resulting string of sounds replacing everything that the matcher matched. Certain kinds of elements (e.g. [class references](#class-refernces)) _require_ a corresponding matcher, so putting one in such an emitter sequence will result in an error.
+
+#### Repeaters|repeaters
+
+A repeater represents some number of copies of an element. Repeaters can only be used as matchers.
+
+A general repeater is written as `element*(min-max)`—the repeated element, followed by a `*`, followed by the minimum and maximum allowed number of repetitions, in parentheses and separated by a `-`. For example, `b*(2-5)` matches `bb`, `bbb`, `bbbb`, and `bbbbb`, but not `b` or `bbbbbb`.
+
+Either the minimum or maximum can be omitted. If the minimum is omitted, it's treated as 0; if the maximum is omitted, there's no upper limit to the number of repetitions. So `b*(-5)` matches any number of `b` characters up to 5 (even zero `b` characters, i.e. no sounds at all), and `b*(2-)` matches any string of two or more `b` characters.
+
+There are three kinds of repeaters with special syntax:
+
+- An element followed by `+` matches _one or more_ copies of the element: `b+` is equivalent to `b*(1-)`.
+- An element followed by `*` matches _any number_ of copies of the element: `b*` is equivalent to `b*(0-)`.
+- An element followed by `?` matches _zero or one_ copies of the element: `b?` is equivalent to `b*(0-1)`. This expresses that the element is _optional_.
+
+#### Alternatives|alternatives
+
+An alternative list is like a class, but it can contain any elements, not just single sounds. The syntax is similar to a [class declaration](#class-declarations): a list of elements separated by commas, and wrapped in braces (`{}`). For example, `{$1, [+voiced], k}` is an alternative list with three elements: `$1`, `[+voiced]`, and `k`.
+
+As a matcher, an alternative list matches anything that _at least one_ of its elements matches.
+
+As an emitter, an alternative list is only valid if paired up with another alternative list (or [class reference](#class-references)) of the same length. It transforms the matched sounds using the emitter at the same position in the list as the matcher that matched those sounds.
+
+#### Intersections|intersections
+
+An intersection, written as a list of elements joined with `&`, matches only what _all_ of its elements match. For example, `@fricative&[+voiced]` matches only sounds that _both_ belong to the `fricative` class _and_ have the `+voiced` feature value. This contrasts with the alternative list `{@fricative, [+voiced]}`, which matches everything in the `fricative` class, and _also_ everything in with the `[+voiced]` class. Using an intersection makes the rule more _selective_ about what it applies to; using an alternative list makes it more _permissive_.
+
+Intersections can't be used as emitters.
+
+#### Negation|negation
+
+<i>
+  Negation behaved erratically prior to 1.2.0. In older versions, use it only to
+  negate single sounds (e.g. `!a`) or in intersections (e.g.
+  `@fricative&!@voiced`)
+</i>
+
+Adding `!` before an element negates it, only matching things that _don't_ match the element. For example, `!@fricative` matches any sound that _isn't_ in the `fricative` class.
+
+Elements that always match exactly one sound (such as [matrix elements](#matrix-elements) and [class references](#class-references)) can be freely negated. The negation matches any single sound that doesn't match the element.
+
+[Syllable break elements](#syllable-breaks) can also be freely negated. The negation matches zero sounds, only if there isn't a syllable edge at that location.
+
+Negating anything else is restricted. You can't write an expression like `!abc => x`; it's clear what `!abc` _shouldn't_ match (namely, `abc`), but it isn't clear what it _should_ match. Older versions of Lexurgy would accept this rule, but it would turn the word `abcabc` into `xxxxxx`. That first `a` isn't `abc`, and neither is the first `b`, and so on, so everything would get turned into `x`, even though the entire word is made of copies of `abc`.
+
+So negation of elements like this is only allowed in specific situations:
+
+- In an [intersection](#intersections), after `&`. Once the first element in an intersection has matched something, there's a definite sequence of sounds to check against the negated element. For example, `([]*3)&!abc` is valid, and matches any _three_ sounds that aren't the sequence `abc`; the first element in the intersection provides the needed context to make the interpretation of the negated element clear.
+
+- At the very beginning of a [before environment](#environments) or the very end of an [after environment](#environments). In this case, the negated element can simply check whether anything matching the element is present in the environment, and stop the rule from running if it is. For example, `e => f / !abc d _` changes `bcde` to `bcdf`, but leaves `abcde` unchanged. Since there's nothing beyond the `!abc` in the rule, how many sounds to match is irrelevant.
+
+Negated elements can't be used as emitters.
+
+### Blocks|blocks
+
+_Blocks_ let you organize multiple [expressions](#expressions) within a rule and control how they apply.
+
+#### Simultaneous Blocks|simultaneous
+
+You can write several expressions on consecutive lines within a rule. When you do, Lexurgy automatically wraps them in a _simultaneous block_.
+
+In a simultaneous block, all the expressions apply at the same time, everywhere they can apply. The procedure looks like this:
+
+1. Lexurgy looks for all the places where any of the expressions could apply—parts of the word that match the [input pattern](#input-output) and whose surroundings satisfy the [environment](#environments). It compiles this into a list of _application sites_.
+
+2. Lexurgy resolves _conflicts_ between application sites—places where two expression applications would try to change overlapping parts of the word:
+
+   1. If two application sites were produced by the same expression and start at the same location in the word, the one that _ends earlier_ in the word (i.e. the shorter match) is discarded.
+
+   2. If two overlapping application sites were produced by different expressions, the one produced by the _later_ expression in the block is discarded.
+
+   3. If two overlapping application sites were produced by the same expression and start at different locations in the word, the one that starts _later in the word_ is discarded.
+
+3. Lexurgy applies the expressions at the remaining application sites.
+
+Look at this example:
+
+<ScExample
+  changes={`class A {á, à, ä}\nclass E {é, è, ë}\nclass O {ó, ò, ö}\n\nmy-rule:\n  @E @O => x\n  (@A @E)+ => y\n  @A @A => z\n`}
+  inputs={["áéàè", "áéó", "áàä", "áéàèó"]}
+/>
+
+When the rule applies to `áéàè`, the first expression matches `áé`, `àè`, and `áéàè`. First, the match to `áé` is discarded because it starts at the same location as `áéàè` but ends earlier. Then the match to `àè` is discarded because it starts later in the word than `áéàè`. So the expression applies to the entire word, and the result is `y`, not `áéy` or `yàè`.
+
+When the rule applies to `áéó`, the first expression matches `éó` while the second expression matches `áé`. Since these overlap, the match from the _second_ expression is discarded, and only the _first_ expression applies. So the result is `áx`, not `yó`.
+
+When the rule applies to `áàä`, the third expression matches both `áà` and `àä`, and no other expressions match anything. Since these overlap, and `áà` starts earlier in the word than `àä`, the match to `àä` is discarded, and the expression only applies to `áà`. So the result is `zä`, not `áz`.
+
+When the rule applies to `áéàèó`, you might think that the result would be `yàx`, but it's actually `áéàx`. That's because shorter matches are discarded _before_ expression order is resolved. The rule produces the following application sites: `èó` from the first expression, and `áé`, `àè`, and `áéàè` from the second expression. First, the `áé` match is discarded because `áéàè` is a longer match at the same location. Then `àè` and `áéàè` are discarded because they overlap with the match to `èó` from the first expression. The result is that only `èó` ever gets changed.
+
+#### Sequential Blocks|sequential
+
+Sequential blocks are like putting multiple rules inside
+
+#### Hierarchical Blocks|hierarchical
+
+#### Modifiers|modifiers
+
+##### Propagation|propagation
+
+##### Left-To-Right|ltr
+
+##### Right-To-Left|rtl
+
+### Filters|filters
+
+### Special Rule Types|special-rules
+
+#### Deferred Rules|deferred
 
 <i>New in 1.1.0</i>
 
-### Cleanup Rules|cleanup
+#### Cleanup Rules|cleanup
 
 <i>New in 1.1.0</i>
 
-### Syllables|syllables
+#### Syllables|syllables
 
-#### Manual Syllables|manual-syllables
+##### Manual Syllables|manual-syllables
 
-#### Simple Automatic Syllables|simple-syllables
+##### Simple Automatic Syllables|simple-syllables
 
-#### Structured Automatic Syllables|structured-syllables
+##### Structured Automatic Syllables|structured-syllables
 
 <i>New in 1.7.0</i>
 
@@ -43,25 +606,11 @@ TODO `!.` is since 1.2.0.
 
 TODO `$.` is since 1.2.0.
 
-### Romanization|romanization
+#### Romanization|romanization
 
-#### Notation Conflicts|literal
+##### Notation Conflicts|literal
 
-## Blocks|blocks
-
-### Hierarchical Blocks|hierarchical
-
-## Expressions|expressions
-
-### Unchanged|dummy
-
-## Elements|elements
-
-### Negation|negation
-
-TODO negation of arbitrary elements in conditions is since 1.2.0.
-
-### Repeaters|repeaters
+##### Intermediate Romanizers|intermediate
 
 export default function MdxPage({ children }) {
   return <MdxLayout>{children}</MdxLayout>;
