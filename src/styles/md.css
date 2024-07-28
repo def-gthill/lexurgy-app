@@ -5,7 +5,7 @@
   padding: 8px;
   max-height: 80%;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   background-color: var(--primary);
 }
 
