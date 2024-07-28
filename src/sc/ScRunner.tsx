@@ -100,7 +100,7 @@ export default function ScRunner({
             )}
             <ExportButton fileName="lexurgy.lsc" data={sc.soundChanges} />
             <a
-              href="https://www.meamoria.com/lexurgy/html/sc-tutorial.html"
+              href="/sc/docs"
               target="_blank"
               rel="noopener"
               className="button"
