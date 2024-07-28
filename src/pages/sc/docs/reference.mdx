@@ -459,6 +459,8 @@ Inexact captures can't be used as emitters.
 
 ##### Syllable Captures|syllable-captures
 
+<i>New in 1.2.0</i>
+
 Normal captures only copy _sounds_, not syllable information. To copy syllable information, you need a syllable capture, written with a `.` between the `$` and number: `$.1`, `$.2`, `$.3`, etc.
 
 As an emitter, a syllable capture produces exactly the sounds and syllable information saved by the capture binding with the same number.
@@ -505,7 +507,7 @@ An intersection, written as a list of elements joined with `&`, matches only wha
 
 Intersections can't be used as emitters.
 
-#### Negation|negation
+#### Negated Elements|negation
 
 <i>
   Negation behaved erratically prior to 1.2.0. In older versions, use it only to
@@ -517,7 +519,7 @@ Adding `!` before an element negates it, only matching things that _don't_ match
 
 Elements that always match exactly one sound (such as [matrix elements](#matrix-elements) and [class references](#class-references)) can be freely negated. The negation matches any single sound that doesn't match the element.
 
-[Syllable break elements](#syllable-breaks) can also be freely negated. The negation matches zero sounds, only if there isn't a syllable edge at that location.
+Since 1.2.0, [syllable break elements](#syllable-breaks) can also be freely negated. The negation matches zero sounds, only if there isn't a syllable edge at that location.
 
 Negating anything else is restricted. You can't write an expression like `!abc => x`; it's clear what `!abc` _shouldn't_ match (namely, `abc`), but it isn't clear what it _should_ match. Older versions of Lexurgy would accept this rule, but it would turn the word `abcabc` into `xxxxxx`. That first `a` isn't `abc`, and neither is the first `b`, and so on, so everything would get turned into `x`, even though the entire word is made of copies of `abc`.
 
@@ -528,6 +530,42 @@ So negation of elements like this is only allowed in specific situations:
 - At the very beginning of a [before environment](#environments) or the very end of an [after environment](#environments). In this case, the negated element can simply check whether anything matching the element is present in the environment, and stop the rule from running if it is. For example, `e => f / !abc d _` changes `bcde` to `bcdf`, but leaves `abcde` unchanged. Since there's nothing beyond the `!abc` in the rule, how many sounds to match is irrelevant.
 
 Negated elements can't be used as emitters.
+
+#### Environment Elements|environment-elements
+
+An [environment](#environments) can be added not just to an entire expression, but to an individual element:
+
+<ScExample changes={`rule:\n  i / _ n // k _ => e`} inputs={["kinitin"]} />
+
+In fact, this is how _all_ environments work under the hood: an expression like `i => e / _ n // k _` gets transformed internally into `i / _ n // k _ => e`.
+
+As a matcher, an environment element matches its input pattern, only if the surroundings of the matched sounds satisfy the condition and don't satisfy the exception.
+
+An environment element can't be used as an emitter.
+
+#### Precedence|precedence
+
+In case of ambiguity, elements have the following precedence:
+
+1. [Negation](#negation)
+2. [Captures](#captures) and [repeaters](#repeaters)
+3. [Intersections](#intersections)
+4. [Sequences](#sequences)
+5. [Environment elements](#environment-elements)
+
+If you need to change the precedence, you can use parentheses. For example, by default captures have a higher precedence than sequences, so the following capture only captures one sound:
+
+<ScExample
+  changes={"rule:\n  [] []$1 => n $1 n $1 n $1 / $ _"}
+  inputs={["aabatman"]}
+/>
+
+If you want to capture _both_ matched sounds, wrap the `[] []` in parentheses.
+
+<ScExample
+  changes={"rule:\n  ([] [])$1 => n $1 n $1 n $1 / $ _"}
+  inputs={["aabatman"]}
+/>
 
 ### Blocks|blocks
 
@@ -568,19 +606,115 @@ When the rule applies to `áéàèó`, you might think that the result would be 
 
 #### Sequential Blocks|sequential
 
-Sequential blocks are like putting multiple rules inside
+A sequential block consists of a list of other blocks separated by `then:`. Each nested block is applied in sequence, as if they were separate rules, except that [cleanup](#cleanup) and [syllable](#syllables) rules don't run in between them.
 
 #### Hierarchical Blocks|hierarchical
 
+A hierarchical block consists of a list of other blocks separated by `else:`. The first nested block is applied; only if it fails to make any changes to the word, the second block is applied; and so on.
+
+This is particularly useful for writing stress rules. For example, the following rule stresses a word on the _last_ syllable if it contains a long vowel, the _second-last_ syllable otherwise:
+
+<ScExample
+  changes={
+    "feature +long\nfeature (syllable) +stress\ndiacritic ˈ (before) [+stress]\ndiacritic ː (floating) [+long]\nclass vowel {a, e, i, o, u}\nclass cons {p, t, k, s, m, n, l}\n\nsyllables:\n  @cons? :: @vowel :: @cons?\n\nassign-stress:\n  [+long] => [+stress] / _ @cons* $\n  else:\n  <syl> => [+stress] / _ <syl> $"
+  }
+  inputs={["kikiː", "kiki"]}
+/>
+
+When nesting hierarchical blocks inside sequential blocks or vice versa, put the nested blocks in parentheses. This is a hierarchical block inside a sequential block:
+
+<ScExample
+  changes={
+    "rule:\n  a => b\n  c => d\n  then:\n  (\n    b => e\n    else:\n    d => f\n  )"
+  }
+  inputs={["aa", "cc", "ac"]}
+/>
+
+This is a rule with the same expressions, but with the sequential block inside the hierarchical block:
+
+<ScExample
+  changes={
+    "rule:\n  (\n    a => b\n    c => d\n    then:\n    b => e\n  )\n  else:\n  d => f"
+  }
+  inputs={["aa", "cc", "ac"]}
+/>
+
 #### Modifiers|modifiers
+
+Modifiers alter the behaviour of a single block. They can be added directly after the rule name to affect the whole rule, or after a `then` or `else` to affect ony that block. To add a modifier to the first nested block in a sequential or hierarchical block, add an extra `unchanged` expression before it.
 
 ##### Propagation|propagation
 
+A block tagged with `propagate` is applied repeatedly, with the output from each application being fed into the next, until the word stops changing. Take this rule without modifiers:
+
+<ScExample changes={"rule:\n  aa => a"} inputs={["baaaaaaaad"]} />
+
+This turns pairs of `a` characters into a single `a`, halving the total number. Now add the `propagate` modifier:
+
+<ScExample changes={"rule propagate:\n  aa => a"} inputs={["baaaaaaaad"]} />
+
+After halving the number of `a` characters once, the rule applies again to the output, halving the number again, and then again. The result is a single `a`, no matter how many the word started with.
+
 ##### Left-To-Right|ltr
+
+A block tagged with `ltr` is applied once starting at the first character in the word, then once starting at the second character, and so on, with each application seeing the result of all previous applications. This ensures that effects only propagate from the start of the word to the end, not the other way around.
+
+Take this `propagate` rule:
+
+<ScExample
+  changes={"rule propagate:\n  dd => xx\n  {cx, xc} => xx\n  {bx, xb} => xx"}
+  inputs={["abcddcba"]}
+/>
+
+The `dd` in the middle turns into `xx`, and then the other expressions spread the line of `x` in both directions. Now change the `propagate` modifier to `ltr`:
+
+<ScExample
+  changes={"rule ltr:\n  dd => xx\n  {cx, xc} => xx\n  {bx, xb} => xx"}
+  inputs={["abcddcba"]}
+/>
+
+This rule only spreads the line of `x` to the right, leaving the initial `abc` untouched.
 
 ##### Right-To-Left|rtl
 
+A block tagged with `rtl` is applied once starting at the last character in the word, then once starting at the second-last character, and so on, with each application seeing the result of all previous applications. As `ltr` rules propagate effects from the start of the word to the end, `rtl` rules propagate them from the end to the start.
+
+Take the same propagating example from [before](#ltr) and replace `propagate` with `rtl`:
+
+<ScExample
+  changes={"rule rtl:\n  dd => xx\n  {cx, xc} => xx\n  {bx, xb} => xx"}
+  inputs={["abcddcba"]}
+/>
+
+This rule only spreads the line of `x` to the left, leaving the final `cba` untouched.
+
 ### Filters|filters
+
+A filter is a modifier that can be added to a rule, right after a rule name. It causes the rule to only consider certain sounds when matching. Any class reference or feature matrix can be used as a filter condition.
+
+When a rule has a filter:
+
+- The input pattern and environment can only match sounds that satisfy the filter condition, as if they all had `&<condition>` after them.
+- Two sounds are considered adjacent if all the sounds between them _don't_ satisfy the filter condition; sounds that don't match the filter are skipped entirely when determining matches.
+- Expressions are forbidden from inserting sounds.
+
+Here's a rule with a class reference as a filter condition:
+
+<ScExample
+  changes={"class vowel {a, e, i, o, u}\nrule @vowel:\n  [] => $1 / []$1 _"}
+  inputs={["sanotehu", "kikboubsta"]}
+/>
+
+This rule turns each vowel into a copy of the previous vowel, even if there are consonants between them.
+
+Here's the same rule written with features instead:
+
+<ScExample
+  changes={
+    "feature type (*cons, vowel)\nfeature height(low, mid, high)\nfeature frontness (front, back)\nsymbol a [low front vowel]\nsymbol e [mid front vowel]\nsymbol i [high front vowel]\nsymbol o [mid back vowel]\nsymbol u [high back vowel]\n\nrule [vowel]:\n  [] => $1 / []$1 _"
+  }
+  inputs={["sanotehu", "kikboubsta"]}
+/>
 
 ### Special Rule Types|special-rules
 
@@ -588,29 +722,249 @@ Sequential blocks are like putting multiple rules inside
 
 <i>New in 1.1.0</i>
 
+A deferred rule, marked with the modifier `defer` after the rule name, doesn't apply at the point where it's defined. Instead, it can be referenced later as part of other rules, using the rule name with a colon attached to the beginning.
+
+The following rule does nothing:
+
+<ScExample changes={"my-rule defer:\n  i => o"} inputs={["kiki"]} />
+
+But with a reference from another rule, the change is applied:
+
+<ScExample
+  changes={"my-rule defer:\n  i => o\n\nrule1:\n  :my-rule"}
+  inputs={["kiki"]}
+/>
+
+The same deferred rule can be referenced multiple times:
+
+<ScExample
+  changes={
+    "my-rule defer:\n  i => o\n\nrule1:\n  :my-rule\n\nrule2:\n  k => o\n\nrule3:\n  :my-rule"
+  }
+  inputs={["kiki"]}
+/>
+
+A rule containing deferred references can also contain ordinary blocks and expressions. But if the deferred rule contains nested blocks, it can't be referenced from inside a sequential block.
+
 #### Cleanup Rules|cleanup
 
 <i>New in 1.1.0</i>
 
+A cleanup rule, marked with the modifier `cleanup` after the rule name, applies once at the point where it's defined, and then _again_ after every subsequent rule:
+
+<ScExample
+  changes={
+    "my-cleanup cleanup:\n  i => o\n\nrule1:\n  u => i\n\nrule2:\n  a => i"
+  }
+  inputs={["kiki", "bouba"]}
+/>
+
+A cleanup rule can be deactivated by defining another rule with the same name, containing only the word `off`:
+
+<ScExample
+  changes={
+    "my-cleanup cleanup:\n  i => o\n\nrule1:\n  u => i\n\nmy-cleanup:\n  off\n\nrule2:\n  a => i"
+  }
+  inputs={["kiki", "bouba"]}
+/>
+
+The cleanup rule runs _one last time_ immediately before being deactivated, but no longer runs after subsequent rules.
+
 #### Syllables|syllables
+
+By default, syllables are disabled; the character `.` is treated as a sound like any other. To enable syllables, you need at least one _syllable rule_.
 
 ##### Manual Syllables|manual-syllables
 
+To enable manual syllables, use an `explicit` syllable rule:
+
+<ScExample
+  changes={"syllables:\n  explicit\n\nrule:\n  i => e / _ k"}
+  inputs={["ki.ki"]}
+/>
+
+With manual syllables, you have to manage syllables yourself. Rules will generally leave syllable breaks and syllable-level features where they are, even if this no longer makes sense:
+
+<ScExample
+  changes={"syllables:\n  explicit\n\nrule:\n  u => wa"}
+  inputs={["bou.ba"]}
+/>
+
+You can deal with this by adding and removing syllable breaks as appropriate within the rules:
+
+<ScExample
+  changes={
+    "class vowel {a, e, i, o, u}\n\nsyllables:\n  explicit\n\nrule:\n  u => . wa / @vowel _\n  u => wa"
+  }
+  inputs={["bou.ba"]}
+/>
+
+A `clear` syllables rule turns manual syllables back off, and discards all the syllable breaks:
+
+<ScExample
+  changes={
+    "class vowel {a, e, i, o, u}\n\nsyllables:\n  explicit\n\nrule:\n  u => . wa / @vowel _\n  u => wa\n\nsyllables:\n  clear"
+  }
+  inputs={["bou.ba"]}
+/>
+
 ##### Simple Automatic Syllables|simple-syllables
+
+To enable automatic syllables, use a syllable rule containing one or more _syllable patterns_.
+
+A syllable rule automatically breaks up each word into syllables that match the syllable patterns. For example, the following syllable rule creates syllables with an optional consonant onset, a vowel as the nucleus, and an optional consonant code:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant? @vowel @consonant?`}
+  inputs={["kiski", "apat"]}
+/>
+
+The syllable rule always ends each syllable as early as possible, so that consonants go into the onset rather than the coda. So the above rule breaks up `apat` as `a.pat`, not `ap.at`, since `a` is shorter than `ap`. But `kiski` is broken up as `kis.ki`, since `ki.ski` would have an invalid syllable `ski`.
+
+Once a syllable rule is defined, it runs again after each subsequent rule, similar to [cleanup rules](#cleanup). This ensures that the syllables continue to make sense:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant? @vowel @consonant?\n\nvowel-loss:\n  i => * / s _ k`}
+  inputs={["kisiki"]}
+/>
+
+You can disable the syllable rule again using an `explicit` syllable rule, or remove the syllable breaks altogether with a `clear` syllable rule. Unlike a cleanup rule, a syllable rule does _not_ run one more time immediately before being disabled.
+
+You can also _change_ the syllable rule by defining a new one. Again, the previous rule doesn't apply one more time, so this can be used to adapt the syllable structure to a rule that produces previously forbidden syllables:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant @vowel\n\nfinal-vowel-loss:\n  @vowel => * / _ $\n\nsyllables:\n  @consonant @vowel @consonant?`}
+  inputs={["kisiki"]}
+/>
+
+If a word can't be broken up into valid syllables, the rule produces an error.
 
 ##### Structured Automatic Syllables|structured-syllables
 
 <i>New in 1.7.0</i>
 
-TODO `!.` is since 1.2.0.
+As mentioned, simple syllable rules always stop each syllable as early as possible. This is intended to assign consonants to the onset of a syllable instead of the coda of the previous syllable, as is common when dividing words into syllables. But this has two major problems:
 
-TODO `$.` is since 1.2.0.
+- Simple syllable rules don't actually know where the "onset" and "coda" are, so they apply the early stopping rule to the nucleus as well. This makes it hard to allow multiple vowels in the same nucleus:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant? @vowel @vowel? @consonant?`}
+  inputs={["poupa"]}
+/>
+
+- Sometimes you don't _want_ to assign consonants to the onset, especially in word-internal clusters. This rule assigns the internal `sk` to the onset, even if your intention is to divide the syllables _between_ the `s` and `k`:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  s? @consonant? @vowel @consonant?`}
+  inputs={["kiski", "skiki"]}
+/>
+
+To make both scenarios easier, Lexurgy 1.7.0 introduced _structured_ syllable rules. These is now the preferred way of defining syllable rules.
+
+A structured syllable rule lets you explicitly define where the onset, nucleus, and coda are by separating them with `::` symbols:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant? :: @vowel @vowel? :: @consonant?`}
+  inputs={["poupa"]}
+/>
+
+Structured syllable rules take this into account when resolving ambiguity. Codas still yield to following onsets: if a consonant could go in either the coda of one syllable or the onset of the next without creating invalid syllables, it will be assigned to the onset. But the _nucleus_ is greedy, consuming as many sounds as possible. The nucleus pattern `@vowel @vowel?` will always consume a second vowel if it's available, preventing a syllable break from appearing between the vowels.
+
+The coda is optional. This is also a valid pattern:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant? :: @vowel @vowel?`}
+  inputs={["poupa"]}
+/>
+
+But the onset is mandatory. If for some reason you need a syllable pattern with no onset, use `*` as the onset:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  * :: @vowel @vowel?`}
+  inputs={["uuiiuuaaaa"]}
+/>
+
+There's another optional part of a structured syllable pattern: the _reluctant onset_. This is written before the regular onset, separated from it by `?:`. The reluctant onset yields to the coda in the previous syllable, allowing you to force consonant clusters to be split between syllables:
+
+<ScExample
+  changes={`class consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  s? ?: @consonant? :: @vowel :: @consonant?`}
+  inputs={["kiski", "skiki"]}
+/>
+
+##### Multiple Syllable Patterns|multiple-syllable-patterns
+
+If a syllable rule contains more than one syllable pattern, then it use all of them when breaking up a word into syllables. A syllable is valid if it matches at least one of the syllable patterns.
+
+##### Assigning Syllable Features|assigning-features
+
+You can assign syllable-level features in a syllable pattern by putting the feature matrix after `=>`:
+
+<ScExample
+  changes={`feature (syllable) +heavy, +long\ndiacritic ² [+heavy]\ndiacritic ː (floating) [+long]\nclass consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant? :: @vowel&[+long] => [+heavy]\n  @consonant? :: @vowel :: @consonant => [+heavy]\n  @consonant? :: @vowel`}
+  inputs={["kiːki", "papat"]}
+/>
+
+When assigning syllable-level features, the order of the patterns can matter. Only the first syllable pattern that matches a syllable assigns its feature:
+
+<ScExample
+  changes={`feature (syllable) +kiki, (syllable) +bouba\ndiacritic ᵏ [+kiki]\ndiacritic ᵇ [+bouba]\nclass consonant {p, t, k, s, m, n, l}\nclass vowel {a, e, i, o, u}\n\nsyllables:\n  @consonant :: @vowel => [+kiki]\n  @consonant? :: @vowel => [+bouba]`}
+  inputs={["sao", "etu"]}
+/>
+
+In this example, each syllable gets either `+kiki` or `+bouba`, never both, even though anything that matches the first pattern also matches the second.
 
 #### Romanization|romanization
 
+Lexurgy sound changes are normally written in phonetic notation, like IPA. Lexurgy provides special rule names designed to convert between this notation and an easier-to-type romanization system for the language.
+
+The first rule in a sound change file can be named `deromanizer`, indicating that it's meant to translate the initial language's romanization system into phonetic notation. Similarly, the last rule can be named `romanizer`, indicating that it translates phonetic notation into the final language's romanization system.
+
+For the most part, romanizers and deromanizers behave like any other rule. They can contain blocks, and can reference classes, elements, and deferred rules. However:
+
+- Other rules can't come before the deromanizer or after the romanizer.
+- Romanizers and deromanizers can't have [modifiers](#modifiers) or [filters](#filters) (but blocks inside them can have modifiers).
+- Any active syllable and cleanup rules don't apply again after the romanizer.
+
 ##### Notation Conflicts|literal
 
+Occasionally, you may find that your romanization system conflicts with the declarations. Suppose you have a language with ejective consonants, marked with the IPA diacritic `ʼ`. But in the romanization, you use the same character to indicate the glottal stop. Here's an attempt to write this up:
+
+<ScExample
+  changes={
+    "feature +ejective\ndiacritic ʼ [+ejective]\n\nderomanizer:\n  ʼ => ʔ\n  {p, t, k} => [+ejective]\n\nromanizer:\n  [+ejective] => [-ejective]\n  ʔ => ʼ"
+  }
+  inputs={["kiʼi"]}
+/>
+
+This produces an error before you even run it. The `ʼ` character is declared as a diacritic, but both the romanizer and deromanizer try to use it on its own, without a symbol to attach it to.
+
+As a workaround, romanizers and deromanizers have the special modifier `literal`, which lets you temporarily ignore all declarations.
+
+If the top-level block in a deromanizer is a [sequential block](#sequential), then everything up to the first `then:` ignores declarations. Otherwise, the entire deromanizer ignores declarations. Similarly, if the top-level block in a _romanizer_ is a sequential block, then everything _after the last_ `then:` ignores declarations, otherwise the entire romanizer ignores declarations.
+
+Here's the above example fixed using `literal`:
+
+<ScExample
+  changes={
+    "feature +ejective\ndiacritic ʼ [+ejective]\n\nderomanizer literal:\n  ʼ => ʔ\n  then:\n  {p, t, k} => [+ejective]\n\nromanizer literal:\n  [+ejective] => [-ejective]\n  then:\n  ʔ => ʼ"
+  }
+  inputs={["kiʼi"]}
+/>
+
 ##### Intermediate Romanizers|intermediate
+
+Intermediate romanizers don't affect the final output of the sound changes, but they add intermediate stages to the output, letting you see what each word looks like partway through.
+
+An intermediate romanizer looks like an ordinary rule, except that its name must start with `romanizer-`. Here's an example with some intermediate romanizers:
+
+<ScExample
+  changes={
+    "a-to-b:\n  a => b\n\nromanizer-b:\n  unchanged\n\nb-to-c:\n  b => c\n\nromanizer-c:\n  c => k\n\nc-to-d:\n  c => d"
+  }
+  inputs={["aaaa"]}
+/>
+
+Notice how the output table now has extra columns for the intermediate stages. The first intermediate romanizer contains the [unchanged](#dummy) expression, so it writes out the word exactly as it is at that stage. The second intermediate romanizer contains a real expression `c => k`, so even though the word is `cccc` at that stage, it shows up as `kkkk`. But this change has no lasting effect on the word; the next rule still sees `cccc`, as if the intermediate romanizer wasn't there.
 
 export default function MdxPage({ children }) {
   return <MdxLayout>{children}</MdxLayout>;

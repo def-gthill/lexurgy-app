@@ -3,6 +3,9 @@
   top: 56px;
   width: 20%;
   padding: 8px;
+  max-height: 80%;
+  overflow-x: hidden;
+  overflow-y: scroll;
   background-color: var(--primary);
 }
 
@@ -12,7 +15,7 @@
 
 .md-below-header ol,
 .md-below-header ul {
-  padding-left: 2rem;
+  padding-left: 1rem;
 }
 
 .md-main {
