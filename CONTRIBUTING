@@ -2,7 +2,7 @@
 
 ## What can I contribute to?
 
-At this point, please contribute only to the public Lexurgy SC interface (based at src/sc/scPublicPage.tsx).
+At this point, please contribute only to the public Lexurgy SC interface (based at src/sc/scPublicPage.tsx) or the documentation (based at src/pages/sc/docs).
 
 If you want to contribute to the SC language itself, go to the [main Lexurgy repo](https://github.com/def-gthill/lexurgy).
 
