@@ -4,6 +4,7 @@ const publicPages = [
   "/",
   "/sc",
   "/sc/examples",
+  "/sc/docs*",
   "/inflect",
   "/api/services",
   "/api/daily",
