@@ -111,6 +111,30 @@ describe("an SC runner", () => {
     expectRequestSent(runSoundChanges, "", []);
   });
 
+  it("shows an extra no-changes column when all traced words don't change", async () => {
+    const runSoundChanges = uppercaser();
+    renderScRunner({
+      evolution: { soundChanges: "", testWords: ["FOO", "BAR"] },
+      runSoundChanges,
+    });
+    await userEvent.click(screen.getByLabelText("Trace Changes"));
+    await toggleTracingOfWord("FOO");
+    await clickApply();
+    expect(screen.getByText("(No Changes)")).toBeVisible();
+  });
+
+  it("doesn't show the extra no-changes column when no words are being traced", async () => {
+    const runSoundChanges = uppercaser();
+    renderScRunner({
+      evolution: { soundChanges: "", testWords: ["foo", "bar"] },
+      runSoundChanges,
+    });
+    await userEvent.click(screen.getByLabelText("Trace Changes"));
+    await clickApply();
+    expect(screen.getByText("FOO")).toBeVisible();
+    expect(screen.queryByText("(No Changes)")).not.toBeInTheDocument();
+  });
+
   it("remembers previous results instead of sending them again", async () => {
     const runSoundChanges = uppercaser();
     renderScRunner({

@@ -102,59 +102,30 @@ export default function useScState(
 
     async runSc() {
       setStatus("Running...");
+      const wordsToTrace = tracing
+        ? histories
+            .filter((history) => history.tracing)
+            .map((history) => history.inputWord)
+        : [];
       const request: Scv1Request = {
         changes: soundChanges,
         inputWords: inputWords,
-        traceWords: tracing
-          ? histories
-              .filter((history) => history.tracing)
-              .map((history) => history.inputWord)
-          : [],
+        traceWords: wordsToTrace,
         startAt: startAtEnabled ? startAt : null,
         stopBefore: stopBeforeEnabled ? stopBefore : null,
       };
       try {
         const result = await runScWithCaching(request);
-        const intermediateWords = toMap(result.intermediateWords ?? {});
-        const traces = toMap(result.traces ?? {});
         const errors = result.errors ?? [];
         setError(null);
         setScRunToggle(1 - scRunToggle);
         setRuntimeErrors(errors);
-        if (hasElements(traces)) {
-          setIntermediateStageNames(
-            result.ruleNames.filter((ruleName) =>
-              values(traces).some((trace) =>
-                trace.some((step) => step.rule === ruleName)
-              )
-            )
-          );
-          setHistories(
-            histories.map((history, i) => ({
-              ...history,
-              outputWord: result.outputWords[i],
-              intermediates: new Map(
-                traces
-                  .get(history.inputWord)
-                  ?.map(({ rule, output }) => [rule, output])
-              ),
-            }))
-          );
-        } else {
-          setIntermediateStageNames(keys(intermediateWords));
-          setHistories(
-            histories.map((history, i) => ({
-              ...history,
-              outputWord: result.outputWords[i],
-              intermediates: new Map(
-                entries(intermediateWords).map(([stage, words]) => [
-                  stage,
-                  words[i],
-                ])
-              ),
-            }))
-          );
-        }
+        const { intermediateStageNames, histories: newHistories } =
+          wordsToTrace.length > 0
+            ? resultToHistoriesWithTracing(result, histories)
+            : resultToHistoriesWithoutTracing(result, histories);
+        setIntermediateStageNames(intermediateStageNames);
+        setHistories(newHistories);
       } catch (error: any) {
         if (error.response) {
           setError(toErrorMessage(error.response.data));
@@ -176,6 +147,57 @@ export default function useScState(
       }
     }
   }
+}
+
+function resultToHistoriesWithTracing(
+  result: Scv1Response,
+  previousHistories: WordHistory[]
+): { intermediateStageNames: string[]; histories: WordHistory[] } {
+  const traces = toMap(result.traces ?? {});
+  if (hasElements(traces)) {
+    return {
+      intermediateStageNames: result.ruleNames.filter((ruleName) =>
+        values(traces).some((trace) =>
+          trace.some((step) => step.rule === ruleName)
+        )
+      ),
+      histories: previousHistories.map((history, i) => ({
+        ...history,
+        outputWord: result.outputWords[i],
+        intermediates: new Map(
+          traces
+            .get(history.inputWord)
+            ?.map(({ rule, output }) => [rule, output])
+        ),
+      })),
+    };
+  } else {
+    return {
+      intermediateStageNames: ["(No Changes)"],
+      histories: previousHistories.map((history, i) => ({
+        ...history,
+        outputWord: result.outputWords[i],
+        intermediates: new Map(),
+      })),
+    };
+  }
+}
+
+function resultToHistoriesWithoutTracing(
+  result: Scv1Response,
+  previousHistories: WordHistory[]
+): { intermediateStageNames: string[]; histories: WordHistory[] } {
+  const intermediateWords = toMap(result.intermediateWords ?? {});
+  return {
+    intermediateStageNames: keys(intermediateWords),
+    histories: previousHistories.map((history, i) => ({
+      ...history,
+      outputWord: result.outputWords[i],
+      intermediates: new Map(
+        entries(intermediateWords).map(([stage, words]) => [stage, words[i]])
+      ),
+    })),
+  };
 }
 
 function toErrorMessage(error: any) {
