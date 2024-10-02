@@ -9,7 +9,7 @@ statement {
 
 ElementDecl { ElementKw ws Name ws RuleElement }
 ElementKw { @specialize<Name, "Element"> | @specialize<Name, "element"> }
-ClassDecl { ClassKw ws Name ws "{" ws? classElement ("," ws? classElement)* ","? ws? "}" }
+ClassDecl { ClassKw ws Name ws "{" (newline | ws)? classElement ("," (newline | ws)? classElement)* ","? (newline | ws)? "}" }
 ClassKw { @specialize<Name, "Class"> | @specialize<Name, "class"> }
 classElement { ElementRef | Text }
 FeatureDecl {

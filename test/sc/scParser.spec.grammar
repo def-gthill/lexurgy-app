@@ -1,3 +1,21 @@
+# Multiline class definition
+
+class foo {
+  a,
+  b,
+}
+
+==>
+
+file(
+  ClassDecl(
+    ClassKw,
+    Name,
+    Text(Name),
+    Text(Name),
+  )
+)
+
 # Simple rule
 
 foo:
