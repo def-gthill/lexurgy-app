@@ -39,6 +39,29 @@ file(
   )
 )
 
+# End-of-line comment
+
+Feature +voiced #
+Feature +long
+
+==>
+
+file(
+  FeatureDecl(
+    FeatureKw,
+    PlusFeature(
+      PlusFeatureDecl(Name)
+    )
+  ),
+  Comment,
+  FeatureDecl(
+    FeatureKw,
+    PlusFeature(
+      PlusFeatureDecl(Name)
+    )
+  )
+)
+
 # Empty
 
 foo:

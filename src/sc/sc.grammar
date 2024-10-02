@@ -139,7 +139,7 @@ matrixValue { PlusFeatureValue | FeatureValue }
 PlusFeatureValue { ("+" | "-") Name }
 FeatureValue { Name }
 Text { Name OtherText | Name | OtherText }
-newline { singleNewline+ }
+newline { ws? singleNewline+ }
 
 @tokens {
   ws { (" " | "\t")+ }
