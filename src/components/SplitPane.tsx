@@ -1,7 +1,13 @@
 import { MouseEvent, useEffect, useRef, useState } from "react";
 import styles from "./SplitPane.module.css";
 
-export default function SplitPane({ children }: { children: JSX.Element[] }) {
+export default function SplitPane({
+  children,
+  rootClass = "",
+}: {
+  children: JSX.Element[];
+  rootClass?: string;
+}) {
   const [leftPaneFraction, setLeftPaneFraction] = useState<number | null>(null);
   const dividerPos = useRef<number | null>(null);
   const leftPaneRef = useRef<HTMLDivElement | null>(null);
@@ -44,7 +50,7 @@ export default function SplitPane({ children }: { children: JSX.Element[] }) {
   }, [leftPaneFraction, resizeToggle]);
 
   return (
-    <div style={{ display: "flex" }}>
+    <div className={`${styles.root} ${rootClass}`}>
       <div ref={leftPaneRef} className={styles.facet}>
         {children[0]}
       </div>

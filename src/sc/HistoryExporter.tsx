@@ -1,6 +1,7 @@
 import { editLast } from "@/array";
 import ExportButton from "@/components/ExportButton";
 import LabelledCheckbox from "@/components/LabelledCheckbox";
+import styles from "@/sc/HistoryExporter.module.css";
 import * as Label from "@radix-ui/react-label";
 import copy from "copy-to-clipboard";
 import { useState } from "react";
@@ -26,24 +27,17 @@ export default function HistoryExporter({
   });
 
   return (
-    <div
-      style={{
-        flexGrow: 1,
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <div style={{ flexGrow: 1 }}>
+    <div className={styles.root}>
+      <div className={styles.previewPanel}>
         <Label.Root htmlFor="preview" style={{ fontWeight: "bold" }}>
           Export Histories
         </Label.Root>
-        <div style={{ flexGrow: 1 }}>
+        <div className={styles.previewContainer}>
           <textarea
             readOnly
             value={data}
             id="preview"
-            style={{ height: "27rem", width: "100%" }}
-            className="export-preview"
+            className={`export-preview ${styles.exportPreview}`}
           />
         </div>
       </div>

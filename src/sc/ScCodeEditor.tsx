@@ -24,7 +24,7 @@ export default function ScCodeEditor({
   const createState = useRef((initialCode: string) => {
     const theme = EditorView.theme({
       "&": {
-        height: height ?? null,
+        height: "100%",
       },
     });
 
@@ -131,5 +131,5 @@ export default function ScCodeEditor({
     view.current?.setState(createState.current(initialCode ?? ""));
   }, [initialCode]);
 
-  return <div ref={editor}></div>;
+  return <div ref={editor} style={{ height }}></div>;
 }

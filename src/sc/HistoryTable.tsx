@@ -40,145 +40,116 @@ export default function HistoryTable({
 
   return (
     <div className={styles.root}>
-      <div
-        style={{
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div style={{ display: "flex", gap: "4px" }}>
-          {editingInputs && (
-            <div>
-              <Label.Root htmlFor="input-words" style={{ fontWeight: "bold" }}>
-                Input Words
-              </Label.Root>
-              <textarea
-                id="input-words"
-                style={{
-                  display: "block",
-                  width: "10rem",
-                  resize: "none",
-                  height: `${heightInRem}rem`,
-                  whiteSpace: "pre",
-                  wordWrap: "normal",
-                }}
-                onChange={(event) => {
-                  const inputWords = event.target.value.split(/\r?\n/);
-                  const newHistories = inputWords.map(emptyHistory);
-                  for (const newHistory of newHistories) {
-                    if (
-                      histories.find(
-                        (history) => history.inputWord === newHistory.inputWord
-                      )?.tracing
-                    ) {
-                      newHistory.tracing = true;
-                    }
+      <div className={styles.historyContainer}>
+        {editingInputs && (
+          <div className={styles.inputWordsContainer}>
+            <Label.Root htmlFor="input-words" style={{ fontWeight: "bold" }}>
+              Input Words
+            </Label.Root>
+            <textarea
+              className={styles.inputWordsEditor}
+              id="input-words"
+              onChange={(event) => {
+                const inputWords = event.target.value.split(/\r?\n/);
+                const newHistories = inputWords.map(emptyHistory);
+                for (const newHistory of newHistories) {
+                  if (
+                    histories.find(
+                      (history) => history.inputWord === newHistory.inputWord
+                    )?.tracing
+                  ) {
+                    newHistory.tracing = true;
                   }
-                  mySetHistories(newHistories);
-                }}
-                value={myHistories
-                  .map((history) => history.inputWord)
-                  .join("\n")}
-              />
-            </div>
-          )}
-          <div
-            ref={setTableRef}
-            style={{
-              minWidth: 0,
-              height: `${heightInRem + 1}rem`,
-              flexGrow: 1,
-            }}
-          >
-            <ScrollArea>
-              <table style={{ borderSpacing: 0, textAlign: "left" }}>
-                <thead>
-                  <tr>
-                    {tracing && (
-                      <th
-                        className={`${styles.stickyHeader} ${styles.stickyColumnHeader}`}
-                      >
-                        <div className={styles.traceHeader}>
-                          <div>Trace</div>
-                          <Checkbox
-                            id="trace-all"
-                            ariaLabel="Trace All"
-                            checked={myHistories.every(
-                              (history) => history.tracing
-                            )}
-                            onCheckedChange={(checked) => {
-                              mySetHistories(
-                                myHistories.map((history) => ({
-                                  ...history,
-                                  tracing: checked,
-                                }))
-                              );
-                            }}
-                          />
-                        </div>
-                      </th>
-                    )}
+                }
+                mySetHistories(newHistories);
+              }}
+              value={myHistories.map((history) => history.inputWord).join("\n")}
+            />
+          </div>
+        )}
+        <div ref={setTableRef} className={styles.tableContainer}>
+          <ScrollArea>
+            <table style={{ borderSpacing: 0, textAlign: "left" }}>
+              <thead>
+                <tr>
+                  {tracing && (
                     <th
-                      className={`${styles.stickyHeader} ${inputColumnStyle}`}
+                      className={`${styles.stickyHeader} ${styles.stickyColumnHeader}`}
                     >
-                      Input Word
+                      <div className={styles.traceHeader}>
+                        <div>Trace</div>
+                        <Checkbox
+                          id="trace-all"
+                          ariaLabel="Trace All"
+                          checked={myHistories.every(
+                            (history) => history.tracing
+                          )}
+                          onCheckedChange={(checked) => {
+                            mySetHistories(
+                              myHistories.map((history) => ({
+                                ...history,
+                                tracing: checked,
+                              }))
+                            );
+                          }}
+                        />
+                      </div>
                     </th>
+                  )}
+                  <th className={`${styles.stickyHeader} ${inputColumnStyle}`}>
+                    Input Word
+                  </th>
+                  {showingStages &&
+                    intermediateStageNames &&
+                    intermediateStageNames.map((name) => (
+                      <Fragment key={name}>
+                        <th className={styles.stickyHeader}>
+                          {toNiceName(name)}
+                        </th>
+                      </Fragment>
+                    ))}
+                  <th className={styles.stickyHeader}>Output Word</th>
+                </tr>
+              </thead>
+              <tbody>
+                {myHistories.map((history, i) => (
+                  <tr key={i}>
+                    {tracing && (
+                      <td
+                        className={`${styles.cell} ${styles.stickyColumnHeader}`}
+                      >
+                        <Checkbox
+                          id={`tracing-${i}`}
+                          ariaLabel="Trace"
+                          checked={history.tracing}
+                          onCheckedChange={(checked) => {
+                            setTracingWord(i, checked === true);
+                          }}
+                        />
+                      </td>
+                    )}
+                    <td className={`${styles.cell} ${inputColumnStyle}`}>
+                      <b>{history.inputWord}</b>
+                    </td>
                     {showingStages &&
                       intermediateStageNames &&
-                      intermediateStageNames.map((name) => (
-                        <Fragment key={name}>
-                          <th className={styles.stickyHeader}>
-                            {toNiceName(name)}
-                          </th>
-                        </Fragment>
-                      ))}
-                    <th className={styles.stickyHeader}>Output Word</th>
+                      intermediateStageNames.map((name) => {
+                        const intermediateWord =
+                          history.intermediates.get(name) ?? "";
+                        return (
+                          <td className={styles.cell} key={name}>
+                            {outputCell(history.inputWord, intermediateWord)}
+                          </td>
+                        );
+                      })}
+                    <td className={styles.cell}>
+                      {outputCell(history.inputWord, history.outputWord ?? "")}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {myHistories.map((history, i) => (
-                    <tr key={i}>
-                      {tracing && (
-                        <td
-                          className={`${styles.cell} ${styles.stickyColumnHeader}`}
-                        >
-                          <Checkbox
-                            id={`tracing-${i}`}
-                            ariaLabel="Trace"
-                            checked={history.tracing}
-                            onCheckedChange={(checked) => {
-                              setTracingWord(i, checked === true);
-                            }}
-                          />
-                        </td>
-                      )}
-                      <td className={`${styles.cell} ${inputColumnStyle}`}>
-                        <b>{history.inputWord}</b>
-                      </td>
-                      {showingStages &&
-                        intermediateStageNames &&
-                        intermediateStageNames.map((name) => {
-                          const intermediateWord =
-                            history.intermediates.get(name) ?? "";
-                          return (
-                            <td className={styles.cell} key={name}>
-                              {outputCell(history.inputWord, intermediateWord)}
-                            </td>
-                          );
-                        })}
-                      <td className={styles.cell}>
-                        {outputCell(
-                          history.inputWord,
-                          history.outputWord ?? ""
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </ScrollArea>
-          </div>
+                ))}
+              </tbody>
+            </table>
+          </ScrollArea>
         </div>
       </div>
       {showSwitches && (

@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import PageInfo from "@/components/PageInfo";
 import ScRunner from "@/sc/ScRunner";
+import styles from "@/sc/scPublicPage.module.css";
 import { decode } from "js-base64";
 import { useRouter } from "next/router";
 
@@ -20,16 +21,18 @@ export default function ScPublic() {
         title="Lexurgy Sound Changer"
         description="A high-powered sound change applier"
       />
-      <Header />
-      <main>
-        <ScRunner
-          baseUrl={baseUrl}
-          evolution={{
-            soundChanges: soundChangesFromUrl,
-            testWords: testWordsFromUrl,
-          }}
-        />
-      </main>
+      <div className={styles.page}>
+        <Header />
+        <main>
+          <ScRunner
+            baseUrl={baseUrl}
+            evolution={{
+              soundChanges: soundChangesFromUrl,
+              testWords: testWordsFromUrl,
+            }}
+          />
+        </main>
+      </div>
     </>
   );
 }

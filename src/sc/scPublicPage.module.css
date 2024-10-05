@@ -1,0 +1,10 @@
+.page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page main {
+  min-height: 0;
+  flex-grow: 1;
+}

@@ -1,9 +1,38 @@
 .root {
+  min-height: 0;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 
   --tracing-column-width: 6rem;
+}
+
+.historyContainer {
+  min-height: 0;
+  flex-grow: 1;
+  display: flex;
+  gap: 4px;
+}
+
+.inputWordsContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputWordsEditor {
+  display: block;
+  width: 10rem;
+  resize: none;
+  white-space: pre;
+  word-wrap: normal;
+  min-height: 0;
+  flex-grow: 1;
+}
+
+.tableContainer {
+  min-width: 0;
+  min-height: 0;
+  flex-grow: 1;
 }
 
 .stickyHeader {

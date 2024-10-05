@@ -7,6 +7,7 @@ import Evolution from "@/sc/Evolution";
 import HistoryExporter from "@/sc/HistoryExporter";
 import HistoryTable from "@/sc/HistoryTable";
 import ScCodeEditor from "@/sc/ScCodeEditor";
+import styles from "@/sc/ScRunner.module.css";
 import Scv1Request from "@/sc/Scv1Request";
 import Scv1Response from "@/sc/Scv1Response";
 import ShareButton from "@/sc/ShareButton";
@@ -68,25 +69,20 @@ export default function ScRunner({
     }));
 
   return (
-    <div className="card">
-      <SplitPane>
-        <div
-          style={{
-            height: "38rem",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-          }}
-        >
-          <div>
+    <div className={`card ${styles.root}`}>
+      <SplitPane rootClass={styles.splitPane}>
+        <div className={styles.leftPane}>
+          <div className={styles.changesPane}>
             <Label.Root style={{ fontWeight: "bold" }}>
               Sound Changes
             </Label.Root>
-            <ScCodeEditor
-              initialCode={initialSoundChanges}
-              onUpdateCode={onEditSoundChanges}
-              height="27rem"
-            />
+            <div className={styles.codeContainer}>
+              <ScCodeEditor
+                initialCode={initialSoundChanges}
+                onUpdateCode={onEditSoundChanges}
+                height="100%"
+              />
+            </div>
             <div id="status">{sc.error ?? sc.status}</div>
           </div>
           <div className="buttons">
@@ -112,13 +108,7 @@ export default function ScRunner({
             </a>
           </div>
         </div>
-        <div
-          style={{
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+        <div className={styles.rightPane}>
           {exporting ? (
             <HistoryExporter
               histories={sc.histories}
@@ -126,9 +116,7 @@ export default function ScRunner({
               onDone={() => setExporting(false)}
             />
           ) : (
-            <div
-              style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
-            >
+            <div className={styles.historyPane}>
               <HistoryTable
                 key={sc.scRunToggle}
                 intermediateStageNames={sc.intermediateStageNames}
