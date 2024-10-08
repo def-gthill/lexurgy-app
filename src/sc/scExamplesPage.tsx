@@ -50,11 +50,13 @@ export default function ScExamples() {
         title="Lexurgy Sound Changer Examples"
         description="Examples of Lexurgy sound changes"
       />
-      <Header />
-      <main>
-        <h1>Sound Changer Examples</h1>
-        {examples}
-      </main>
+      <div className={styles.page}>
+        <Header />
+        <main>
+          <h1>Sound Changer Examples</h1>
+          {examples}
+        </main>
+      </div>
     </>
   );
 }
@@ -139,7 +141,9 @@ function Examples({ worlds }: { worlds: ScExampleWorld[] }) {
           </Select.Portal>
         </Select.Root>
       </div>
-      <ScRunner baseUrl={baseUrl} evolution={evolution} />
+      <div className={styles.runnerContainer}>
+        <ScRunner baseUrl={baseUrl} evolution={evolution} />
+      </div>
     </>
   ) : (
     <div>Loading example...</div>
