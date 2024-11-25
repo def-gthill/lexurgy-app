@@ -49,6 +49,7 @@ declare global {
   namespace Cypress {
     interface Chainable {
       resetDb(): Chainable<void>;
+      goToPublicHome(): Chainable<void>;
       goToHome(): Chainable<void>;
       login(user: string): Chainable<void>;
       logout(): Chainable<void>;
@@ -163,6 +164,11 @@ Cypress.Commands.add("resetDb", () => {
 
 Cypress.Commands.add("goToHome", () => {
   cy.visit("/");
+  cy.contains("Accept").click();
+});
+
+Cypress.Commands.add("goToPublicHome", () => {
+  cy.visit("/");
 });
 
 function getUserEmail(user: string) {
@@ -171,7 +177,7 @@ function getUserEmail(user: string) {
 
 Cypress.Commands.add("login", (user: string) => {
   cy.session(user, () => {
-    cy.goToHome();
+    cy.goToPublicHome();
     cy.contains("Sign In").click();
     cy.contains("Email").type(getUserEmail(user));
     cy.contains("Sign in with Email").click();
@@ -300,7 +306,7 @@ Cypress.Commands.add("getWorld", (name: string) => {
 });
 
 Cypress.Commands.add("goToWorld", (name: string) => {
-  cy.visit("/");
+  cy.goToHome();
   cy.navigateToWorld(name);
 });
 
@@ -390,7 +396,7 @@ Cypress.Commands.add("getLanguage", (name: string) => {
 });
 
 Cypress.Commands.add("goToLanguage", (name: string) => {
-  cy.visit("/");
+  cy.goToHome();
   cy.navigateToLanguage(name);
 });
 

@@ -28,8 +28,9 @@ describe("a settings page", () => {
 
   it("allows co-owners that have done nothing more than sign in", () => {
     cy.login("second");
+    cy.intercept("/api/users*").as("user");
     cy.goToHome();
-    cy.waitForApiResult("/api/users*", "user");
+    cy.wait("@user");
     cy.login("default");
     cy.goToHome();
     cy.navigateToLanguage("Examplish");
