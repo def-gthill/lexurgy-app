@@ -92,8 +92,8 @@ function Disclaimer() {
           </AlertDialog.Title>
           <AlertDialog.Description className="AlertDialogDescription">
             <p>
-              Now that you're signed in, you can save your sound changes in the
-              cloud and access them from anywhere.
+              Now that you&apos;re signed in, you can save your sound changes in
+              the cloud and access them from anywhere.
             </p>
             <p>
               <strong>
@@ -105,7 +105,7 @@ function Disclaimer() {
               <strong>
                 The developer can see anything you store here. This information
                 will only be used to troubleshoot the application itself, but
-                don't save anything you need to keep secret.
+                don&apos;t save anything you need to keep secret.
               </strong>
             </p>
           </AlertDialog.Description>
