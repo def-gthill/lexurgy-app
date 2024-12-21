@@ -112,6 +112,17 @@ describe("an SC runner", () => {
     await expectRequestSent(runSoundChanges, "", []);
   });
 
+  it("displays an error message when the sound change callback throws an error", async () => {
+    const runSoundChanges = jest.fn(
+      async (inputs: Scv1Request): Promise<Scv1Response> => {
+        throw new Error("Something went wrong...");
+      }
+    );
+    renderScRunner({ runSoundChanges });
+    await clickApply();
+    expect(screen.getByText("Something went wrong...")).toBeVisible();
+  });
+
   it("shows an extra no-changes column when all traced words don't change", async () => {
     const runSoundChanges = uppercaser();
     renderScRunner({
