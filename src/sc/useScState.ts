@@ -132,11 +132,13 @@ export default function useScState(
             : resultToHistoriesWithoutTracing(result, histories);
         setIntermediateStageNames(intermediateStageNames);
         setHistories(newHistories);
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (error instanceof Error) {
           setError(error.message);
-        } else if (error.response) {
-          setError(toErrorMessage(error.response.data));
+        } else if (error && typeof error === "object" && "response" in error) {
+          setError(toErrorMessage((error.response as { data: string }).data));
+        } else {
+          setError(`${error}`);
         }
       } finally {
         setStatus("Ready");
