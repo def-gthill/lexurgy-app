@@ -40,7 +40,10 @@ export interface ScState {
 
 export default function useScState(
   getRuleNames: (changes: string) => Promise<string[]>,
-  runSoundChanges: (request: Scv1Request) => Promise<Scv1Response>,
+  runSoundChanges: (
+    request: Scv1Request,
+    onUpdate: (message: string) => void
+  ) => Promise<Scv1Response>,
   {
     validationIntervalSeconds = 1,
   }: {
@@ -69,7 +72,9 @@ export default function useScState(
     validate,
     validationIntervalSeconds * 1000
   );
-  const runScWithCaching = useScCaching(runSoundChanges);
+  const runScWithCaching = useScCaching((request) =>
+    runSoundChanges(request, setStatus)
+  );
 
   return {
     soundChanges,
@@ -113,6 +118,7 @@ export default function useScState(
         traceWords: wordsToTrace,
         startAt: startAtEnabled ? startAt : null,
         stopBefore: stopBeforeEnabled ? stopBefore : null,
+        allowPolling: true,
       };
       try {
         const result = await runScWithCaching(request);

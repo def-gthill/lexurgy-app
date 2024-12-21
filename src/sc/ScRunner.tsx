@@ -37,7 +37,10 @@ export default function ScRunner({
     sendData: (data: string) => void
   ) => ReactElement;
   getRuleNames?: (changes: string) => Promise<string[]>;
-  runSoundChanges?: (inputs: Scv1Request) => Promise<Scv1Response>;
+  runSoundChanges?: (
+    inputs: Scv1Request,
+    onUpdate: (message: string) => void
+  ) => Promise<Scv1Response>;
   validationIntervalSeconds?: number;
 }) {
   const [initialSoundChanges, setInitialSoundChanges] = useState("");

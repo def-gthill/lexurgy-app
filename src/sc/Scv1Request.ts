@@ -4,4 +4,5 @@ export default interface Scv1Request {
   traceWords: string[];
   startAt: string | null;
   stopBefore: string | null;
+  allowPolling?: boolean;
 }

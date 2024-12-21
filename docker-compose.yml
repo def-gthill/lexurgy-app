@@ -18,3 +18,4 @@ services:
       - SINGLE_STEP_TIMEOUT=1
       - REQUEST_TIMEOUT=5
       - TOTAL_TIMEOUT=60
+      - FLY_MACHINE_ID=f00ba4
