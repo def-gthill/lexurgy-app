@@ -80,7 +80,8 @@ describe("an SC runner", () => {
       expectedProperties.startAt = startAt;
     }
     expect(runSoundChanges).toHaveBeenCalledWith(
-      expect.objectContaining(expectedProperties)
+      expect.objectContaining(expectedProperties),
+      expect.anything()
     );
   }
 
@@ -108,7 +109,7 @@ describe("an SC runner", () => {
     const runSoundChanges = jest.fn();
     renderScRunner({ runSoundChanges });
     await clickApply();
-    expectRequestSent(runSoundChanges, "", []);
+    await expectRequestSent(runSoundChanges, "", []);
   });
 
   it("shows an extra no-changes column when all traced words don't change", async () => {
@@ -143,13 +144,13 @@ describe("an SC runner", () => {
     });
 
     await clickApply();
-    expectRequestSent(runSoundChanges, "", ["foo"]);
+    await expectRequestSent(runSoundChanges, "", ["foo"]);
     await userEvent.type(screen.getByLabelText("Input Words"), "\nbar");
     await clickApply();
-    expectRequestSent(runSoundChanges, "", ["bar"]);
+    await expectRequestSent(runSoundChanges, "", ["bar"]);
     await userEvent.type(screen.getByLabelText("Input Words"), "\nbaz");
     await clickApply();
-    expectRequestSent(runSoundChanges, "", ["baz"]);
+    await expectRequestSent(runSoundChanges, "", ["baz"]);
   });
 
   it("displays the saved results alongside the new ones", async () => {
@@ -160,11 +161,11 @@ describe("an SC runner", () => {
     });
 
     await clickApply();
-    expectRequestSent(runSoundChanges, "", ["foo"]);
+    await expectRequestSent(runSoundChanges, "", ["foo"]);
     expect(screen.getByText("FOO")).toBeVisible();
     await userEvent.type(screen.getByLabelText("Input Words"), "\nbar");
     await clickApply();
-    expectRequestSent(runSoundChanges, "", ["bar"]);
+    await expectRequestSent(runSoundChanges, "", ["bar"]);
     expect(screen.getByText("FOO")).toBeVisible();
     expect(screen.getByText("BAR")).toBeVisible();
   });
@@ -229,10 +230,10 @@ describe("an SC runner", () => {
     });
 
     await clickApply();
-    expectRequestSent(runSoundChanges, "", ["foo"]);
+    await expectRequestSent(runSoundChanges, "", ["foo"]);
     await userEvent.type(screen.getByLabelText("Sound Changes"), "bar");
     await clickApply();
-    expectRequestSent(runSoundChanges, "bar", ["foo"]);
+    await expectRequestSent(runSoundChanges, "bar", ["foo"]);
   });
 
   it("forgets previous results if any run settings change", async () => {
@@ -245,7 +246,7 @@ describe("an SC runner", () => {
 
     await userEvent.type(screen.getByLabelText("Sound Changes"), "bar");
     await clickApply();
-    expectRequestSent(runSoundChanges, "bar", ["foo"]);
+    await expectRequestSent(runSoundChanges, "bar", ["foo"]);
     await userEvent.click(screen.getByLabelText("Start At Rule"));
     await waitFor(() =>
       userEvent.selectOptions(
@@ -254,7 +255,9 @@ describe("an SC runner", () => {
       )
     );
     await clickApply();
-    expectRequestSent(runSoundChanges, "bar", ["foo"], { startAt: "bar" });
+    await expectRequestSent(runSoundChanges, "bar", ["foo"], {
+      startAt: "bar",
+    });
   });
 
   it("forgets specific rows where tracing is toggled", async () => {
@@ -265,10 +268,10 @@ describe("an SC runner", () => {
     });
 
     await clickApply();
-    expectRequestSent(runSoundChanges, "", ["foo", "bar"]);
+    await expectRequestSent(runSoundChanges, "", ["foo", "bar"]);
     await userEvent.click(screen.getByLabelText("Trace Changes"));
     await toggleTracingOfWord("foo");
     await clickApply();
-    expectRequestSent(runSoundChanges, "", ["foo"]);
+    await expectRequestSent(runSoundChanges, "", ["foo"]);
   });
 });
