@@ -133,10 +133,10 @@ export default function useScState(
         setIntermediateStageNames(intermediateStageNames);
         setHistories(newHistories);
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          setError(error.message);
-        } else if (error && typeof error === "object" && "response" in error) {
+        if (error && typeof error === "object" && "response" in error) {
           setError(toErrorMessage((error.response as { data: string }).data));
+        } else if (error instanceof Error) {
+          setError(error.message);
         } else {
           setError(`${error}`);
         }
