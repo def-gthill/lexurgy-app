@@ -5,9 +5,6 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  experimental: {
-    instrumentationHook: true,
-  },
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
 };
 
