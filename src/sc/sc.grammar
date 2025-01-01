@@ -122,8 +122,8 @@ ElementRef { "@" Name }
 CaptureRef { "~"? "$" "."? Number }
 
 FancyMatrix { "[" ws? (fancyValue (ws fancyValue)* ws?)? "]" }
-fancyValue { matrixValue | NegatedValue | AbsentFeature | FeatureVariable }
-NegatedValue { "!" matrixValue }
+fancyValue { "!"? positiveValue }
+positiveValue { matrixValue | AbsentFeature | FeatureVariable }
 AbsentFeature { "*" Name }
 FeatureVariable { "$" Name }
 
