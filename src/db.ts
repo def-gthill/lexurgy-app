@@ -1,6 +1,7 @@
 import neo4j, { Driver, Relationship } from "neo4j-driver";
 
 export default function getDriver(): Driver {
+  console.log("Getting a Neo4j driver");
   return neo4j.driver(
     process.env.NEO4J_URL || "",
     neo4j.auth.basic(
