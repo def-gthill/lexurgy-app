@@ -157,11 +157,13 @@ export default function ScRunner({
             <button onClick={sc.runSc} className="big-button">
               Apply
             </button>
-            <ShareButton
-              baseUrl={baseUrl}
-              soundChanges={sc.soundChanges}
-              inputWords={testWords}
-            />
+            {baseUrl && (
+              <ShareButton
+                baseUrl={baseUrl}
+                soundChanges={sc.soundChanges}
+                inputWords={testWords}
+              />
+            )}
           </div>
         </div>
         <div style={{ width: "50%" }}>
