@@ -8,8 +8,6 @@ import {
   translationQuery,
 } from "@/translation/translationEndpoint";
 
-const driver = getDriver();
-
 export const glitchQuery = `
 OPTIONAL MATCH (gl) -[:WAS_FOUND_IN]-> (tr:Translation)
 CALL {
@@ -37,6 +35,7 @@ RETURN {
 export async function getGlitches(
   requestQuery: RequestQuery
 ): Promise<Glitch[]> {
+  const driver = await getDriver();
   const languageId = requestQuery.language as string;
   const result = (
     await query<Glitch>(
@@ -50,6 +49,7 @@ export async function getGlitches(
 }
 
 export async function getGlitch(id: string): Promise<Glitch[]> {
+  const driver = await getDriver();
   return (
     await query<FlatGlitch>(
       driver,
@@ -62,6 +62,7 @@ export async function getGlitch(id: string): Promise<Glitch[]> {
 }
 
 export async function deleteGlitch(id: string): Promise<Glitch[]> {
+  const driver = await getDriver();
   return await query<Glitch>(
     driver,
     `MATCH (gl:Glitch {id: $id})

@@ -11,8 +11,6 @@ import SyntaxNode, { structureToRomanized } from "@/translation/SyntaxNode";
 import Translation from "@/translation/Translation";
 import * as crypto from "crypto";
 
-const driver = getDriver();
-
 export const translationQuery = `
 OPTIONAL MATCH (tr) -[:HAS_STRUCTURE]-> (root:SyntaxNode)
 WITH tr, root, lang
@@ -51,6 +49,7 @@ RETURN tr {.id, languageId: lang.id, .romanized, flatStructure: structure, .tran
 export async function postTranslation(
   translation: Translation
 ): Promise<Translation> {
+  const driver = await getDriver();
   if (translation.id) {
     await deleteTranslation(translation.id);
   } else {
@@ -132,6 +131,7 @@ async function getLinkedLexemes(
   languageId: string,
   stems: string[]
 ): Promise<Map<string, Lexeme>> {
+  const driver = await getDriver();
   const linkedLexemes = await query<{ stem: string; lex: Lexeme }>(
     driver,
     `UNWIND $stems AS stem
@@ -165,6 +165,7 @@ function addLexemeLinks(
 export async function getTranslations(
   requestQuery: RequestQuery
 ): Promise<Translation[]> {
+  const driver = await getDriver();
   const languageId = requestQuery.language as string;
   const result = (
     await query<FlatTranslation>(
@@ -180,6 +181,7 @@ export async function getTranslations(
 }
 
 export async function getTranslation(id: string): Promise<Translation[]> {
+  const driver = await getDriver();
   return (
     await query<FlatTranslation>(
       driver,
@@ -210,6 +212,7 @@ export function repair(translation: Translation): Translation {
 }
 
 export async function deleteTranslation(id: string): Promise<Translation[]> {
+  const driver = await getDriver();
   return await query<Translation>(
     driver,
     `MATCH (tr:Translation {id: $id})

@@ -4,11 +4,10 @@ import { SavedLanguage } from "@/language/Language";
 import LanguageAccess, { AccessType } from "@/language/LanguageAccess";
 import { User } from "@/user/User";
 
-const driver = getDriver();
-
 export async function postLanguageAccess(
   access: LanguageAccess
 ): Promise<LanguageAccess> {
+  const driver = await getDriver();
   await execute(
     driver,
     "MATCH (user:User {id: $userId}) -[rel]-> (lang:Language {id: $languageId}) DELETE rel",
@@ -32,6 +31,7 @@ export async function postLanguageAccess(
 export async function getLanguageAccess(
   requestQuery: RequestQuery
 ): Promise<LanguageAccess[]> {
+  const driver = await getDriver();
   const languageId = requestQuery.id as string;
   const queryResult = await query<{
     user: User;

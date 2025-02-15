@@ -3,12 +3,11 @@ import getDriver, { execute, query } from "@/db";
 import Language from "@/language/Language";
 import crypto from "crypto";
 
-const driver = getDriver();
-
 export async function postLanguage(
   language: Language,
   userId: string
 ): Promise<Language> {
+  const driver = await getDriver();
   if (language.id === undefined) {
     language.id = crypto.randomUUID();
   }
@@ -35,6 +34,7 @@ export async function getLanguages(
   requestQuery: RequestQuery,
   userId: string
 ): Promise<Language[]> {
+  const driver = await getDriver();
   const worldId = requestQuery.world;
   let dbQuery;
   if (!worldId) {
@@ -73,6 +73,7 @@ export async function getLanguage(
   id: string,
   userId: string
 ): Promise<Language[]> {
+  const driver = await getDriver();
   return await query<Language>(
     driver,
     `MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language {id: $id})
@@ -86,6 +87,7 @@ export async function deleteLanguage(
   id: string,
   userId: string
 ): Promise<Language[]> {
+  const driver = await getDriver();
   return await query<Language>(
     driver,
     `MATCH (user:User {id: $userId}) -[:OWNS]-> (lang:Language {id: $id})

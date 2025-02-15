@@ -3,11 +3,10 @@ import getDriver, { execute, query } from "@/db";
 import Construction from "@/syntax/Construction";
 import * as crypto from "crypto";
 
-const driver = getDriver();
-
 export async function getConstructions(
   requestQuery: RequestQuery
 ): Promise<Construction[]> {
+  const driver = await getDriver();
   const languageId = requestQuery.language as string;
   const result = (
     await query<Construction>(
@@ -22,6 +21,7 @@ export async function getConstructions(
 export async function postConstruction(
   construction: Construction
 ): Promise<Construction> {
+  const driver = await getDriver();
   if (construction.id === undefined) {
     construction.id = crypto.randomUUID();
   }

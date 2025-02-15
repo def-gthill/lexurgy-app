@@ -5,7 +5,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const driver = getDriver();
+  const driver = await getDriver();
   await execute(driver, "MERGE (:Ping)");
   res.status(200).json("Pinged the database");
 }

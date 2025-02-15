@@ -3,12 +3,11 @@ import ScExampleWorld from "@/sc/ScExampleWorld";
 import { HttpStatusCode } from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 
-const driver = getDriver();
-
 export async function getScExampleWorlds(
   req: NextApiRequest,
   res: NextApiResponse<ScExampleWorld[]>
 ) {
+  const driver = await getDriver();
   if (req.method === "GET") {
     const result = (
       await query<ScExampleWorld>(

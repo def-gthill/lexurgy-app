@@ -1,7 +1,46 @@
-import neo4j, { Driver, Relationship } from "neo4j-driver";
+import neo4j, { Driver, Neo4jError, Relationship } from "neo4j-driver";
 
-export default function getDriver(): Driver {
-  console.log("Getting a Neo4j driver");
+let driver: Driver | null = null;
+
+export default async function getDriver(): Promise<Driver> {
+  if (driver) {
+    return driver;
+  }
+  try {
+    driver = await connectAndVerify();
+    return driver;
+  } catch {
+    // Retry once, if the second try fails let the error propagate
+    driver = await connectAndVerify();
+    return driver;
+  }
+}
+
+async function connectAndVerify(): Promise<Driver> {
+  let driver: Driver | null = null;
+  try {
+    driver = connect();
+    const serverInfo = await driver.getServerInfo();
+    console.log("Connected to Neo4j");
+    console.log(serverInfo);
+    return driver;
+  } catch (error) {
+    if (error instanceof Neo4jError) {
+      console.error(
+        `Error connecting to Neo4j: ${error}\nCause: ${error.cause}`
+      );
+    } else {
+      console.error(`Error connecting to Neo4j: ${error}`);
+    }
+    if (driver) {
+      await driver.close();
+    }
+    throw error;
+  }
+}
+
+function connect(): Driver {
+  console.log("Creating a Neo4j driver");
   return neo4j.driver(
     process.env.NEO4J_URL || "",
     neo4j.auth.basic(

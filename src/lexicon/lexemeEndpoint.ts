@@ -3,11 +3,10 @@ import getDriver, { execute, query } from "@/db";
 import Lexeme, { SavedLexeme } from "@/lexicon/Lexeme";
 import { RequiredKeys } from "@/models/RequiredKeys";
 
-const driver = getDriver();
-
 export async function getLexemes(
   requestQuery: RequestQuery
 ): Promise<SavedLexeme[]> {
+  const driver = await getDriver();
   const languageId = requestQuery.language as string;
   const result = (
     await query<RequiredKeys<Lexeme, "id">>(
@@ -22,6 +21,7 @@ export async function getLexemes(
 export async function postLexeme(
   lexeme: RequiredKeys<Lexeme, "languageId">
 ): Promise<SavedLexeme> {
+  const driver = await getDriver();
   const lexemeWithId = addId(lexeme);
   await execute(
     driver,

@@ -26,6 +26,7 @@ export async function getOrCreateUserByUsername(
 }
 
 async function createOrRetrieveExistingUser(user: User): Promise<User> {
+  const driver = await getDriver();
   const existingUser = await getExistingUserByUsername(user.username);
   if (existingUser) {
     return existingUser;
@@ -57,6 +58,7 @@ async function getExistingUserByUsername(
 }
 
 async function getUserArrayByUsername(username: string): Promise<User[]> {
+  const driver = await getDriver();
   return await query<User>(
     driver,
     "MATCH (user:User {username: $username}) return user",

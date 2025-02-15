@@ -2,8 +2,6 @@ import getDriver, { execute } from "@/db";
 import { HttpStatusCode } from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 
-const driver = getDriver();
-
 const query = `
 MATCH (tr:Translation {id: $id})
 OPTIONAL MATCH (tr) -[:IS_IN]-> (lang:Language)
@@ -34,6 +32,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<string>
 ) {
+  const driver = await getDriver();
   if (req.method === "POST") {
     const { id } = req.query;
     if (typeof id !== "string") {

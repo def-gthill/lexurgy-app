@@ -6,10 +6,10 @@ import Evolution, {
   SavedEvolution,
 } from "@/sc/Evolution";
 
-const driver = getDriver();
 export async function getEvolutions(
   requestQuery: RequestQuery
 ): Promise<SavedEvolution[]> {
+  const driver = await getDriver();
   const languageId = requestQuery.language as string;
   const result = (
     await query<RequiredKeys<Evolution, "id">>(
@@ -24,6 +24,7 @@ export async function getEvolutions(
 export async function postEvolution(
   evolution: EvolutionWithLanguageId
 ): Promise<SavedEvolution> {
+  const driver = await getDriver();
   const evolutionWithId = addId(evolution);
   await execute(
     driver,
