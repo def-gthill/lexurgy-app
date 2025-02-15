@@ -5,7 +5,7 @@ import styles from "@/sc/scPublicPage.module.css";
 import { decode } from "js-base64";
 import { useRouter } from "next/router";
 
-const baseUrl = "www.lexurgy.com";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "www.lexurgy.com";
 
 export default function ScPublic() {
   const router = useRouter();

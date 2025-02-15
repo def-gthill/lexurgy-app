@@ -22,7 +22,7 @@ import {
   useState,
 } from "react";
 
-const baseUrl = "www.lexurgy.com";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "www.lexurgy.com";
 
 export default function ScExamples() {
   const worldCollection = useReadOnlyPersistentCollection<ScExampleWorld>(

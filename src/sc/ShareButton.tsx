@@ -6,7 +6,7 @@ export default function ShareButton({
   soundChanges,
   inputWords,
 }: {
-  baseUrl: string | null;
+  baseUrl: string;
   soundChanges: string;
   inputWords: string[];
 }) {
@@ -19,9 +19,7 @@ export default function ShareButton({
   function share() {
     const inputWordsEncoded = encode(inputWords.join("\n"), true);
     const soundChangesEncoded = encode(soundChanges, true);
-    const url = `${
-      baseUrl ?? "www.lexurgy.com"
-    }/sc?changes=${soundChangesEncoded}&input=${inputWordsEncoded}`;
+    const url = `${baseUrl}/sc?changes=${soundChangesEncoded}&input=${inputWordsEncoded}`;
     copy(url);
     alert("Link copied to clipboard!");
   }

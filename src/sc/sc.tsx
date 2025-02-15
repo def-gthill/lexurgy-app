@@ -9,7 +9,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-const baseUrl = "www.lexurgy.com";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "www.lexurgy.com";
 
 export default function Sc() {
   const router = useRouter();
