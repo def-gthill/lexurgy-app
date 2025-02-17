@@ -9,6 +9,7 @@ const publicPages = [
   "/api/daily",
   "/api/scExampleWorlds",
   "/logo.png",
+  "/favicon.png",
 ];
 
 const publicPaths = ["/sc/docs"];
