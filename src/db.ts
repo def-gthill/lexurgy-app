@@ -23,6 +23,9 @@ async function connectAndVerify(): Promise<Driver> {
     const serverInfo = await driver.getServerInfo();
     console.log("Connected to Neo4j");
     console.log(serverInfo);
+
+    await ensureUniqueUserConstraint(driver);
+
     return driver;
   } catch (error) {
     if (error instanceof Neo4jError) {
@@ -49,6 +52,14 @@ function connect(): Driver {
     ),
     { disableLosslessIntegers: true }
   );
+}
+
+async function ensureUniqueUserConstraint(driver: Driver) {
+  const query = `CREATE CONSTRAINT uniqueUsers IF NOT EXISTS
+  FOR (n:User)
+  REQUIRE n.username IS UNIQUE
+  `;
+  await execute(driver, query);
 }
 
 export async function execute(
