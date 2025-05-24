@@ -75,6 +75,16 @@
   padding-right: 4px;
 }
 
+.inputCell {
+  max-width: 10rem;
+  overflow-x: auto;
+}
+
+.outputCell {
+  max-width: 20rem;
+  overflow-x: auto;
+}
+
 .errorPopover {
   background-color: var(--card-background);
   border-style: solid;

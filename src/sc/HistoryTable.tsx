@@ -128,7 +128,9 @@ export default function HistoryTable({
                         />
                       </td>
                     )}
-                    <td className={`${styles.cell} ${inputColumnStyle}`}>
+                    <td
+                      className={`${styles.cell} ${styles.inputCell} ${inputColumnStyle}`}
+                    >
                       <b>{history.inputWord}</b>
                     </td>
                     {showingStages &&
@@ -137,12 +139,15 @@ export default function HistoryTable({
                         const intermediateWord =
                           history.intermediates.get(name) ?? "";
                         return (
-                          <td className={styles.cell} key={name}>
+                          <td
+                            className={`${styles.cell} ${styles.outputCell}`}
+                            key={name}
+                          >
                             {outputCell(history.inputWord, intermediateWord)}
                           </td>
                         );
                       })}
-                    <td className={styles.cell}>
+                    <td className={`${styles.cell} ${styles.outputCell}`}>
                       {outputCell(history.inputWord, history.outputWord ?? "")}
                     </td>
                   </tr>
