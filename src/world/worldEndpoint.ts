@@ -29,7 +29,10 @@ export async function getWorlds(
   const driver = await getDriver();
   return await query<SavedWorld>(
     driver,
-    "MATCH (user:User {id: $userId}) -[:OWNS]-> (world: World) RETURN world;",
+    `MATCH (user:User {id: $userId}) -[:OWNS]-> (world: World)
+    OPTIONAL MATCH (world) <-[:IS_IN]- (language: Language)
+    WITH world, count(language) as numLanguages
+    RETURN world { .*, numLanguages: numLanguages };`,
     { userId }
   );
 }
@@ -41,7 +44,10 @@ export async function getWorld(
   const driver = await getDriver();
   return await query<SavedWorld>(
     driver,
-    "MATCH (user:User {id: $userId}) -[:OWNS]-> (world:World {id: $id}) RETURN world;",
+    `MATCH (user:User {id: $userId}) -[:OWNS]-> (world:World {id: $id})
+    OPTIONAL MATCH (world) <-[:IS_IN]- (language: Language)
+    WITH world, count(language) as numLanguages
+    RETURN world { .*, numLanguages: numLanguages };`,
     { id, userId }
   );
 }

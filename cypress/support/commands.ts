@@ -60,6 +60,7 @@ declare global {
       clickNavigationLink(name: string): Chainable<void>;
       previewShowsJsonOf(value: any): Chainable<void>;
       createWorld(name: string, description?: string): Chainable<void>;
+      deleteWorld(name: string): Chainable<void>;
       createWorldWithApi(name: string, description?: string): Chainable<void>;
       updateWorldWithApi(name: string, update: Partial<World>): Chainable<void>;
       createExampleWorldWithApi(
@@ -236,6 +237,12 @@ Cypress.Commands.add("createWorld", (name: string, description?: string) => {
     cy.contains("Description").type(description);
   }
   cy.contains("Save").click();
+});
+
+Cypress.Commands.add("deleteWorld", (name: string) => {
+  cy.contains(name).parents(".card").contains("Delete").click();
+  cy.get("#confirm").type(name);
+  cy.get(".AlertDialogContent").contains("Delete").click();
 });
 
 Cypress.Commands.add(

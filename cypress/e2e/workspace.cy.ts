@@ -41,6 +41,24 @@ describe("the workspace page", () => {
     cy.contains("Home of Betamax Crinkledash");
   });
 
+  it("lets the user delete an empty world", () => {
+    cy.createWorld("Handwavia", "Home of Betamax Crinkledash");
+    cy.deleteWorld("Handwavia");
+    cy.contains("Handwavia").should("not.exist");
+  });
+
+  it("doesn't let the user delete a world with a language", () => {
+    cy.createWorld("Handwavia", "Home of Betamax Crinkledash");
+    cy.navigateToWorld("Handwavia");
+    cy.contains("Home of Betamax Crinkledash");
+    cy.createLanguage("Worldish");
+    cy.goToHome();
+    cy.contains("Handwavia")
+      .parents(".card")
+      .contains("Delete")
+      .should("not.exist");
+  });
+
   it("doesn't list languages in worlds", () => {
     cy.createWorldWithApi("Handwavia", "Home of Betamax Crinkledash");
     cy.createLanguageWithApi("Unwantese", { world: "Handwavia" });
@@ -59,7 +77,7 @@ describe("the workspace page", () => {
     cy.contains("Examplish");
   });
 
-  it.only("lets the admin user mark a world as an example world", () => {
+  it("lets the admin user mark a world as an example world", () => {
     cy.createWorldWithApi("Handwavia", "Home of Betamax Crinkledash");
     cy.createLanguageWithApi("Worldish", { world: "Handwavia" });
     cy.createEvolutionWithApi("Worldish", {

@@ -34,22 +34,31 @@ export function Workspace() {
             initialValue={emptyWorld()}
             onSave={(value) => worldCollection.save(value)}
           />
-          {worlds.map((world) => (
-            <FeatureHider
-              key={world.id}
-              getVisibleChild={async () => {
-                const userType = (await axios.get("/api/userType")).data;
-                return userType.hasAdminAccess ? 1 : 0;
-              }}
-            >
-              <WorldInfoView world={world} onUpdate={worldCollection.save} />
-              <WorldInfoView
-                world={world}
-                onUpdate={worldCollection.save}
-                exampleSwitchEnabled
-              />
-            </FeatureHider>
-          ))}
+          {worlds.map((world) => {
+            const onDelete =
+              world.numLanguages === 0 ? worldCollection.delete : undefined;
+            return (
+              <FeatureHider
+                key={world.id}
+                getVisibleChild={async () => {
+                  const userType = (await axios.get("/api/userType")).data;
+                  return userType.hasAdminAccess ? 1 : 0;
+                }}
+              >
+                <WorldInfoView
+                  world={world}
+                  onUpdate={worldCollection.save}
+                  onDelete={onDelete}
+                />
+                <WorldInfoView
+                  world={world}
+                  onUpdate={worldCollection.save}
+                  onDelete={onDelete}
+                  exampleSwitchEnabled
+                />
+              </FeatureHider>
+            );
+          })}
         </>
       );
     },
