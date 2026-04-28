@@ -296,3 +296,10 @@ button.danger:disabled {
     color-scheme: dark;
   }
 }
+
+@media (max-width: 650px) {
+  .AlertDialogContent {
+    left: 0;
+    transform: translate(0, -50%);
+  }
+}
