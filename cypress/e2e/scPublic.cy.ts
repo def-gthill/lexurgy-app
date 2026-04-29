@@ -167,6 +167,20 @@ describe("the public sound changer page", () => {
     cy.startSc();
     cy.scOutputWordsAre(["faa", "bar"]);
   });
+
+  it("preserves state through page refresh", () => {
+    cy.goToScPublic({
+      inputWords: ["foo", "bar"],
+      changes: "my-rule:\n o => a",
+    });
+    cy.scInputWordsAre(["foo", "bar"]);
+    cy.startSc();
+    cy.scOutputWordsAre(["faa", "bar"]);
+    cy.visit("/sc");
+    cy.scInputWordsAre(["foo", "bar"]);
+    cy.startSc();
+    cy.scOutputWordsAre(["faa", "bar"]);
+  });
 });
 
 export {};

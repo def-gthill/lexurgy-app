@@ -121,6 +121,7 @@ declare global {
       scEnterSoundChanges(soundChanges: string): Chainable<void>;
       scStartAt(ruleName: string): Chainable<void>;
       scToggleTracing(): Chainable<void>;
+      scChangesAre(expectedChanges: string): Chainable<void>;
       scInputWordsAre(expectedWords: string[]): Chainable<void>;
       scOutputWordsAre(expectedWords: string[]): Chainable<void>;
       scIntermediateWordsAre(

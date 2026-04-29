@@ -154,7 +154,7 @@ export default function ScRunner({
           }}
         >
           <div className="buttons">
-            <button onClick={sc.runSc} className="big-button">
+            <button onClick={runSc} className="big-button">
               Apply
             </button>
             {baseUrl && (
@@ -235,6 +235,16 @@ export default function ScRunner({
     if (onUpdate) {
       onUpdate(newEvolution);
     }
+  }
+
+  function runSc() {
+    if (onUpdate) {
+      onUpdate({
+        soundChanges: sc.soundChanges,
+        testWords,
+      });
+    }
+    sc.runSc();
   }
 }
 
