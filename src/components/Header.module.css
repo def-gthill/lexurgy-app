@@ -33,6 +33,10 @@
   justify-content: right;
 }
 
+.rightGroupNarrow {
+  display: none;
+}
+
 .NavigationMenuLink {
   display: block;
   cursor: pointer;
@@ -45,4 +49,47 @@
 .NavigationMenuLink:hover,
 .NavigationMenuLink[data-active] {
   background-color: var(--primary-dark);
+}
+
+.narrowNavTriggerItem {
+  position: relative;
+}
+
+.narrowNavTriggerIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.narrowNavContent {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  background-color: var(--primary);
+  padding: 4px;
+}
+
+.narrowNavList {
+  list-style: none;
+  padding: 0;
+}
+
+.narrowNavSeparator {
+  height: 1px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  background-color: var(--foreground-always-light);
+}
+
+@media (max-width: 875px) {
+  .centreGroup {
+    display: none;
+  }
+
+  .rightGroupWide {
+    display: none;
+  }
+
+  .rightGroupNarrow {
+    display: flex;
+  }
 }

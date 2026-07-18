@@ -1,4 +1,6 @@
 import { User } from "@/user/User";
+import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { Separator } from "radix-ui";
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import axios from "axios";
 import { signOut, useSession } from "next-auth/react";
@@ -16,6 +18,7 @@ export default function Header({
   active?: string;
 }) {
   const session = useSession();
+
   useEffect(() => {
     const username = session.data?.user?.email;
     if (username) {
@@ -27,6 +30,37 @@ export default function Header({
       });
     }
   }, [session]);
+
+  const navLinks = [
+    <NavigationMenu.Link
+      key="github"
+      className={styles.NavigationMenuLink}
+      href="https://github.com/def-gthill/lexurgy-app"
+      target="_blank"
+      rel="noopener"
+    >
+      GitHub
+    </NavigationMenu.Link>,
+    <NavigationMenu.Link
+      key="donate"
+      className={styles.NavigationMenuLink}
+      href="https://ko-fi.com/meamoria"
+      target="_blank"
+      rel="noopener"
+    >
+      Donate
+    </NavigationMenu.Link>,
+    <NavigationMenu.Link
+      key="old"
+      className={styles.NavigationMenuLink}
+      href="https://lexurgy.vercel.app/sc"
+      target="_blank"
+      rel="noopener"
+    >
+      Old Version
+    </NavigationMenu.Link>,
+  ];
+
   return (
     <NavigationMenu.Root className={styles.NavigationMenuRoot}>
       <NavigationMenu.List className={styles.NavigationMenuList}>
@@ -45,46 +79,48 @@ export default function Header({
             </NavigationMenu.Item>
           ))}
         </div>
-        <div className={styles.rightGroup}>
+        <div className={`${styles.rightGroup} ${styles.rightGroupWide}`}>
+          {navLinks.map((navLink) => (
+            <NavigationMenu.Item key={navLink.key}>
+              {navLink}
+            </NavigationMenu.Item>
+          ))}
           <NavigationMenu.Item>
-            <NavigationMenu.Link
-              className={styles.NavigationMenuLink}
-              href="https://github.com/def-gthill/lexurgy-app"
-              target="_blank"
-              rel="noopener"
+            <AccountLink session={session} />
+          </NavigationMenu.Item>
+        </div>
+        <div className={`${styles.rightGroup} ${styles.rightGroupNarrow}`}>
+          <NavigationMenu.Item className={styles.narrowNavTriggerItem}>
+            <NavigationMenu.Trigger
+              className={`${styles.NavigationMenuLink} ${styles.narrowNavTrigger}`}
             >
-              GitHub
-            </NavigationMenu.Link>
+              <HamburgerMenuIcon
+                className={styles.narrowNavTriggerIcon}
+                aria-label="Menu"
+              />
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.narrowNavContent}>
+              <ul className={styles.narrowNavList}>
+                {links && links.length > 0 && (
+                  <>
+                    {links?.map(({ label, url }) => (
+                      <li key={label}>
+                        <Link href={url} active={active === label}>
+                          {label}
+                        </Link>
+                      </li>
+                    ))}
+                    <Separator.Root className={styles.narrowNavSeparator} />
+                  </>
+                )}
+                {navLinks.map((navLink) => (
+                  <li key={navLink.key}>{navLink}</li>
+                ))}
+              </ul>
+            </NavigationMenu.Content>
           </NavigationMenu.Item>
           <NavigationMenu.Item>
-            <NavigationMenu.Link
-              className={styles.NavigationMenuLink}
-              href="https://ko-fi.com/meamoria"
-              target="_blank"
-              rel="noopener"
-            >
-              Donate
-            </NavigationMenu.Link>
-          </NavigationMenu.Item>
-          <NavigationMenu.Item>
-            {session.data?.user ? (
-              <NavigationMenu.Link
-                className={styles.NavigationMenuLink}
-                href="#"
-                onSelect={() => {
-                  signOut();
-                }}
-              >
-                Sign Out
-              </NavigationMenu.Link>
-            ) : (
-              <NavigationMenu.Link
-                className={styles.NavigationMenuLink}
-                href="/api/auth/signin?callbackUrl=%2Fsc"
-              >
-                Sign In
-              </NavigationMenu.Link>
-            )}
+            <AccountLink session={session} />
           </NavigationMenu.Item>
         </div>
       </NavigationMenu.List>
@@ -97,5 +133,26 @@ function Link({ href, ...props }: { href: string; [index: string]: unknown }) {
     <NextLink href={href} passHref legacyBehavior>
       <NavigationMenu.Link className={styles.NavigationMenuLink} {...props} />
     </NextLink>
+  );
+}
+
+function AccountLink({ session }: { session: ReturnType<typeof useSession> }) {
+  return session.data?.user ? (
+    <NavigationMenu.Link
+      className={styles.NavigationMenuLink}
+      href="#"
+      onSelect={() => {
+        signOut();
+      }}
+    >
+      Sign Out
+    </NavigationMenu.Link>
+  ) : (
+    <NavigationMenu.Link
+      className={styles.NavigationMenuLink}
+      href="/api/auth/signin?callbackUrl=%2Fsc"
+    >
+      Sign In
+    </NavigationMenu.Link>
   );
 }
