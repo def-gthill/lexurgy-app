@@ -30,4 +30,9 @@ describe("the toNiceName function", () => {
 
     expect(result).toBe("Some Name (Cleanup)");
   });
+
+  it("converts a rule called 'cleanup' to 'Cleanup'", () => {
+    const result = toNiceName("cleanup");
+    expect(result).toBe("Cleanup");
+  })
 });

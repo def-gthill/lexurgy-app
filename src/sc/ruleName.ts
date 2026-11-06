@@ -1,13 +1,13 @@
 export function toNiceName(name: string): string {
   const [nameWithoutDetail, ...detail] = name.split("/");
   const words = nameWithoutDetail.split("-");
-  words[0] = removeAngleBrackets(words[0]);
-  if (words[0] === "cleanup") {
+  if (words[0] === "<cleanup>") {
     return `${detail[1]
       .split("-")
       .map(uppercaseFirstLetter)
       .join(" ")} (Cleanup)`;
   } else {
+    words[0] = removeAngleBrackets(words[0]);
     const result = words.map(uppercaseFirstLetter).join(" ");
     return result;
   }
